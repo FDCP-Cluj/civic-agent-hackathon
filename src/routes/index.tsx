@@ -34,7 +34,6 @@ import { isSupabaseConfigured } from "@/services/supabaseClient";
 import { useSpeechRecognition } from "@/hooks/use-speech-recognition";
 import { toast } from "sonner";
 import { HomeWelcomeHeader } from "@/components/dashboard/home-welcome-header";
-import { ServiceHealthStrip } from "@/components/service-health-strip";
 
 export const Route = createFileRoute("/")({ component: Dashboard });
 
@@ -228,8 +227,6 @@ function Dashboard() {
           </CardContent>
         </Card>
       ) : null}
-
-      <ServiceHealthStrip />
 
       {!aiEnabled ? (
         <Card className="mt-4 border-warning/30 bg-warning/5 shadow-none">

@@ -28,7 +28,7 @@ function AntecontractPage() {
   if (id !== "property-sale") {
     return (
       <AppShell>
-        <Card className="p-5">
+        <Card className="mt-5 border-border/80 p-5 shadow-none">
           <p className="text-sm">
             Antecontractul asistat este disponibil pentru fluxul de vânzare imobil.
           </p>
@@ -59,7 +59,7 @@ function AntecontractPage() {
       arvuna: deposit || undefined,
       termenAutentificare: term || undefined,
     });
-    downloadPdf(bytes, "civis-antecontract-preview.pdf");
+    downloadPdf(bytes, "acteai-antecontract-preview.pdf");
     toast.success("Antecontract draft generat.");
   };
 
@@ -77,59 +77,61 @@ function AntecontractPage() {
         </Button>
       </PageHeader>
 
-      <Card className="mt-4 p-4 space-y-3">
-        <div className="text-sm font-semibold">Date cumpărător</div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div className="space-y-1.5">
-            <Label>Nume cumpărător</Label>
-            <Input value={buyerName} onChange={(e) => setBuyerName(e.target.value)} />
+      <div className="mt-5 space-y-5">
+        <Card className="space-y-3 border-border/80 p-4 shadow-none">
+          <div className="text-sm font-semibold">Date cumpărător</div>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div className="space-y-1.5">
+              <Label>Nume cumpărător</Label>
+              <Input value={buyerName} onChange={(e) => setBuyerName(e.target.value)} />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Adresă cumpărător</Label>
+              <Input value={buyerAddress} onChange={(e) => setBuyerAddress(e.target.value)} />
+            </div>
           </div>
-          <div className="space-y-1.5">
-            <Label>Adresă cumpărător</Label>
-            <Input value={buyerAddress} onChange={(e) => setBuyerAddress(e.target.value)} />
-          </div>
-        </div>
 
-        <div className="text-sm font-semibold pt-2">Date imobil</div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div className="space-y-1.5 sm:col-span-2">
-            <Label>Adresă imobil</Label>
-            <Input value={propertyAddress} onChange={(e) => setPropertyAddress(e.target.value)} />
+          <div className="pt-2 text-sm font-semibold">Date imobil</div>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div className="space-y-1.5 sm:col-span-2">
+              <Label>Adresă imobil</Label>
+              <Input value={propertyAddress} onChange={(e) => setPropertyAddress(e.target.value)} />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Număr cadastral</Label>
+              <Input value={cadastralNo} onChange={(e) => setCadastralNo(e.target.value)} />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Preț</Label>
+              <Input
+                value={price}
+                onChange={(e) => setPrice(e.target.value)}
+                placeholder="85000 EUR"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Arvună (opțional)</Label>
+              <Input
+                value={deposit}
+                onChange={(e) => setDeposit(e.target.value)}
+                placeholder="5000 EUR"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Termen autentificare (opțional)</Label>
+              <Input
+                value={term}
+                onChange={(e) => setTerm(e.target.value)}
+                placeholder="30.06.2026"
+              />
+            </div>
           </div>
-          <div className="space-y-1.5">
-            <Label>Număr cadastral</Label>
-            <Input value={cadastralNo} onChange={(e) => setCadastralNo(e.target.value)} />
-          </div>
-          <div className="space-y-1.5">
-            <Label>Preț</Label>
-            <Input
-              value={price}
-              onChange={(e) => setPrice(e.target.value)}
-              placeholder="85000 EUR"
-            />
-          </div>
-          <div className="space-y-1.5">
-            <Label>Arvună (opțional)</Label>
-            <Input
-              value={deposit}
-              onChange={(e) => setDeposit(e.target.value)}
-              placeholder="5000 EUR"
-            />
-          </div>
-          <div className="space-y-1.5">
-            <Label>Termen autentificare (opțional)</Label>
-            <Input
-              value={term}
-              onChange={(e) => setTerm(e.target.value)}
-              placeholder="30.06.2026"
-            />
-          </div>
-        </div>
-      </Card>
+        </Card>
 
-      <Button onClick={handleGenerate} className="w-full mt-4">
-        <FileDown className="size-4" /> Generează PDF antecontract
-      </Button>
+        <Button onClick={handleGenerate} className="w-full">
+          <FileDown className="size-4" /> Generează PDF antecontract
+        </Button>
+      </div>
     </AppShell>
   );
 }

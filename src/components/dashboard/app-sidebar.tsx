@@ -5,7 +5,6 @@ import {
   ListChecks,
   MessageCircle,
   ScanLine,
-  Settings,
   ScrollText,
   Sparkles,
 } from "lucide-react";
@@ -28,7 +27,6 @@ const NAV_ITEMS = [
   { to: "/tasks", label: "Sarcini", icon: ListChecks },
   { to: "/scan", label: "Scanare", icon: ScanLine },
   { to: "/chat", label: "Chat", icon: MessageCircle },
-  { to: "/settings", label: "Setări", icon: Settings },
 ] as const;
 
 export function AppSidebar() {

@@ -21,22 +21,20 @@ export function EmptyState({
   return (
     <div
       className={cn(
-        "rounded-2xl border border-dashed border-border bg-gradient-to-b from-accent/20 to-transparent",
-        "px-6 py-10 flex flex-col items-center text-center animate-[fade-in_0.4s_ease-out]",
+        "flex flex-col items-center rounded-xl border border-border/80 bg-card px-6 py-10 text-center shadow-none",
         className,
       )}
     >
       <div
         className={cn(
-          "relative size-16 rounded-2xl flex items-center justify-center mb-4",
-          tone === "primary" ? "bg-primary/10" : "bg-accent",
+          "mb-4 flex size-14 items-center justify-center rounded-xl",
+          tone === "primary" ? "bg-primary/10" : "bg-accent/50",
         )}
       >
-        <div className="absolute inset-0 rounded-2xl bg-primary/5 animate-ping opacity-50" />
-        <Icon className="size-7 text-primary relative" />
+        <Icon className="size-6 text-primary" />
       </div>
       <h3 className="text-base font-semibold tracking-tight mb-1.5">{title}</h3>
-      <p className="text-sm text-muted-foreground max-w-xs mb-5 leading-relaxed">{description}</p>
+      <p className="mb-5 text-sm leading-relaxed text-muted-foreground">{description}</p>
       {action}
     </div>
   );

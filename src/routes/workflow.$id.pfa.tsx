@@ -39,7 +39,7 @@ function PfaWizardPage() {
   if (id !== "pfa-registration") {
     return (
       <AppShell>
-        <Card className="p-5">
+        <Card className="mt-5 border-border/80 p-5 shadow-none">
           <p className="text-sm">Acest wizard este disponibil doar pentru fluxul PFA.</p>
           <Button asChild className="mt-3">
             <Link to="/workflow/$id" params={{ id }}>
@@ -76,7 +76,7 @@ function PfaWizardPage() {
       sediuProfesional: profile.address || undefined,
       doarAdresaAdministrativa: false,
     });
-    downloadPdf(bytes, "civis-declaratie-pfa-wizard.pdf");
+    downloadPdf(bytes, "acteai-declaratie-pfa-wizard.pdf");
     toast.success("Declarația PFA a fost generată.");
   };
 
@@ -94,67 +94,69 @@ function PfaWizardPage() {
         </Button>
       </PageHeader>
 
-      <Card className="mb-4 mt-4 p-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div className="space-y-1.5 sm:col-span-2">
-            <Label>Descrie activitatea ta</Label>
-            <Input
-              value={activity}
-              onChange={(e) => setActivity(e.target.value)}
-              placeholder="Ex: dezvoltare software web pentru companii mici"
-            />
+      <div className="mt-5 space-y-5">
+        <Card className="border-border/80 p-4 shadow-none">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div className="space-y-1.5 sm:col-span-2">
+              <Label>Descrie activitatea ta</Label>
+              <Input
+                value={activity}
+                onChange={(e) => setActivity(e.target.value)}
+                placeholder="Ex: dezvoltare software web pentru companii mici"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Cod CAEN principal</Label>
+              <Input
+                value={caenCode}
+                onChange={(e) => setCaenCode(e.target.value)}
+                placeholder="6201"
+                className="font-mono"
+              />
+            </div>
+            <div className="flex items-end">
+              <Button onClick={handleSuggest} disabled={ragLoading} className="w-full">
+                <Sparkles className="size-4" />
+                {ragLoading ? "Caut..." : "Sugerează CAEN (RAG)"}
+              </Button>
+            </div>
           </div>
-          <div className="space-y-1.5">
-            <Label>Cod CAEN principal</Label>
-            <Input
-              value={caenCode}
-              onChange={(e) => setCaenCode(e.target.value)}
-              placeholder="6201"
-              className="font-mono"
-            />
-          </div>
-          <div className="flex items-end">
-            <Button onClick={handleSuggest} disabled={ragLoading} className="w-full">
-              <Sparkles className="size-4" />
-              {ragLoading ? "Caut..." : "Sugerează CAEN (RAG)"}
-            </Button>
-          </div>
-        </div>
 
-        {ragSource && (
-          <div className="mt-3 text-sm text-muted-foreground">
-            Sursă sugestii:{" "}
-            <strong>{ragSource === "supabase_rag" ? "RAG Supabase" : "fallback local"}</strong>
-          </div>
-        )}
+          {ragSource && (
+            <div className="mt-3 text-sm text-muted-foreground">
+              Sursă sugestii:{" "}
+              <strong>{ragSource === "supabase_rag" ? "RAG Supabase" : "fallback local"}</strong>
+            </div>
+          )}
 
-        {suggestions.length > 0 && (
-          <ul className="mt-3 space-y-2">
-            {suggestions.slice(0, 5).map((s) => (
-              <li key={s.code} className="rounded-lg border border-border p-2">
-                <div className="text-sm font-mono text-primary">{s.code}</div>
-                <div className="text-sm">{s.title}</div>
+          {suggestions.length > 0 && (
+            <ul className="mt-3 space-y-2">
+              {suggestions.slice(0, 5).map((s) => (
+                <li key={s.code} className="rounded-lg border border-border p-2">
+                  <div className="text-sm font-mono text-primary">{s.code}</div>
+                  <div className="text-sm">{s.title}</div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </Card>
+
+        <Card className="border-border/80 p-4 shadow-none">
+          <div className="mb-2 text-sm font-semibold">Checklist ghidat</div>
+          <ul className="space-y-2">
+            {steps.map((s) => (
+              <li key={s} className="flex items-center gap-2.5 text-sm">
+                <CheckCircle2 className="size-4 shrink-0 text-success" />
+                <span>{s}</span>
               </li>
             ))}
           </ul>
-        )}
-      </Card>
+        </Card>
 
-      <Card className="p-4 mb-4">
-        <div className="text-sm font-semibold mb-2">Checklist ghidat</div>
-        <ul className="space-y-2">
-          {steps.map((s) => (
-            <li key={s} className="flex items-center gap-2.5 text-sm">
-              <CheckCircle2 className="size-4 text-success shrink-0" />
-              <span>{s}</span>
-            </li>
-          ))}
-        </ul>
-      </Card>
-
-      <Button onClick={handleGeneratePdf} className="w-full">
-        <FileDown className="size-4" /> Generează declarație PFA
-      </Button>
+        <Button onClick={handleGeneratePdf} className="w-full">
+          <FileDown className="size-4" /> Generează declarație PFA
+        </Button>
+      </div>
     </AppShell>
   );
 }
