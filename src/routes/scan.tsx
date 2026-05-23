@@ -126,30 +126,32 @@ function Scan() {
         </Button>
       </PageHeader>
 
-      {phase === "idle" && (
-        <Card className="mt-4 border-border/80 p-10 text-center shadow-none">
-          <div className="relative size-20 mx-auto mb-4">
-            <div className="absolute inset-0 rounded-2xl bg-accent" />
-            <FileText className="size-10 text-primary absolute inset-0 m-auto" />
-          </div>
-          <p className="text-sm text-muted-foreground mb-6 max-w-xs mx-auto">
-            Atașează o poză. Vom rula OCR + clasificare 100% local pentru a-ți spune ce tip de
-            document este și ce conține.
-          </p>
-          <input ref={fileRef} type="file" accept="image/*" onChange={onFile} className="hidden" />
-          <Button onClick={() => fileRef.current?.click()}>
-            <Upload className="size-4" /> Alege fișier
-          </Button>
-        </Card>
-      )}
+      <div className="mt-5 w-full space-y-5">
+        {phase === "idle" && (
+          <Card className="border-border/80 p-10 text-center shadow-none">
+            <div className="relative mx-auto mb-4 size-20">
+              <div className="absolute inset-0 rounded-2xl bg-accent" />
+              <FileText className="absolute inset-0 m-auto size-10 text-primary" />
+            </div>
+            <p className="mx-auto mb-6 text-sm text-muted-foreground">
+              Atașează o poză. Vom rula OCR + clasificare 100% local pentru a-ți spune ce tip de
+              document este și ce conține.
+            </p>
+            <input ref={fileRef} type="file" accept="image/*" onChange={onFile} className="hidden" />
+            <Button onClick={() => fileRef.current?.click()}>
+              <Upload className="size-4" /> Alege fișier
+            </Button>
+          </Card>
+        )}
 
-      {phase === "scanning" && (
-        <ScanningView fileName={fileName} progress={progress} stage={stage} />
-      )}
+        {phase === "scanning" && (
+          <ScanningView fileName={fileName} progress={progress} stage={stage} />
+        )}
 
-      {phase === "done" && result && (
-        <ResultView result={result} onReset={reset} onAdopt={adoptToVault} />
-      )}
+        {phase === "done" && result && (
+          <ResultView result={result} onReset={reset} onAdopt={adoptToVault} />
+        )}
+      </div>
     </AppShell>
   );
 }
@@ -168,7 +170,7 @@ function ScanningView({
   const label = stageLabel(stage);
   const pct = Math.max(5, Math.round(progress * 100));
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       <Card className="overflow-hidden border-border/80 p-5 shadow-none">
         <div className="text-xs text-muted-foreground mb-3 flex items-center justify-between">
           <span className="flex items-center gap-2">
@@ -183,7 +185,7 @@ function ScanningView({
             style={{ width: `${pct}%` }}
           />
         </div>
-        <div className="relative mx-auto aspect-[4/5] w-full max-w-[260px] overflow-hidden rounded-lg border border-border bg-muted/30">
+        <div className="relative mx-auto aspect-[4/5] w-full overflow-hidden rounded-lg border border-border bg-muted/30">
           <div className="p-4 space-y-2">
             <div className="h-3 w-1/2 rounded bg-foreground/10" />
             <div className="h-2 w-3/4 rounded bg-foreground/10" />
@@ -290,11 +292,11 @@ function ResultView({
   }, [validation]);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       {/* Identification card backed by the real local classifier */}
       {validation ? (
         validation.success ? (
-          <Card className="p-5 border-success/30 bg-success/5">
+          <Card className="border-success/30 bg-success/5 p-5 shadow-none">
             <div className="flex items-center gap-2 mb-2">
               <CheckCircle2 className="size-4 text-success" />
               <span className="text-xs font-semibold uppercase tracking-wider text-success">
@@ -310,7 +312,7 @@ function ResultView({
             </div>
           </Card>
         ) : (
-          <Card className="p-5 border-warning/30 bg-warning/5">
+          <Card className="border-warning/30 bg-warning/5 p-5 shadow-none">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-2">
@@ -352,7 +354,7 @@ function ResultView({
           </Card>
         )
       ) : (
-        <Card className="p-5 border-warning/30 bg-warning/5">
+        <Card className="border-warning/30 bg-warning/5 p-5 shadow-none">
           <div className="flex items-start gap-3">
             <AlertTriangle className="mt-0.5 size-4 shrink-0 text-warning" />
             <div className="min-w-0 flex-1">
@@ -372,7 +374,7 @@ function ResultView({
         </Card>
       )}
 
-      <Card className="p-5">
+      <Card className="border-border/80 p-5 shadow-none">
         <div className="flex items-center gap-2 mb-3">
           <Sparkles className="size-4 text-primary" />
           <span className="text-sm font-semibold">În cuvinte simple</span>
@@ -381,7 +383,7 @@ function ResultView({
       </Card>
 
       {validation && (
-        <Card className="p-5">
+        <Card className="border-border/80 p-5 shadow-none">
           <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
@@ -494,7 +496,7 @@ function ResultView({
 
       {/* Important static fields from friendly catalog */}
       {result.friendly.keyFields.length > 0 && (
-        <Card className="p-5">
+        <Card className="border-border/80 p-5 shadow-none">
           <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
             Date importante
           </div>
@@ -515,7 +517,7 @@ function ResultView({
       )}
 
       {result.friendly.signHere.length > 0 && (
-        <Card className="p-5">
+        <Card className="border-border/80 p-5 shadow-none">
           <div className="flex items-center gap-2 mb-3">
             <PenLine className="size-4 text-warning" />
             <span className="text-sm font-semibold">Unde trebuie să semnezi</span>

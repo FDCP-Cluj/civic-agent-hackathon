@@ -96,39 +96,39 @@ function ServicesPage() {
         description="Toate procedurile disponibile, organizate pe categorii."
       />
 
-      <Card className="mt-5 border-border/80 p-4 shadow-none">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-          <input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Caută o procedură..."
-            className="h-10 w-full rounded-lg border border-input bg-background pl-9 pr-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-          />
-        </div>
-        <div className="mt-3 flex flex-wrap gap-2">
-          <CategoryChip
-            active={filter === "all"}
-            onClick={() => setFilter("all")}
-            label={`Toate (${workflows.length})`}
-          />
-          {categoriesWithCounts.map(({ category, count }) => {
-            const meta = CATEGORY_META[category];
-            const Icon = meta.icon;
-            return (
-              <CategoryChip
-                key={category}
-                active={filter === category}
-                onClick={() => setFilter(category)}
-                label={`${meta.label} (${count})`}
-                icon={Icon}
-              />
-            );
-          })}
-        </div>
-      </Card>
+      <div className="mt-5 w-full space-y-5">
+        <Card className="border-border/80 p-4 shadow-none">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Caută o procedură..."
+              className="h-10 w-full rounded-lg border border-input bg-background pl-9 pr-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+            />
+          </div>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <CategoryChip
+              active={filter === "all"}
+              onClick={() => setFilter("all")}
+              label={`Toate (${workflows.length})`}
+            />
+            {categoriesWithCounts.map(({ category, count }) => {
+              const meta = CATEGORY_META[category];
+              const Icon = meta.icon;
+              return (
+                <CategoryChip
+                  key={category}
+                  active={filter === category}
+                  onClick={() => setFilter(category)}
+                  label={`${meta.label} (${count})`}
+                  icon={Icon}
+                />
+              );
+            })}
+          </div>
+        </Card>
 
-      <div className="mt-6 space-y-5">
         {filtered.length === 0 ? (
           <div className="py-10 text-center text-sm text-muted-foreground">
             Niciun rezultat pentru „{query}”.

@@ -527,7 +527,7 @@ export function ActeAIChat() {
         ) : (
           <>
             <ScrollArea className="flex-1 px-4 py-4">
-              <div ref={scrollRef} className="space-y-3 max-w-2xl mx-auto">
+              <div ref={scrollRef} className="space-y-3">
                 {messages.length === 0 && <ChatEmptyState onPick={send} />}
                 {messages.map((m) => (
                   <MessageBubble key={m.id} message={m} onOpenWorkflow={openWorkflow} />
@@ -541,7 +541,7 @@ export function ActeAIChat() {
                   e.preventDefault();
                   send(input);
                 }}
-                className="max-w-2xl mx-auto"
+                className="w-full"
               >
                 <div className="relative flex items-end gap-2">
                   <Textarea
@@ -617,7 +617,7 @@ function MessageBubble({
         isUser ? "justify-end" : "justify-start",
       )}
     >
-      <div className={cn("max-w-[85%] space-y-2", isUser ? "items-end" : "items-start")}>
+      <div className={cn("w-full space-y-2", isUser ? "items-end" : "items-start")}>
         <div
           className={cn(
             "rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed break-words shadow-soft",
@@ -708,7 +708,7 @@ function SourcesStrip({ sources }: { sources: GroundingSource[] }) {
               )}
             >
               {official && <ShieldCheck className="size-3 shrink-0" aria-hidden />}
-              <span className="truncate max-w-[140px]">{s.domain}</span>
+              <span className="truncate">{s.domain}</span>
               <ExternalLink className="size-2.5 shrink-0 opacity-60" aria-hidden />
             </a>
           );
@@ -951,10 +951,10 @@ function ChatEmptyState({ onPick }: { onPick: (q: string) => void }) {
         <Sparkles className="size-6 text-primary" />
       </div>
       <h3 className="text-base font-semibold mb-1">Cu ce te ajut astăzi?</h3>
-      <p className="text-xs text-muted-foreground max-w-xs mb-4 leading-relaxed">
+      <p className="mb-4 text-xs leading-relaxed text-muted-foreground">
         Vorbește natural — te ghidez prin orice procedură birocratică românească.
       </p>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full max-w-md">
+      <div className="grid w-full grid-cols-1 gap-2 sm:grid-cols-2">
         {suggestions.map((s) => (
           <button
             key={s}
@@ -976,7 +976,7 @@ function ApiKeyMissingState() {
         <KeyRound className="size-6 text-warning" />
       </div>
       <h3 className="text-base font-semibold mb-1.5">Cheie API Gemini lipsă</h3>
-      <p className="text-sm text-muted-foreground max-w-xs leading-relaxed mb-4">
+      <p className="mb-4 text-sm leading-relaxed text-muted-foreground">
         Adaugă <code className="text-xs bg-muted px-1.5 py-0.5 rounded">VITE_GEMINI_API_KEY</code>{" "}
         în fișierul <code className="text-xs bg-muted px-1.5 py-0.5 rounded">.env</code> și
         repornește serverul de dezvoltare.

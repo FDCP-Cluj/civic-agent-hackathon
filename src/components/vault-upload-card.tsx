@@ -128,8 +128,8 @@ export function VaultUploadCard() {
   };
 
   return (
-    <Card className="p-5">
-      <div className="flex items-center justify-between mb-4">
+    <Card className="border-border/80 p-5 shadow-none">
+      <div className="mb-4 flex items-center justify-between">
         <h2 className="text-sm font-semibold">Acte încărcate</h2>
         <span className="text-xs text-muted-foreground">{documents.length} document(e)</span>
       </div>
@@ -170,7 +170,7 @@ export function VaultUploadCard() {
               </ul>
             </Card>
           )}
-          <div className="space-y-2 mb-4 animate-[fade-in_0.3s_ease-out]">
+          <div className="mb-4 space-y-2">
             {documents.map((d) => {
               const meta = DOC_TYPES.find((t) => t.type === d.type) ?? DOC_TYPES[5];
               const Icon = meta.icon;
@@ -201,10 +201,10 @@ export function VaultUploadCard() {
                       <Trash2 className="size-4 text-destructive" />
                     </Button>
                   </div>
-                  <div className="mt-2 pl-13 flex items-center gap-2 flex-wrap">
+                  <div className="mt-2 flex flex-wrap items-center gap-2 pl-13">
                     <Label
                       htmlFor={`expiry-${d.id}`}
-                      className="text-[11px] text-muted-foreground inline-flex items-center gap-1"
+                      className="inline-flex items-center gap-1 text-xs text-muted-foreground"
                     >
                       <CalendarClock className="size-3" /> Valabil până la
                     </Label>
@@ -215,14 +215,14 @@ export function VaultUploadCard() {
                       onChange={(e) =>
                         updateDocument(d.id, { expiryDate: e.target.value || undefined })
                       }
-                      className="h-7 text-xs px-2 w-auto"
+                      className="h-8 w-auto px-2 text-sm"
                     />
                     {expiryDays !== null && (
                       <span
                         className={
                           expiryUrgent
-                            ? "text-[11px] font-semibold text-warning"
-                            : "text-[11px] text-muted-foreground"
+                            ? "text-xs font-semibold text-warning"
+                            : "text-xs text-muted-foreground"
                         }
                       >
                         {expiryDays < 0

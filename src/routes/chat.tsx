@@ -107,114 +107,116 @@ function ChatPage() {
         </div>
       </PageHeader>
 
-      {!aiEnabled && (
-        <div className="mt-5 rounded-lg border border-warning/30 bg-warning/10 px-3.5 py-3 text-sm text-warning">
-          Cheia Gemini nu este configurată. Istoricul rămâne vizibil, dar chatul live este oprit.
-        </div>
-      )}
-
-      <div className="mt-5 grid gap-4 lg:grid-cols-[300px_minmax(0,1fr)]">
-        <Card className="overflow-hidden p-0">
-          <div className="flex items-center justify-between border-b border-border px-3.5 py-3">
-            <div className="inline-flex items-center gap-2 text-sm font-semibold">
-              <History className="size-4 text-primary" />
-              Istoric
-            </div>
-            <span className="text-xs tabular-nums text-muted-foreground">{turns.length}</span>
+      <div className="mt-5 w-full space-y-5">
+        {!aiEnabled && (
+          <div className="rounded-lg border border-warning/30 bg-warning/10 px-3.5 py-3 text-sm text-warning">
+            Cheia Gemini nu este configurată. Istoricul rămâne vizibil, dar chatul live este oprit.
           </div>
-          <ScrollArea className="h-[420px]">
-            {newestTurns.length === 0 ? (
-              <div className="flex h-[420px] flex-col items-center justify-center px-6 text-center">
-                <MessageCircle className="mb-3 size-9 text-muted-foreground" />
-                <p className="text-sm font-medium">Nu există conversații salvate</p>
-                <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                  Pornește un chat și istoricul apare aici automat.
-                </p>
-              </div>
-            ) : (
-              <div className="p-2">
-                {newestTurns.map((turn) => (
-                  <button
-                    key={turn.id}
-                    type="button"
-                    onClick={() => setSelectedId(turn.id)}
-                    className={cn(
-                      "mb-1 w-full rounded-lg border px-3 py-2.5 text-left transition-colors",
-                      selectedTurn?.id === turn.id
-                        ? "border-primary/40 bg-primary/10"
-                        : "border-transparent hover:border-border hover:bg-accent/45",
-                    )}
-                  >
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="line-clamp-1 text-sm font-medium">{turn.title}</span>
-                      {turn.startedAt && (
-                        <span className="shrink-0 text-[10px] text-muted-foreground">
-                          {formatShortDate(turn.startedAt)}
-                        </span>
-                      )}
-                    </div>
-                    <p className="mt-1 line-clamp-2 text-xs leading-snug text-muted-foreground">
-                      {turn.preview}
-                    </p>
-                  </button>
-                ))}
-              </div>
-            )}
-          </ScrollArea>
-        </Card>
+        )}
 
-        <div className="min-w-0 space-y-4">
-          <Card className="overflow-hidden p-0">
-            <div className="flex flex-col gap-3 border-b border-border px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-              <div className="min-w-0">
-                <div className="line-clamp-1 text-sm font-semibold">
-                  {selectedTurn?.title ?? "Conversație nouă"}
-                </div>
-                <div className="mt-0.5 text-xs text-muted-foreground">
-                  {selectedTurn
-                    ? `${selectedTurn.messages.length} mesaje salvate local`
-                    : "Întrebările rapide deschid agentul ActeAI"}
-                </div>
+        <div className="grid gap-4 lg:grid-cols-[300px_minmax(0,1fr)]">
+          <Card className="overflow-hidden border-border/80 p-0 shadow-none">
+            <div className="flex items-center justify-between border-b border-border px-3.5 py-3">
+              <div className="inline-flex items-center gap-2 text-sm font-semibold">
+                <History className="size-4 text-primary" />
+                Istoric
               </div>
-              <Button size="sm" onClick={() => openChat()}>
-                <Sparkles className="size-4" />
-                Continuă chatul
-              </Button>
+              <span className="text-xs tabular-nums text-muted-foreground">{turns.length}</span>
             </div>
-
-            <ScrollArea className="h-[520px]">
-              {selectedTurn ? (
-                <div className="space-y-3 p-4">
-                  {selectedTurn.messages.map((message) => (
-                    <HistoryMessage key={message.id} message={message} />
-                  ))}
+            <ScrollArea className="h-[420px]">
+              {newestTurns.length === 0 ? (
+                <div className="flex h-[420px] flex-col items-center justify-center px-6 text-center">
+                  <MessageCircle className="mb-3 size-9 text-muted-foreground" />
+                  <p className="text-sm font-medium">Nu există conversații salvate</p>
+                  <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                    Pornește un chat și istoricul apare aici automat.
+                  </p>
                 </div>
               ) : (
-                <div className="grid h-[520px] place-items-center p-6 text-center">
-                  <div>
-                    <Sparkles className="mx-auto mb-3 size-10 text-primary" />
-                    <p className="text-sm font-medium">Alege o întrebare rapidă</p>
-                    <p className="mt-1 max-w-sm text-xs leading-relaxed text-muted-foreground">
-                      Chatul folosește ghidurile locale și poate atașa surse oficiale când cheia API
-                      permite căutare web.
-                    </p>
-                  </div>
+                <div className="p-2">
+                  {newestTurns.map((turn) => (
+                    <button
+                      key={turn.id}
+                      type="button"
+                      onClick={() => setSelectedId(turn.id)}
+                      className={cn(
+                        "mb-1 w-full rounded-lg border px-3 py-2.5 text-left transition-colors",
+                        selectedTurn?.id === turn.id
+                          ? "border-primary/40 bg-primary/10"
+                          : "border-transparent hover:border-border hover:bg-accent/45",
+                      )}
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="line-clamp-1 text-sm font-medium">{turn.title}</span>
+                        {turn.startedAt && (
+                          <span className="shrink-0 text-xs text-muted-foreground">
+                            {formatShortDate(turn.startedAt)}
+                          </span>
+                        )}
+                      </div>
+                      <p className="mt-1 line-clamp-2 text-xs leading-snug text-muted-foreground">
+                        {turn.preview}
+                      </p>
+                    </button>
+                  ))}
                 </div>
               )}
             </ScrollArea>
           </Card>
 
-          <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
-            {STARTER_PROMPTS.map((prompt) => (
-              <button
-                key={prompt}
-                type="button"
-                onClick={() => openChat(prompt)}
-                className="rounded-lg border border-border bg-card px-3 py-2.5 text-left text-xs leading-snug transition-colors hover:bg-accent/45 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-              >
-                {prompt}
-              </button>
-            ))}
+          <div className="min-w-0 space-y-4">
+            <Card className="overflow-hidden border-border/80 p-0 shadow-none">
+              <div className="flex flex-col gap-3 border-b border-border px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+                <div className="min-w-0">
+                  <div className="line-clamp-1 text-sm font-semibold">
+                    {selectedTurn?.title ?? "Conversație nouă"}
+                  </div>
+                  <div className="mt-0.5 text-xs text-muted-foreground">
+                    {selectedTurn
+                      ? `${selectedTurn.messages.length} mesaje salvate local`
+                      : "Întrebările rapide deschid agentul ActeAI"}
+                  </div>
+                </div>
+                <Button size="sm" onClick={() => openChat()}>
+                  <Sparkles className="size-4" />
+                  Continuă chatul
+                </Button>
+              </div>
+
+              <ScrollArea className="h-[520px]">
+                {selectedTurn ? (
+                  <div className="space-y-3 p-4">
+                    {selectedTurn.messages.map((message) => (
+                      <HistoryMessage key={message.id} message={message} />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="grid h-[520px] place-items-center p-6 text-center">
+                    <div>
+                      <Sparkles className="mx-auto mb-3 size-10 text-primary" />
+                      <p className="text-sm font-medium">Alege o întrebare rapidă</p>
+                      <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                        Chatul folosește ghidurile locale și poate atașa surse oficiale când cheia API
+                        permite căutare web.
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </ScrollArea>
+            </Card>
+
+            <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
+              {STARTER_PROMPTS.map((prompt) => (
+                <button
+                  key={prompt}
+                  type="button"
+                  onClick={() => openChat(prompt)}
+                  className="rounded-lg border border-border bg-card px-3 py-2.5 text-left text-xs leading-snug transition-colors hover:bg-accent/45 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  {prompt}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       </div>
@@ -226,7 +228,7 @@ function HistoryMessage({ message }: { message: PersistedChatMessage }) {
   const isUser = message.role === "user";
   return (
     <div className={cn("flex", isUser ? "justify-end" : "justify-start")}>
-      <div className={cn("max-w-[86%] space-y-2", isUser ? "text-right" : "text-left")}>
+      <div className={cn("w-full space-y-2", isUser ? "text-right" : "text-left")}>
         <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
           {isUser ? (
             <>
@@ -242,7 +244,7 @@ function HistoryMessage({ message }: { message: PersistedChatMessage }) {
         </div>
         <div
           className={cn(
-            "rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed shadow-soft whitespace-pre-wrap",
+            "whitespace-pre-wrap rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed shadow-none",
             isUser
               ? "rounded-br-md bg-primary text-primary-foreground"
               : "rounded-bl-md border border-border bg-card",
@@ -267,7 +269,7 @@ function HistoryMessage({ message }: { message: PersistedChatMessage }) {
                   className="inline-flex max-w-full items-center gap-1 rounded-md border border-border bg-background px-2 py-1 text-[11px] text-muted-foreground hover:bg-accent/45"
                   title={source.title}
                 >
-                  <span className="max-w-[160px] truncate">{source.domain}</span>
+                  <span className="truncate">{source.domain}</span>
                   <ExternalLink className="size-2.5 shrink-0" />
                 </a>
               ))}
@@ -276,7 +278,7 @@ function HistoryMessage({ message }: { message: PersistedChatMessage }) {
         )}
 
         {!isUser && message.workflowCta && (
-          <Card className="border-primary/30 bg-primary/5 p-3 text-left">
+          <Card className="border-primary/30 bg-primary/5 p-3 text-left shadow-none">
             <div className="mb-1 text-xs font-semibold text-primary">
               {message.workflowCta.title}
             </div>

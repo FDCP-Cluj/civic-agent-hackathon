@@ -88,7 +88,7 @@ function EidKitCallback() {
     <div className="min-h-screen bg-background flex flex-col">
       <div className="h-1.5 bg-tricolor" />
       <div className="flex-1 flex items-center justify-center px-4 py-10">
-        <div className="w-full max-w-md text-center">
+        <div className="w-full text-center">
           <div className="size-14 rounded-2xl bg-accent flex items-center justify-center mx-auto mb-4">
             <Loader2 className="size-7 text-primary animate-spin" />
           </div>

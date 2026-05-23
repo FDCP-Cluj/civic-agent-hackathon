@@ -53,18 +53,18 @@ function Login() {
     <div className="min-h-screen bg-background flex flex-col">
       <div className="relative h-1.5 bg-tricolor before:absolute before:inset-x-0 before:bottom-full before:h-[100vh] before:bg-tricolor" />
       <div className="flex-1 flex items-center justify-center px-4 py-10">
-        <div className="w-full max-w-md">
+        <div className="flex w-full flex-col items-center">
           <div className="flex flex-col items-center text-center mb-8">
             <div className="mb-4 flex size-14 items-center justify-center rounded-2xl bg-primary/10">
               <ShieldCheck className="size-7 text-primary" />
             </div>
             <h1 className="text-2xl font-semibold tracking-tight">Bine ai venit la ActeAI</h1>
-            <p className="text-sm text-muted-foreground mt-1.5 max-w-sm">
+            <p className="mt-1.5 text-sm text-muted-foreground">
               Agentul tău AI pentru ANAF, DRPCIV, Poliție și instituțiile statului.
             </p>
           </div>
 
-          <div className="rounded-2xl border border-border bg-card p-6 shadow-none">
+          <div className="w-full rounded-2xl border border-border bg-card p-6 shadow-none">
             <div className="flex gap-1 p-1 bg-muted rounded-lg mb-5">
               {(["login", "signup"] as const).map((m) => (
                 <button

@@ -51,7 +51,9 @@ function WorkflowPage() {
   if (wf === undefined) {
     return (
       <AppShell>
-        <div className="py-20 text-center text-sm text-muted-foreground">Se încarcă…</div>
+        <div className="mt-5 rounded-xl border border-border/80 bg-card py-20 text-center text-sm text-muted-foreground shadow-none">
+          Se încarcă…
+        </div>
       </AppShell>
     );
   }
@@ -59,7 +61,7 @@ function WorkflowPage() {
   if (wf === null) {
     return (
       <AppShell>
-        <Card className="mx-auto max-w-lg p-6 text-center">
+        <Card className="mt-5 w-full border-border/80 p-6 text-center shadow-none">
           <div className="mx-auto mb-3 flex size-11 items-center justify-center rounded-xl bg-muted">
             <Info className="size-5 text-muted-foreground" />
           </div>
@@ -104,7 +106,7 @@ function WorkflowPage() {
 
   const downloadChecklist = () => {
     const lines = [
-      `CIVIS — ${wf.title}`,
+      `ActeAI — ${wf.title}`,
       `Generat: ${new Date().toLocaleString("ro-RO")}`,
       `Total estimat: ${wf.totalMinutes} min`,
       "",
@@ -124,7 +126,7 @@ function WorkflowPage() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `civis-${wf.id}.txt`;
+    a.download = `acteai-${wf.id}.txt`;
     a.click();
     URL.revokeObjectURL(url);
     toast.success("Checklist descărcat — funcționează și fără internet.");
@@ -144,9 +146,9 @@ function WorkflowPage() {
         </Button>
       </PageHeader>
 
-      {/* Hero */}
-      <Card className="mb-5 mt-4 border-border/80 p-5 shadow-none">
-        <div className="flex flex-wrap gap-2 mt-4">
+      <div className="mt-5 space-y-5">
+        <Card className="border-border/80 p-5 shadow-none">
+          <div className="mt-1 flex flex-wrap gap-2">
           <Badge variant="secondary" className="gap-1">
             <Clock className="size-3" /> ~{Math.round(wf.totalMinutes / 60)} h total
           </Badge>
@@ -160,111 +162,111 @@ function WorkflowPage() {
           )}
         </div>
 
-        {existing && (
-          <div className="mt-4">
-            <Progress value={completionPct} className="h-2" />
-            <div className="mt-1.5 flex items-center justify-between text-sm text-muted-foreground">
-              <span>Progres</span>
-              <span className="font-mono tabular-nums">{completionPct}%</span>
+          {existing && (
+            <div className="mt-4">
+              <Progress value={completionPct} className="h-2" />
+              <div className="mt-1.5 flex items-center justify-between text-sm text-muted-foreground">
+                <span>Progres</span>
+                <span className="font-mono tabular-nums">{completionPct}%</span>
+              </div>
             </div>
-          </div>
-        )}
-
-        <div className="flex flex-col sm:flex-row gap-2 mt-5">
-          {existing ? (
-            <Button asChild variant="outline" className="flex-1">
-              <Link to="/tasks">Vezi în „Sarcini”</Link>
-            </Button>
-          ) : (
-            <Button onClick={ensureTask} className="flex-1">
-              Pornește procedura
-            </Button>
           )}
-          <Button variant="outline" onClick={downloadChecklist} className="sm:w-auto">
-            <Download className="size-4" /> Checklist offline
-          </Button>
-        </div>
 
-        {wf.id === "pfa-registration" && (
-          <div className="mt-2">
-            <Button asChild variant="secondary" className="w-full sm:w-auto">
-              <Link to="/workflow/$id/pfa" params={{ id: wf.id } as never}>
-                Wizard PFA dedicat
-              </Link>
+          <div className="mt-5 flex flex-col gap-2 sm:flex-row">
+            {existing ? (
+              <Button asChild variant="outline" className="flex-1">
+                <Link to="/tasks">Vezi în „Sarcini”</Link>
+              </Button>
+            ) : (
+              <Button onClick={ensureTask} className="flex-1">
+                Pornește procedura
+              </Button>
+            )}
+            <Button variant="outline" onClick={downloadChecklist} className="sm:w-auto">
+              <Download className="size-4" /> Checklist offline
             </Button>
           </div>
-        )}
-        {wf.id === "property-sale" && (
-          <div className="mt-2">
-            <Button asChild variant="secondary" className="w-full sm:w-auto">
-              <Link to="/workflow/$id/antecontract" params={{ id: wf.id } as never}>
-                Formular antecontract
-              </Link>
-            </Button>
-          </div>
-        )}
 
-        {wf.dataSource && (
-          <div className="mt-4 pt-4 border-t border-border/60 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted-foreground">
-            <ShieldCheck className="size-3 text-success shrink-0" aria-hidden />
-            <span>
-              Verificat la sursa oficială{" "}
-              <strong className="font-semibold text-foreground">{wf.dataSource.authority}</strong>
-              {" · "}actualizat {new Date(wf.dataSource.verifiedAt).toLocaleDateString("ro-RO")}
-            </span>
-            <a
-              href={wf.dataSource.url}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center gap-1 text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded px-1"
-            >
-              Sursă <ExternalLink className="size-3" aria-hidden />
-            </a>
-          </div>
-        )}
-      </Card>
+          {wf.id === "pfa-registration" && (
+            <div className="mt-2">
+              <Button asChild variant="secondary" className="w-full sm:w-auto">
+                <Link to="/workflow/$id/pfa" params={{ id: wf.id } as never}>
+                  Wizard PFA dedicat
+                </Link>
+              </Button>
+            </div>
+          )}
+          {wf.id === "property-sale" && (
+            <div className="mt-2">
+              <Button asChild variant="secondary" className="w-full sm:w-auto">
+                <Link to="/workflow/$id/antecontract" params={{ id: wf.id } as never}>
+                  Formular antecontract
+                </Link>
+              </Button>
+            </div>
+          )}
 
-      {wf.references && wf.references.length > 0 && (
-        <Card className="mb-5 border-border/80 p-4 shadow-none">
-          <div className="mb-3 flex items-center gap-2">
-            <ShieldCheck className="size-4 text-success" aria-hidden />
-            <h2 className="text-sm font-semibold">Surse oficiale pentru taxe și termene</h2>
-          </div>
-          <div className="grid gap-2 sm:grid-cols-2">
-            {wf.references.map((ref) => (
+          {wf.dataSource && (
+            <div className="mt-4 flex flex-wrap items-center gap-x-2 gap-y-1 border-t border-border/60 pt-4 text-sm text-muted-foreground">
+              <ShieldCheck className="size-3 shrink-0 text-success" aria-hidden />
+              <span>
+                Verificat la sursa oficială{" "}
+                <strong className="font-semibold text-foreground">{wf.dataSource.authority}</strong>
+                {" · "}actualizat {new Date(wf.dataSource.verifiedAt).toLocaleDateString("ro-RO")}
+              </span>
               <a
-                key={ref.url}
-                href={ref.url}
+                href={wf.dataSource.url}
                 target="_blank"
                 rel="noreferrer"
-                className="rounded-lg border border-border/70 bg-background/50 p-3 text-sm hover:bg-accent/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                className="inline-flex items-center gap-1 rounded px-1 text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
-                <div className="flex items-center justify-between gap-2">
-                  <span className="font-medium">{ref.title}</span>
-                  <ExternalLink className="size-3.5 shrink-0 text-primary" aria-hidden />
-                </div>
-                <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{ref.note}</p>
+                Sursă <ExternalLink className="size-3" aria-hidden />
               </a>
+            </div>
+          )}
+        </Card>
+
+        {wf.references && wf.references.length > 0 && (
+          <Card className="border-border/80 p-4 shadow-none">
+            <div className="mb-3 flex items-center gap-2">
+              <ShieldCheck className="size-4 text-success" aria-hidden />
+              <h2 className="text-sm font-semibold">Surse oficiale pentru taxe și termene</h2>
+            </div>
+            <div className="grid gap-2 sm:grid-cols-2">
+              {wf.references.map((ref) => (
+                <a
+                  key={ref.url}
+                  href={ref.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="rounded-lg border border-border/70 bg-background/50 p-3 text-sm hover:bg-accent/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="font-medium">{ref.title}</span>
+                    <ExternalLink className="size-3.5 shrink-0 text-primary" aria-hidden />
+                  </div>
+                  <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{ref.note}</p>
+                </a>
+              ))}
+            </div>
+          </Card>
+        )}
+
+        <TipizatulFormsCard workflowId={wf.id} />
+
+        <div className="relative">
+          <div className="absolute bottom-4 left-3 top-4 w-px bg-border" aria-hidden />
+          <div className="space-y-3">
+            {wf.steps.map((s) => (
+              <StepCard
+                key={s.order}
+                workflowId={wf.id}
+                step={s}
+                completed={completedSet.has(s.order)}
+                onToggleComplete={() => handleToggleStep(s.order)}
+              />
             ))}
           </div>
-        </Card>
-      )}
-
-      <TipizatulFormsCard workflowId={wf.id} />
-
-      {/* Steps */}
-      <div className="relative">
-        <div className="absolute left-3 top-4 bottom-4 w-px bg-border" aria-hidden />
-        <div className="space-y-3">
-          {wf.steps.map((s) => (
-            <StepCard
-              key={s.order}
-              workflowId={wf.id}
-              step={s}
-              completed={completedSet.has(s.order)}
-              onToggleComplete={() => handleToggleStep(s.order)}
-            />
-          ))}
         </div>
       </div>
     </AppShell>

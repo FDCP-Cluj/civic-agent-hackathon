@@ -46,13 +46,13 @@ function Verify() {
     <div className="min-h-screen bg-background flex flex-col">
       <div className="h-1.5 bg-tricolor" />
       <div className="flex-1 flex items-center justify-center px-4 py-10">
-        <div className="w-full max-w-md">
+        <div className="flex w-full flex-col items-center">
           <div className="flex flex-col items-center text-center mb-8">
             <div className="size-14 rounded-2xl bg-accent flex items-center justify-center mb-4">
               <Smartphone className="size-7 text-primary" />
             </div>
             <h1 className="text-2xl font-semibold tracking-tight">Verificare în 2 pași</h1>
-            <p className="text-sm text-muted-foreground mt-1.5 max-w-sm">
+            <p className="mt-1.5 text-sm text-muted-foreground">
               Am trimis un cod la{" "}
               <span className="font-medium text-foreground">{email ?? "telefonul tău"}</span>.
               Introdu codul de 6 cifre pentru a continua.
