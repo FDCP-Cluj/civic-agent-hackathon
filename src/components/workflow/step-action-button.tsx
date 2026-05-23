@@ -57,6 +57,7 @@ type Props = {
 export function StepActionButton({ action, workflowId, stepKey, stepTitle, stepInfo }: Props) {
   const openChat = useChatUi((s) => s.openChat);
   const profile = useVault((s) => s.profile);
+  const profileLocality = localityFromAddress(profile.address);
   const [placesOpen, setPlacesOpen] = useState(false);
   const [placesLoading, setPlacesLoading] = useState(false);
   const [placesCityOverride, setPlacesCityOverride] = useState("");
@@ -83,13 +84,31 @@ export function StepActionButton({ action, workflowId, stepKey, stepTitle, stepI
     }
   }
 
-  function searchNearby(institutionType: string) {
-    if (!("geolocation" in navigator)) {
-      toast.info("Geolocația nu este disponibilă pe acest browser. Folosesc orașul din profil.");
+  function fallbackToProfileLookup(institutionType: string, reason: "unavailable" | "denied") {
+    if (profileLocality) {
+      toast.info(
+        reason === "denied"
+          ? "Permisiunea de locație a fost refuzată. Folosesc orașul din profil."
+          : "Geolocația nu este disponibilă pe acest browser. Folosesc orașul din profil.",
+      );
       runInstitutionLookup({
         institutionType,
-        city: localityFromAddress(profile.address),
+        city: profileLocality,
       });
+      return;
+    }
+
+    toast.info(
+      reason === "denied"
+        ? "Permisiunea de locație a fost refuzată și nu am găsit oraș în profil. Folosește căutarea manuală."
+        : "Geolocația nu este disponibilă și nu am găsit oraș în profil. Folosește căutarea manuală.",
+    );
+    runInstitutionLookup({ institutionType });
+  }
+
+  function searchNearby(institutionType: string) {
+    if (!("geolocation" in navigator)) {
+      fallbackToProfileLookup(institutionType, "unavailable");
       return;
     }
 
@@ -105,11 +124,7 @@ export function StepActionButton({ action, workflowId, stepKey, stepTitle, stepI
       },
       () => {
         toast.dismiss(loadingToast);
-        toast.info("Permisiunea de locație a fost refuzată. Folosesc orașul din profil.");
-        runInstitutionLookup({
-          institutionType,
-          city: localityFromAddress(profile.address),
-        });
+        fallbackToProfileLookup(institutionType, "denied");
       },
       { timeout: 8000, maximumAge: 300000 },
     );
@@ -145,7 +160,6 @@ export function StepActionButton({ action, workflowId, stepKey, stepTitle, stepI
     }
 
     case "find_institution": {
-      const city = localityFromAddress(profile.address);
       return (
         <>
           <div className="flex flex-wrap gap-2">
@@ -165,12 +179,15 @@ export function StepActionButton({ action, workflowId, stepKey, stepTitle, stepI
             <Button
               size="sm"
               variant="ghost"
-              onClick={() =>
+              onClick={() => {
+                if (!profileLocality) {
+                  toast.info("Orașul nu există în profil. Folosește câmpul de căutare manuală.");
+                }
                 runInstitutionLookup({
                   institutionType: action.institutionType,
-                  city,
-                })
-              }
+                  city: profileLocality,
+                });
+              }}
               disabled={placesLoading}
             >
               Folosește orașul din profil

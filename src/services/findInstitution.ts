@@ -6,7 +6,10 @@ export type InstitutionQuery = {
 };
 
 export function buildMapsSearchUrl({ institutionType, city }: InstitutionQuery): string {
-  const query = city ? `${institutionType} ${city}` : institutionType;
+  const normalizedCity = normalizeCity(city);
+  const query = normalizedCity
+    ? `${institutionType} ${normalizedCity}`
+    : `${institutionType} Romania`;
   return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
 }
 
@@ -36,21 +39,23 @@ type GoogleMapsPlace = {
   currentOpeningHours?: { openNow?: boolean };
 };
 
-const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string | undefined;
-const LOVABLE_API_KEY = import.meta.env.VITE_LOVABLE_API_KEY as string | undefined;
+function normalizeCity(city: string | undefined): string | undefined {
+  const normalized = city?.trim();
+  return normalized ? normalized : undefined;
+}
 
 function buildQuery({ institutionType, city, lat, lng }: InstitutionQuery): string {
   const hasCoords = typeof lat === "number" && typeof lng === "number";
-  if (hasCoords && !city) return `${institutionType} lângă mine`;
-  return `${institutionType}${city ? ` ${city}` : ""}`;
+  const normalizedCity = normalizeCity(city);
+  if (hasCoords) return `${institutionType} lângă mine`;
+  if (normalizedCity) return `${institutionType} ${normalizedCity}`;
+  return `${institutionType} Romania`;
 }
 
 async function lookupWithConnector(
   query: string,
   { lat, lng }: InstitutionQuery,
 ): Promise<InstitutionLookupResult[] | null> {
-  if (!GOOGLE_MAPS_API_KEY || !LOVABLE_API_KEY) return null;
-
   const payload: Record<string, unknown> = {
     textQuery: query,
     languageCode: "ro",
@@ -66,20 +71,17 @@ async function lookupWithConnector(
     };
   }
 
-  const res = await fetch(
-    "https://connector-gateway.lovable.dev/google_maps/places/v1/places:searchText",
-    {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "X-Connection-Api-Key": GOOGLE_MAPS_API_KEY,
-        "Content-Type": "application/json",
-        "X-Goog-FieldMask":
-          "places.id,places.displayName,places.formattedAddress,places.internationalPhoneNumber,places.rating,places.googleMapsUri,places.currentOpeningHours",
-      },
-      body: JSON.stringify(payload),
+  const res = await fetch("/api/maps/places-search", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
     },
-  );
+    body: JSON.stringify(payload),
+  });
+
+  if (res.status === 501) {
+    return null;
+  }
 
   if (!res.ok) {
     const body = await res.text();
@@ -106,7 +108,7 @@ export async function findInstitution(
   queryParams: InstitutionQuery,
 ): Promise<InstitutionLookupResponse> {
   const query = buildQuery(queryParams);
-  const fallbackUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
+  const fallbackUrl = buildMapsSearchUrl(queryParams);
 
   try {
     const places = await lookupWithConnector(query, queryParams);
