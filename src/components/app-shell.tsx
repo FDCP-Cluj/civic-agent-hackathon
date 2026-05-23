@@ -100,7 +100,7 @@ export function AppShell({ children, showOfficialFooter = false }: AppShellProps
 
             {/* Desktop top bar */}
             <div className="hidden items-center justify-between border-b border-border/80 px-6 py-3 md:flex">
-              <div className="text-xs text-muted-foreground">
+              <div className="text-sm text-muted-foreground">
                 {email ? `Conectat ca ${email}` : "Cont conectat"}
               </div>
               <div className="flex items-center gap-2">
@@ -108,7 +108,7 @@ export function AppShell({ children, showOfficialFooter = false }: AppShellProps
                   type="button"
                   onClick={() => setA11yOpen(true)}
                   aria-label="Setări de accesibilitate"
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-border px-2.5 py-1.5 text-xs text-muted-foreground hover:bg-accent/50 hover:text-foreground"
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-sm text-muted-foreground hover:bg-accent/50 hover:text-foreground"
                 >
                   <Accessibility className="size-3.5" /> Accesibilitate
                 </button>
@@ -118,7 +118,7 @@ export function AppShell({ children, showOfficialFooter = false }: AppShellProps
                     logout();
                     navigate({ to: "/login" });
                   }}
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-border px-2.5 py-1.5 text-xs text-muted-foreground hover:bg-accent/50 hover:text-foreground"
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-sm text-muted-foreground hover:bg-accent/50 hover:text-foreground"
                 >
                   <LogOut className="size-3.5" />
                   Deconectare

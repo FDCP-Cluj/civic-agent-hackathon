@@ -119,9 +119,9 @@ function WorkflowPage() {
 
       {/* Hero */}
       <Card className="p-5 mb-5 border-border bg-gradient-to-br from-card to-accent/40">
-        <div className="flex items-start gap-2 mb-2">
-          <Sparkles className="size-4 text-primary mt-1 shrink-0" />
-          <div className="text-xs uppercase tracking-wider text-primary font-semibold">
+        <div className="flex items-center gap-2 mb-2">
+          <Sparkles className="size-4 text-primary shrink-0" />
+          <div className="text-sm uppercase tracking-wider text-primary font-semibold">
             Plan generat de Civis
           </div>
         </div>
@@ -145,7 +145,7 @@ function WorkflowPage() {
         {existing && (
           <div className="mt-4">
             <Progress value={completionPct} className="h-2" />
-            <div className="mt-1.5 flex items-center justify-between text-[11px] text-muted-foreground">
+            <div className="mt-1.5 flex items-center justify-between text-sm text-muted-foreground">
               <span>Progres</span>
               <span className="font-mono tabular-nums">{completionPct}%</span>
             </div>
@@ -187,7 +187,7 @@ function WorkflowPage() {
         )}
 
         {wf.dataSource && (
-          <div className="mt-4 pt-4 border-t border-border/60 flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-muted-foreground">
+          <div className="mt-4 pt-4 border-t border-border/60 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted-foreground">
             <ShieldCheck className="size-3 text-success shrink-0" aria-hidden />
             <span>
               Verificat la sursa oficială{" "}
@@ -270,7 +270,7 @@ function StepCard({
           {completed ? (
             <CheckCircle2 className="size-6 text-success bg-card rounded-full" />
           ) : (
-            <div className="size-6 rounded-full bg-primary/10 text-primary text-xs font-semibold flex items-center justify-center ring-1 ring-primary/20 hover:ring-primary/40 transition-shadow">
+            <div className="size-6 rounded-full bg-primary/10 text-primary text-sm font-semibold flex items-center justify-center ring-1 ring-primary/20 hover:ring-primary/40 transition-shadow">
               {step.order}
             </div>
           )}
@@ -284,19 +284,19 @@ function StepCard({
             >
               {step.title}
             </div>
-            <Badge variant="outline" className="text-[10px] uppercase tracking-wider shrink-0">
+            <Badge variant="outline" className="text-xs uppercase tracking-wider shrink-0">
               {step.institution}
             </Badge>
             {modeLabel && (
-              <Badge variant="secondary" className="text-[10px] uppercase tracking-wider shrink-0">
+              <Badge variant="secondary" className="text-xs uppercase tracking-wider shrink-0">
                 {modeLabel}
               </Badge>
             )}
           </div>
           <p className="text-sm text-muted-foreground break-words">{step.description}</p>
 
-          <div className="mt-3 space-y-2 text-xs">
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-[11px]">
+          <div className="mt-3 space-y-2 text-sm">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-sm">
               <div className="rounded-md border border-border/70 bg-background/40 px-2 py-1.5">
                 <span className="text-muted-foreground">Unde:</span> {step.location}
               </div>
@@ -330,13 +330,13 @@ function StepCard({
           </div>
 
           <div className="mt-3 rounded-lg bg-muted/60 p-3">
-            <div className="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold mb-2 flex items-center gap-1.5">
+            <div className="text-sm uppercase tracking-wider text-muted-foreground font-semibold mb-2 flex items-center gap-1.5">
               <FileText className="size-3" /> Documente necesare
             </div>
             <ul className="space-y-1">
               {step.documents.map((d) => (
-                <li key={d} className="text-xs flex items-start gap-2 break-words">
-                  <span className="size-1.5 rounded-full bg-primary mt-1.5 shrink-0" />
+                <li key={d} className="text-sm flex items-center gap-2 break-words">
+                  <span className="size-1.5 rounded-full bg-primary shrink-0" />
                   <span className="min-w-0 break-words">{d}</span>
                 </li>
               ))}
@@ -346,7 +346,7 @@ function StepCard({
           {step.info && step.info.length > 0 && (
             <Accordion type="single" collapsible className="mt-3">
               <AccordionItem value="info" className="border-border rounded-lg border bg-card/60">
-                <AccordionTrigger className="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground hover:no-underline">
+                <AccordionTrigger className="px-3 py-2 text-sm font-semibold uppercase tracking-wider text-muted-foreground hover:no-underline">
                   <span className="inline-flex items-center gap-1.5">
                     <Info className="size-3" /> Ce e bine să știi ({step.info.length})
                   </span>
@@ -354,8 +354,8 @@ function StepCard({
                 <AccordionContent className="px-3 pb-3">
                   <ul className="space-y-1.5">
                     {step.info.map((b, idx) => (
-                      <li key={idx} className="text-xs flex items-start gap-2 leading-relaxed">
-                        <span className="size-1 rounded-full bg-primary/60 mt-1.5 shrink-0" />
+                      <li key={idx} className="text-sm flex items-center gap-2 leading-relaxed">
+                        <span className="size-1 rounded-full bg-primary/60 shrink-0" />
                         <span>{b}</span>
                       </li>
                     ))}

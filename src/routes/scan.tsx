@@ -424,8 +424,8 @@ function ResultView({
           </div>
           <ul className="space-y-2">
             {friendly.signHere.map((s) => (
-              <li key={s} className="text-sm flex items-start gap-2">
-                <span className="size-1.5 rounded-full bg-warning mt-2 shrink-0" />
+              <li key={s} className="text-sm flex items-center gap-2.5">
+                <span className="size-1.5 rounded-full bg-warning shrink-0" />
                 {s}
               </li>
             ))}

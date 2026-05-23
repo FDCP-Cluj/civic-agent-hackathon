@@ -45,7 +45,7 @@ function Vault() {
         title="Seiful meu local"
         description="Datele și actele tale rămân pe acest dispozitiv. Nu părăsesc niciodată browserul."
       >
-        <div className="inline-flex items-center gap-2 text-xs text-muted-foreground">
+        <div className="inline-flex items-center gap-2 text-sm text-muted-foreground">
           <FolderLock className="size-4 text-primary" />
           Vault local
         </div>
@@ -53,7 +53,7 @@ function Vault() {
 
       <div className="flex items-center gap-2 rounded-xl bg-success/10 border border-success/20 px-3.5 py-2.5 mb-5 mt-5">
         <ShieldCheck className="size-4 text-success shrink-0" />
-        <p className="text-xs">
+        <p className="text-sm">
           <span className="font-medium text-success">Zero GDPR.</span> Civis nu trimite niciun
           document către servere.
         </p>
@@ -61,17 +61,15 @@ function Vault() {
 
       <div className="grid grid-cols-3 gap-2 mb-5">
         <Card className="p-3 text-center">
-          <div className="text-[11px] uppercase tracking-wider text-muted-foreground">Profil</div>
+          <div className="text-xs uppercase tracking-wider text-muted-foreground">Profil</div>
           <div className="text-lg font-semibold">{completenessPct}%</div>
         </Card>
         <Card className="p-3 text-center">
-          <div className="text-[11px] uppercase tracking-wider text-muted-foreground">
-            Documente
-          </div>
+          <div className="text-xs uppercase tracking-wider text-muted-foreground">Documente</div>
           <div className="text-lg font-semibold">{docs.length}</div>
         </Card>
         <Card className="p-3 text-center">
-          <div className="text-[11px] uppercase tracking-wider text-muted-foreground">RAG</div>
+          <div className="text-xs uppercase tracking-wider text-muted-foreground">RAG</div>
           <div className="text-sm font-semibold">{ragEnabled ? "activ" : "fallback local"}</div>
         </Card>
       </div>
@@ -79,7 +77,7 @@ function Vault() {
       <Card className="p-5 mb-5">
         <div className="flex items-center justify-between mb-1.5">
           <h2 className="text-sm font-semibold">Date personale (folosite la autofill)</h2>
-          <span className="text-[11px] font-mono tabular-nums text-muted-foreground">
+          <span className="text-xs font-mono tabular-nums text-muted-foreground">
             {completenessPct}% complet
           </span>
         </div>
@@ -126,7 +124,7 @@ function Vault() {
           />
         </div>
         {allValid && (
-          <div className="mt-3 flex items-center gap-1.5 text-xs text-success animate-[fade-in_0.3s_ease-out]">
+          <div className="mt-3 flex items-center gap-1.5 text-sm text-success animate-[fade-in_0.3s_ease-out]">
             <CheckCircle2 className="size-3.5" /> Profil complet și validat — autofill activat.
           </div>
         )}
@@ -158,7 +156,7 @@ function Field({
   const valid = check?.status === "valid";
   return (
     <div className={`space-y-1.5 ${className}`}>
-      <Label className="text-xs flex items-center justify-between gap-2">
+      <Label className="text-sm flex items-center justify-between gap-2">
         <span>{label}</span>
         {valid && (
           <span className="inline-flex items-center gap-1 text-success font-normal">
@@ -180,7 +178,7 @@ function Field({
           invalid ? "border-destructive/60 focus-visible:ring-destructive/50" : ""
         }`}
       />
-      {invalid && check?.message && <p className="text-[11px] text-destructive">{check.message}</p>}
+      {invalid && check?.message && <p className="text-xs text-destructive">{check.message}</p>}
     </div>
   );
 }

@@ -88,7 +88,7 @@ function PfaWizardPage() {
       </Link>
 
       <Card className="p-5 mb-4 bg-gradient-to-br from-card to-accent/40">
-        <div className="text-xs uppercase tracking-wider text-primary font-semibold mb-2">
+        <div className="text-sm uppercase tracking-wider text-primary font-semibold mb-2">
           Wizard PFA (feature-rich)
         </div>
         <h1 className="text-xl font-semibold">Înființare PFA — ghid asistat</h1>
@@ -125,7 +125,7 @@ function PfaWizardPage() {
         </div>
 
         {ragSource && (
-          <div className="mt-3 text-xs text-muted-foreground">
+          <div className="mt-3 text-sm text-muted-foreground">
             Sursă sugestii:{" "}
             <strong>{ragSource === "supabase_rag" ? "RAG Supabase" : "fallback local"}</strong>
           </div>
@@ -135,7 +135,7 @@ function PfaWizardPage() {
           <ul className="mt-3 space-y-2">
             {suggestions.slice(0, 5).map((s) => (
               <li key={s.code} className="rounded-lg border border-border p-2">
-                <div className="text-xs font-mono text-primary">{s.code}</div>
+                <div className="text-sm font-mono text-primary">{s.code}</div>
                 <div className="text-sm">{s.title}</div>
               </li>
             ))}
@@ -147,8 +147,8 @@ function PfaWizardPage() {
         <div className="text-sm font-semibold mb-2">Checklist ghidat</div>
         <ul className="space-y-2">
           {steps.map((s) => (
-            <li key={s} className="flex items-start gap-2 text-sm">
-              <CheckCircle2 className="size-4 text-success mt-0.5" />
+            <li key={s} className="flex items-center gap-2.5 text-sm">
+              <CheckCircle2 className="size-4 text-success shrink-0" />
               <span>{s}</span>
             </li>
           ))}

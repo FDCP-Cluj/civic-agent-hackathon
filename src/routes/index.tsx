@@ -209,7 +209,7 @@ function Dashboard() {
       <section className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4" aria-label="Statistici">
         <Card className="border-border/80 shadow-none">
           <CardHeader className="pb-1">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
+            <CardTitle className="text-base font-medium text-muted-foreground">
               Sarcini active
             </CardTitle>
           </CardHeader>
@@ -219,7 +219,7 @@ function Dashboard() {
         </Card>
         <Card className="border-border/80 shadow-none">
           <CardHeader className="pb-1">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Documente</CardTitle>
+            <CardTitle className="text-base font-medium text-muted-foreground">Documente</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-3xl font-semibold tracking-tight">{documents.length}</p>
@@ -227,7 +227,7 @@ function Dashboard() {
         </Card>
         <Card className="border-border/80 shadow-none">
           <CardHeader className="pb-1">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Profil</CardTitle>
+            <CardTitle className="text-base font-medium text-muted-foreground">Profil</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-3xl font-semibold tracking-tight">{profile.fullName ? "OK" : "—"}</p>
@@ -235,7 +235,9 @@ function Dashboard() {
         </Card>
         <Card className="border-border/80 shadow-none">
           <CardHeader className="pb-1">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Localitate</CardTitle>
+            <CardTitle className="text-base font-medium text-muted-foreground">
+              Localitate
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <p className="truncate text-lg font-semibold">{localitate ?? "Nesetată"}</p>
