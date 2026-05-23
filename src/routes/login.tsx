@@ -1,0 +1,127 @@
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useState } from "react";
+import { ShieldCheck, Mail, Lock, ArrowRight, Sparkles } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useAuth } from "@/store";
+import { DEMO_EMAIL } from "@/lib/demoSeed";
+
+export const Route = createFileRoute("/login")({ component: Login });
+
+function Login() {
+  const navigate = useNavigate();
+  const login = useAuth((s) => s.login);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [mode, setMode] = useState<"login" | "signup">("login");
+
+  const submit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) return;
+    login(email);
+    navigate({ to: "/verify" });
+  };
+
+  return (
+    <div className="min-h-screen bg-background flex flex-col">
+      <div className="h-1.5 bg-tricolor" />
+      <div className="flex-1 flex items-center justify-center px-4 py-10">
+        <div className="w-full max-w-md">
+          <div className="flex flex-col items-center text-center mb-8">
+            <div className="size-14 rounded-2xl bg-gradient-hero flex items-center justify-center shadow-card mb-4">
+              <ShieldCheck className="size-7 text-primary-foreground" />
+            </div>
+            <h1 className="text-2xl font-semibold tracking-tight">Bine ai venit la Civis</h1>
+            <p className="text-sm text-muted-foreground mt-1.5 max-w-sm">
+              Agentul tău AI pentru ANAF, DRPCIV, Poliție și instituțiile statului.
+            </p>
+          </div>
+
+          <div className="bg-card border border-border rounded-2xl p-6 shadow-card">
+            <div className="flex gap-1 p-1 bg-muted rounded-lg mb-5">
+              {(["login", "signup"] as const).map((m) => (
+                <button
+                  key={m}
+                  type="button"
+                  onClick={() => setMode(m)}
+                  className={`flex-1 text-sm font-medium py-2 rounded-md transition-colors ${
+                    mode === m ? "bg-card text-foreground shadow-soft" : "text-muted-foreground"
+                  }`}
+                >
+                  {m === "login" ? "Autentificare" : "Cont nou"}
+                </button>
+              ))}
+            </div>
+
+            <form onSubmit={submit} className="space-y-4">
+              <div className="space-y-1.5">
+                <Label htmlFor="email">Email</Label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+                  <Input
+                    id="email"
+                    type="email"
+                    required
+                    placeholder="nume@email.ro"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="pl-9"
+                  />
+                </div>
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="password">Parolă</Label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+                  <Input
+                    id="password"
+                    type="password"
+                    required
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="pl-9"
+                  />
+                </div>
+              </div>
+
+              <Button type="submit" className="w-full h-11">
+                {mode === "login" ? "Continuă" : "Creează cont"}
+                <ArrowRight className="size-4" />
+              </Button>
+            </form>
+
+            <button
+              type="button"
+              onClick={() => {
+                setEmail(DEMO_EMAIL);
+                setPassword("demo1234");
+              }}
+              className="mt-4 w-full rounded-lg border border-dashed border-primary/30 bg-primary/5 px-3 py-2 text-left text-xs text-foreground/80 hover:bg-primary/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              <div className="flex items-start gap-2">
+                <Sparkles className="size-4 text-primary shrink-0 mt-0.5" />
+                <span>
+                  <span className="font-medium text-foreground">Cont demo:</span> apasă aici pentru
+                  a folosi <span className="font-mono">{DEMO_EMAIL}</span> — încarcă un profil
+                  românesc complet și 5 acte mock pentru a testa autofill-ul.
+                </span>
+              </div>
+            </button>
+
+            <div className="mt-5 pt-5 border-t border-border">
+              <div className="flex items-start gap-2 text-xs text-muted-foreground">
+                <ShieldCheck className="size-4 text-success shrink-0 mt-0.5" />
+                <span>
+                  Documentele tale rămân doar pe acest dispozitiv. Civis nu stochează acte personale
+                  pe serverele sale.
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
