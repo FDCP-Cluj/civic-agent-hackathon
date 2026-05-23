@@ -54,7 +54,7 @@ function Tasks() {
             icon={Inbox}
             tone="primary"
             title="Nicio sarcină activă"
-            description="Cere agentului Civis să te ghideze printr-o procedură — îți construiește pașii instant."
+            description="Cere agentului ActeAI să te ghideze printr-o procedură — îți construiește pașii instant."
             action={
               <Button asChild>
                 <Link to="/">Pornește prima procedură</Link>

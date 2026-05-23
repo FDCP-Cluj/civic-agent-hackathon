@@ -29,9 +29,9 @@ const DYSLEXIC_FONT_HREF =
 function useEnsureDyslexicFont(active: boolean) {
   useEffect(() => {
     if (!active || typeof document === "undefined") return;
-    if (document.getElementById("civis-dyslexic-font")) return;
+    if (document.getElementById("acteai-dyslexic-font")) return;
     const link = document.createElement("link");
-    link.id = "civis-dyslexic-font";
+    link.id = "acteai-dyslexic-font";
     link.rel = "stylesheet";
     link.href = DYSLEXIC_FONT_HREF;
     document.head.appendChild(link);
@@ -122,7 +122,7 @@ export function AccessibilityMenu({ open, onOpenChange }: Props) {
         </div>
 
         <div className="mt-5 pt-4 border-t border-border text-[11px] text-muted-foreground leading-relaxed">
-          Civis respectă <code className="font-mono">prefers-reduced-motion</code> automat. Toate
+          ActeAI respectă <code className="font-mono">prefers-reduced-motion</code> automat. Toate
           animațiile decorative sunt dezactivate dacă ai cerut acest lucru în setările sistemului.
         </div>
       </SheetContent>

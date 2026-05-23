@@ -45,7 +45,7 @@ isProject: false
   - mobile: compact header + horizontal nav pills (not bottom tab bar).
 - Introduce alexia-like sidebar component in target repo (new file, e.g. `src/components/dashboard/app-sidebar.tsx`) and align nav destinations with existing app routes.
 - Add alexia-like page header component (new file, e.g. `src/components/dashboard/page-header.tsx`) and adopt on high-traffic pages.
-- Preserve existing Civis-specific behaviors inside new shell:
+- Preserve existing ActeAI-specific behaviors inside new shell:
   - global chat drawer mounting,
   - accessibility menu and class sync,
   - auth/logout behavior.

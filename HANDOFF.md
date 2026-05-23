@@ -1,4 +1,4 @@
-# Civis v4 — Agent Handoff
+# ActeAI v4 — Agent Handoff
 
 **Target app:** `civic-agent-hackathon/`  
 **Last updated:** 2026-05-23  
@@ -10,7 +10,7 @@
 
 ## 1. Product goal
 
-Build **Civis**, a Romanian civic agent for elderly and mobile-first users that:
+Build **ActeAI**, a Romanian civic agent for elderly and mobile-first users that:
 
 1. **Extreme accessibility** — Senior Mode, high contrast, dyslexic font, read-aloud, large touch targets (WCAG 2.1 AA minimum).
 2. **Zero-GDPR local vault** — Profile + document metadata/previews in `localStorage` only; never upload CNP or document bytes to AI or backend.
@@ -35,8 +35,8 @@ The initial brief mapped V1→design, V2→vault, V3→chat. **Reality is invert
 | Area                  | What you get                                                                                                                                                                                                                                                     |
 | --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Routes**            | `/`, `/login`, `/verify`, `/vault`, `/tasks`, `/scan`, `/settings`, `/workflow/$id`, `/workflow/$id/pfa`, `/workflow/$id/antecontract`, `/auth/eidkit/callback`                                                                                                  |
-| **Shell (Alexia UX)** | Desktop `AppSidebar` + mobile pill nav; `PageHeader` on main pages; global Civis FAB + drawer chat; tricolor accent                                                                                                                                              |
-| **Dashboard (`/`)**   | Time-of-day greeting, KPI cards (tasks, docs, profile, locality), contextual alerts (expiring docs, profile nudge, ANAF season), live portal health strip, no-AI fallback banner, ask-Civis search + voice, quick procedures, active tasks, vault/scan shortcuts |
+| **Shell (Alexia UX)** | Desktop `AppSidebar` + mobile pill nav; `PageHeader` on main pages; global ActeAI FAB + drawer chat; tricolor accent                                                                                                                                              |
+| **Dashboard (`/`)**   | Time-of-day greeting, KPI cards (tasks, docs, profile, locality), contextual alerts (expiring docs, profile nudge, ANAF season), live portal health strip, no-AI fallback banner, ask-ActeAI search + voice, quick procedures, active tasks, vault/scan shortcuts |
 | **Auth**              | Mock email login + 6-digit OTP (any code passes); demo seed on `test@gmail.com`. **Optional** Supabase OTP when `VITE_SUPABASE_*` configured. **Optional** [EidKit](https://eidkit.ro/sso) CEI/NFC login when `VITE_EIDKIT_*` configured                         |
 | **Vault**             | Zustand `civis-vault` — profile + documents; upload runs local OCR/classify; CNP validators; completeness progress bar                                                                                                                                           |
 | **Tasks**             | Per-step completion checkboxes; syncs with workflow page; inline step titles                                                                                                                                                                                     |
@@ -91,7 +91,7 @@ civic-agent-hackathon/
     │   ├── workflow.$id.pfa.tsx
     │   └── workflow.$id.antecontract.tsx
     ├── components/
-    │   ├── app-shell.tsx      ← sidebar shell, Civis FAB, a11y menu
+    │   ├── app-shell.tsx      ← sidebar shell, ActeAI FAB, a11y menu
     │   ├── dashboard/         ← app-sidebar.tsx, page-header.tsx
     │   ├── civis-chat.tsx     ← global drawer chat
     │   ├── workflow/step-action-button.tsx
@@ -340,4 +340,4 @@ Production: never commit `.env`. `.env.example` uses empty placeholders only.
 
 ## 12. One-paragraph summary for the next agent
 
-**Civis v4 is a V3 fork with visible Alexia dashboard UX and substantial V2 merges:** sidebar shell, enriched workflow steps (mode chips, accordions, actions), mounted service-health strip, no-AI fallback banner, PFA wizard and antecontract routes, `vanzare-auto` workflow, optional Supabase RAG/auth with local fallbacks, plus the earlier invisible wins (ANAF, client OCR, PDF, CAEN). The app is **demo-ready** with a Gemini key. Top gaps: server-side secret proxy, enrich 7 generic workflows, add E2E smoke tests, and improve PDF fonts for Romanian diacritics. Do not touch the three source prototype directories. Vault stays local-only; Supabase is optional enhancement only.
+**ActeAI v4 is a V3 fork with visible Alexia dashboard UX and substantial V2 merges:** sidebar shell, enriched workflow steps (mode chips, accordions, actions), mounted service-health strip, no-AI fallback banner, PFA wizard and antecontract routes, `vanzare-auto` workflow, optional Supabase RAG/auth with local fallbacks, plus the earlier invisible wins (ANAF, client OCR, PDF, CAEN). The app is **demo-ready** with a Gemini key. Top gaps: server-side secret proxy, enrich 7 generic workflows, add E2E smoke tests, and improve PDF fonts for Romanian diacritics. Do not touch the three source prototype directories. Vault stays local-only; Supabase is optional enhancement only.

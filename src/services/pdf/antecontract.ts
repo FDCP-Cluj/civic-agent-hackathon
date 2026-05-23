@@ -63,7 +63,7 @@ export async function generateAntecontractPdf(input: AntecontractInput): Promise
   y -= 40;
 
   text("ANTECONTRACT DE VÂNZARE-CUMPĂRARE", { bold: true, size: 16 });
-  text(`Generat de Civis · ${new Date().toLocaleDateString("ro-RO")}`, { size: 9 });
+  text(`Generat de ActeAI · ${new Date().toLocaleDateString("ro-RO")}`, { size: 9 });
   y -= 6;
 
   text("PĂRȚI:", { bold: true });

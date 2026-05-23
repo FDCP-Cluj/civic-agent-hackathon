@@ -114,7 +114,7 @@ function buildSystemInstruction(profile: VaultProfile, workflows: Workflow[]): s
     .map((w) => `- ${w.id} — ${w.title} (${w.category}, ~${w.totalMinutes} min)`)
     .join("\n");
 
-  return `Ești Civis, un agent civic AI care ajută cetățenii români să navigheze birocrația statului.
+  return `Ești ActeAI, un agent civic AI care ajută cetățenii români să navigheze birocrația statului.
 
 PERSONA:
 - Vorbești EXCLUSIV în limba română, natural și profesionist, fără englezisme.

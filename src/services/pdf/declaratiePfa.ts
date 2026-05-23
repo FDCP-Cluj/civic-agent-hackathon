@@ -74,7 +74,7 @@ export async function generateDeclaratiePfaPdf(input: DeclaratiePfaInput): Promi
     "privind îndeplinirea condițiilor de funcționare prevăzute de legislația specifică în domeniul sanitar, sanitar-veterinar, protecției mediului și protecției muncii",
     { size: 9 },
   );
-  text(`Generat de Civis · ${new Date().toLocaleDateString("ro-RO")}`, { size: 9, gap: 22 });
+  text(`Generat de ActeAI · ${new Date().toLocaleDateString("ro-RO")}`, { size: 9, gap: 22 });
 
   text("Subsemnatul/Subsemnata,", { size: 11 });
   text(input.profile.fullName ?? "[Numele și prenumele titularului PFA]", {

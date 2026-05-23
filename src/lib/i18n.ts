@@ -2,7 +2,7 @@
 // the accessibility menu's language selector toggles all translated copy
 // without a page reload.
 //
-// Why minimal: most user-facing copy in Civis lives inside JSX, not a
+// Why minimal: most user-facing copy in ActeAI lives inside JSX, not a
 // resource file. This scaffold gives the seam: we can extract strings
 // into the dictionaries over time without refactoring component logic.
 //
@@ -28,8 +28,8 @@ const ro: Dict = {
   "nav.settings": "Setări",
   "vault.title": "Seiful meu local",
   "vault.subtitle": "Datele și actele tale rămân pe acest dispozitiv.",
-  "vault.zeroGdpr": "Zero GDPR. Civis nu trimite niciun document către servere.",
-  "chat.title": "Agentul Civis",
+  "vault.zeroGdpr": "Zero GDPR. ActeAI nu trimite niciun document către servere.",
+  "chat.title": "Agentul ActeAI",
   "chat.subtitle": "Întreabă orice despre birocrația din România.",
   "chat.privacyNote": "Datele tale rămân pe acest dispozitiv. Nu trimitem documente.",
 };
@@ -49,8 +49,8 @@ const en: Dict = {
   "nav.settings": "Settings",
   "vault.title": "My local vault",
   "vault.subtitle": "Your data and documents stay on this device.",
-  "vault.zeroGdpr": "Zero GDPR. Civis never sends documents to a server.",
-  "chat.title": "Civis Agent",
+  "vault.zeroGdpr": "Zero GDPR. ActeAI never sends documents to a server.",
+  "chat.title": "ActeAI Agent",
   "chat.subtitle": "Ask anything about Romanian bureaucracy.",
   "chat.privacyNote": "Your data stays on this device. We don't send documents.",
 };

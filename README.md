@@ -1,4 +1,4 @@
-# Civis — Agent Civic AI
+# ActeAI — Agent Civic AI
 
 An accessibility-first, local-first AI civic agent that walks Romanian citizens
 through state bureaucracy. Built for the Bosch hackathon by synthesizing the
@@ -55,7 +55,7 @@ Demo login for testing:
 ```
 src/
 ├── routes/        # File-based routes (/, /login, /verify, /vault, /tasks, /scan, /settings, /workflow/$id, PFA/antecontract subroutes)
-├── components/    # AppShell, CivisChat, AccessibilityMenu, VaultUploadCard, etc.
+├── components/    # AppShell, ActeAIChat, AccessibilityMenu, VaultUploadCard, etc.
 ├── components/ui/ # shadcn primitives
 ├── hooks/         # use-mobile, use-speech-recognition, use-read-aloud
 ├── lib/           # cn(), error capture, demo seed
@@ -66,7 +66,7 @@ src/
 
 ## Privacy posture
 
-- No Civis backend. Core vault/workflow features are in-browser; optional
+- No ActeAI backend. Core vault/workflow features are in-browser; optional
   integrations call Gemini, ANAF, Supabase, EidKit, or Google Maps directly
   from the browser when configured.
 - `useVault` slice (`civis-vault` in `localStorage`) never crosses the

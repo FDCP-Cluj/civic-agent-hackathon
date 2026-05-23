@@ -325,7 +325,7 @@ function ResultView({
                     : `Posibil: ${CLASSIFIED_TYPE_LABELS_RO[validation.documentType]}`}
                 </h2>
                 <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                  Civis a citit local documentul, dar calitatea sau încrederea nu sunt suficiente
+                  ActeAI a citit local documentul, dar calitatea sau încrederea nu sunt suficiente
                   pentru autofill sigur.
                 </p>
               </div>

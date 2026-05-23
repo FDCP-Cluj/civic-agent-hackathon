@@ -90,7 +90,7 @@ function ChatPage() {
   return (
     <AppShell>
       <PageHeader
-        title="Chat Civis"
+        title="Chat ActeAI"
         description="Conversațiile salvate pe acest dispozitiv, cu sursele și ghidurile recomandate."
       >
         <div className="flex items-center gap-2">
@@ -173,7 +173,7 @@ function ChatPage() {
                 <div className="mt-0.5 text-xs text-muted-foreground">
                   {selectedTurn
                     ? `${selectedTurn.messages.length} mesaje salvate local`
-                    : "Întrebările rapide deschid agentul Civis"}
+                    : "Întrebările rapide deschid agentul ActeAI"}
                 </div>
               </div>
               <Button size="sm" onClick={() => openChat()}>
@@ -236,7 +236,7 @@ function HistoryMessage({ message }: { message: PersistedChatMessage }) {
           ) : (
             <>
               <Bot className="size-3" />
-              <span>Civis</span>
+              <span>ActeAI</span>
             </>
           )}
         </div>

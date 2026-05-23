@@ -7,7 +7,6 @@ import {
   ScanLine,
   Settings,
   ScrollText,
-  ShieldCheck,
   Sparkles,
 } from "lucide-react";
 import {
@@ -20,6 +19,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import logoImage from "@/assets/images/logo.png";
 
 const NAV_ITEMS = [
   { to: "/", label: "Acasă", icon: Home },
@@ -34,24 +34,14 @@ const NAV_ITEMS = [
 export function AppSidebar() {
   const path = useRouterState({ select: (s) => s.location.pathname });
   return (
-    <Sidebar collapsible="none" className="border-r border-sidebar-border">
-      <SidebarHeader>
-        <div className="rounded-lg border border-sidebar-border/70 bg-sidebar-accent/35 p-3">
-          <div className="flex items-center gap-2">
-            <div className="size-9 rounded-lg bg-primary flex items-center justify-center">
-              <ShieldCheck className="size-4 text-primary-foreground" />
-            </div>
-            <div className="min-w-0">
-              <div className="truncate text-sm font-semibold text-sidebar-foreground">Civis</div>
-              <div className="truncate text-[10px] uppercase tracking-wider text-sidebar-foreground/70">
-                Agent civic AI
-              </div>
-            </div>
-          </div>
+    <Sidebar collapsible="none" className="h-svh border-r border-sidebar-border bg-sidebar">
+      <SidebarHeader className="border-b border-sidebar-border/70 pb-3">
+        <div className="px-5">
+          <img src={logoImage} alt="ActeAI" className="h-10 w-auto object-contain" />
         </div>
       </SidebarHeader>
 
-      <SidebarContent>
+      <SidebarContent className="overflow-y-auto">
         <SidebarGroup>
           <SidebarMenu>
             {NAV_ITEMS.map((item) => {
@@ -62,7 +52,12 @@ export function AppSidebar() {
               const Icon = item.icon;
               return (
                 <SidebarMenuItem key={item.to}>
-                  <SidebarMenuButton asChild isActive={active} tooltip={item.label}>
+                  <SidebarMenuButton
+                    asChild
+                    isActive={active}
+                    tooltip={item.label}
+                    className="h-9 rounded-lg px-2.5 text-[0.95rem] font-medium"
+                  >
                     <Link to={item.to}>
                       <Icon className="size-4" />
                       <span>{item.label}</span>
@@ -76,13 +71,13 @@ export function AppSidebar() {
       </SidebarContent>
 
       <SidebarFooter>
-        <div className="rounded-lg border border-sidebar-border/70 bg-sidebar-accent/35 p-3">
+        <div className="rounded-lg border border-sidebar-border/70 bg-sidebar-accent/20 p-3">
           <div className="flex items-center gap-2 text-sm font-medium text-sidebar-foreground">
-            <Sparkles className="size-4 text-primary" />
-            Obiectiv nou
+            <Sparkles className="size-4 text-primary/90" />
+            Ai nevoie de ajutor?
           </div>
-          <p className="mt-1 text-[11px] leading-relaxed text-sidebar-foreground/75">
-            Folosește chatul Civis pentru a porni rapid o procedură.
+          <p className="mt-1 text-xs leading-relaxed text-sidebar-foreground/75">
+            Deschide Chat pentru recomandari rapide de proceduri.
           </p>
         </div>
       </SidebarFooter>

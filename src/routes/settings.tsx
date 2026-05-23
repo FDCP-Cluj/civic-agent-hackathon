@@ -34,7 +34,7 @@ function Settings() {
           <div className="flex-1">
             <div className="text-sm font-medium">Confidențialitate</div>
             <p className="mt-1 text-sm text-muted-foreground">
-              Documentele tale sunt stocate doar local. Civis nu are acces la actele tale.
+              Documentele tale sunt stocate doar local. ActeAI nu are acces la actele tale.
             </p>
           </div>
         </div>
