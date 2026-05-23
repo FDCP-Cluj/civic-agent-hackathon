@@ -42,7 +42,7 @@ function Tasks() {
         title="Sarcini active"
         description="Toate procedurile pe care le ai în desfășurare. Marchează pașii direct de aici sau deschide ghidul complet."
       >
-        <div className="inline-flex items-center gap-2 text-xs text-muted-foreground">
+        <div className="inline-flex items-center gap-2 text-sm text-muted-foreground">
           <ListChecks className="size-4 text-primary" />
           Workflow tracker
         </div>
@@ -63,12 +63,11 @@ function Tasks() {
           />
         ) : (
           <div className="space-y-3">
-            {tasks.map((t, i) => (
+            {tasks.map((t) => (
               <TaskCard
                 key={t.id}
                 task={t}
                 workflow={workflows[t.workflowId]}
-                animationDelay={`${i * 60}ms`}
                 onRemove={() => remove(t.id)}
                 onToggleStep={(stepOrder) => toggleStep(t.id, stepOrder)}
               />
@@ -83,13 +82,11 @@ function Tasks() {
 function TaskCard({
   task,
   workflow,
-  animationDelay,
   onRemove,
   onToggleStep,
 }: {
   task: ActiveTask;
   workflow: Workflow | undefined;
-  animationDelay: string;
   onRemove: () => void;
   onToggleStep: (stepOrder: number) => void;
 }) {
@@ -98,15 +95,12 @@ function TaskCard({
 
   return (
     <Card
-      className={`p-4 animate-[fade-in_0.3s_ease-out] ${
-        done ? "border-success/30 bg-success/5" : ""
-      }`}
-      style={{ animationDelay, animationFillMode: "both" }}
+      className={`p-4 ${done ? "border-success/30 bg-success/5" : ""}`}
     >
       <div className="flex items-start justify-between gap-3 mb-3">
         <div className="min-w-0 flex-1">
-          <div className="text-sm font-medium break-words">{task.title}</div>
-          <div className="text-xs text-muted-foreground mt-0.5">
+          <div className="text-base font-semibold break-words">{task.title}</div>
+          <div className="text-sm text-muted-foreground mt-0.5">
             Pornit pe {new Date(task.startedAt).toLocaleDateString("ro-RO")}
           </div>
         </div>
@@ -122,7 +116,7 @@ function TaskCard({
 
       <div className="flex items-center gap-3 mb-3">
         <Progress value={task.progress} className="flex-1 h-2" />
-        <span className="text-xs tabular-nums text-muted-foreground">
+        <span className="text-sm tabular-nums text-muted-foreground">
           {completed.size}/{task.totalSteps}
         </span>
       </div>
@@ -137,22 +131,24 @@ function TaskCard({
                   type="button"
                   onClick={() => onToggleStep(s.order)}
                   aria-pressed={isDone}
-                  className="w-full text-left rounded-md px-2 py-1.5 -mx-2 hover:bg-accent/40 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring inline-flex items-start gap-2"
+                  className="w-full text-left rounded-md px-2 py-2 -mx-2 hover:bg-accent/40 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring inline-flex items-center gap-2.5"
                 >
                   {isDone ? (
-                    <CheckCircle2 className="size-4 text-success shrink-0 mt-0.5" />
+                    <CheckCircle2 className="size-4 text-success shrink-0" />
                   ) : (
-                    <Circle className="size-4 text-muted-foreground shrink-0 mt-0.5" />
+                    <Circle className="size-4 text-muted-foreground shrink-0" />
                   )}
-                  <span
-                    className={`text-xs leading-snug break-words ${
-                      isDone ? "line-through text-muted-foreground" : ""
-                    }`}
-                  >
-                    <span className="font-mono tabular-nums text-[10px] text-muted-foreground mr-1.5">
+                  <span className="inline-flex items-center gap-1.5 min-w-0">
+                    <span className="font-mono tabular-nums text-sm text-muted-foreground shrink-0">
                       {s.order}.
                     </span>
-                    {s.title}
+                    <span
+                      className={`text-sm leading-relaxed break-words ${
+                        isDone ? "line-through text-muted-foreground" : ""
+                      }`}
+                    >
+                      {s.title}
+                    </span>
                   </span>
                 </button>
               </li>

@@ -61,7 +61,7 @@ function Verify() {
 
           <form
             onSubmit={submit}
-            className="bg-card border border-border rounded-2xl p-6 shadow-card space-y-5"
+            className="space-y-5 rounded-2xl border border-border bg-card p-6 shadow-none"
           >
             <div className="flex justify-center">
               <InputOTP maxLength={6} value={code} onChange={setCode}>

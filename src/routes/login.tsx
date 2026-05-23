@@ -55,8 +55,8 @@ function Login() {
       <div className="flex-1 flex items-center justify-center px-4 py-10">
         <div className="w-full max-w-md">
           <div className="flex flex-col items-center text-center mb-8">
-            <div className="size-14 rounded-2xl bg-gradient-hero flex items-center justify-center shadow-card mb-4">
-              <ShieldCheck className="size-7 text-primary-foreground" />
+            <div className="mb-4 flex size-14 items-center justify-center rounded-2xl bg-primary/10">
+              <ShieldCheck className="size-7 text-primary" />
             </div>
             <h1 className="text-2xl font-semibold tracking-tight">Bine ai venit la Civis</h1>
             <p className="text-sm text-muted-foreground mt-1.5 max-w-sm">
@@ -64,7 +64,7 @@ function Login() {
             </p>
           </div>
 
-          <div className="bg-card border border-border rounded-2xl p-6 shadow-card">
+          <div className="rounded-2xl border border-border bg-card p-6 shadow-none">
             <div className="flex gap-1 p-1 bg-muted rounded-lg mb-5">
               {(["login", "signup"] as const).map((m) => (
                 <button
@@ -72,7 +72,7 @@ function Login() {
                   type="button"
                   onClick={() => setMode(m)}
                   className={`flex-1 text-sm font-medium py-2 rounded-md transition-colors ${
-                    mode === m ? "bg-card text-foreground shadow-soft" : "text-muted-foreground"
+                    mode === m ? "bg-card text-foreground" : "text-muted-foreground"
                   }`}
                 >
                   {m === "login" ? "Autentificare" : "Cont nou"}

@@ -1,3 +1,4 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
 @import "tailwindcss" source(none);
 @source "../src";
 @import "tw-animate-css";
@@ -44,6 +45,8 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+  --font-sans: var(--font-family-sans);
+  --font-mono: var(--font-family-mono);
 
   --shadow-soft: 0 1px 2px oklch(0 0 0 / 0.04), 0 4px 16px oklch(0.4 0.1 250 / 0.06);
   --shadow-card: 0 1px 3px oklch(0 0 0 / 0.05), 0 8px 24px oklch(0.4 0.1 250 / 0.08);
@@ -62,6 +65,10 @@
 
 :root {
   --radius: 0.875rem;
+  --font-family-sans:
+    "Inter", "SF Pro Text", "SF Pro Display", "Segoe UI", "Roboto", "Helvetica Neue", Arial,
+    sans-serif;
+  --font-family-mono: "JetBrains Mono", "Fira Code", "SF Mono", "Menlo", monospace;
 
   --background: oklch(0.985 0.005 240);
   --foreground: oklch(0.18 0.03 250);
@@ -136,7 +143,7 @@
 
 /* Senior Mode — globally scales typography and spacing */
 .senior-mode {
-  font-size: 120%;
+  font-size: 125%;
 }
 .senior-mode button,
 .senior-mode a,
@@ -196,6 +203,13 @@
   letter-spacing: 0.01em;
   line-height: 1.6;
 }
+.dyslexic-font body {
+  font-family:
+    "Atkinson Hyperlegible",
+    system-ui,
+    -apple-system,
+    sans-serif;
+}
 .dyslexic-font :where(h1, h2, h3, h4) {
   letter-spacing: 0.005em;
 }
@@ -236,11 +250,57 @@
   * {
     border-color: var(--color-border);
   }
+  html {
+    font-size: 16px;
+  }
+  @media (min-width: 768px) {
+    html {
+      font-size: 17px;
+    }
+  }
+  @media (min-width: 1280px) {
+    html {
+      font-size: 18px;
+    }
+  }
   html,
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
+    font-family: var(--font-family-sans);
+    line-height: 1.6;
     -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  h1 {
+    font-size: clamp(1.75rem, 1.4rem + 1.1vw, 2.35rem);
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+    font-weight: 700;
+  }
+  h2 {
+    font-size: clamp(1.35rem, 1.15rem + 0.75vw, 1.85rem);
+    line-height: 1.25;
+    letter-spacing: -0.015em;
+    font-weight: 650;
+  }
+  h3 {
+    font-size: clamp(1.1rem, 1rem + 0.45vw, 1.35rem);
+    line-height: 1.3;
+    font-weight: 600;
+  }
+  p,
+  li {
+    font-size: 1rem;
+    line-height: 1.65;
+  }
+  ol,
+  ul {
+    padding-left: 1.35rem;
+  }
+  li::marker {
+    font-size: 0.95rem;
+    color: color-mix(in oklch, var(--color-foreground) 65%, transparent);
   }
   html.login-overscroll-flag,
   body.login-overscroll-flag {

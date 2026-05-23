@@ -11,7 +11,6 @@ import {
   ArrowRight,
   Clock,
   ScanLine,
-  MapPin,
   CalendarDays,
   AlertTriangle,
   FolderLock,
@@ -32,10 +31,9 @@ import {
 import { govApi } from "@/services/govApiMock";
 import { isApiKeyConfigured } from "@/services/aiConfig";
 import { isSupabaseConfigured } from "@/services/supabaseClient";
-import { AllServicesDrawer } from "@/components/all-services-drawer";
 import { useSpeechRecognition } from "@/hooks/use-speech-recognition";
 import { toast } from "sonner";
-import { PageHeader } from "@/components/dashboard/page-header";
+import { HomeWelcomeHeader } from "@/components/dashboard/home-welcome-header";
 import { ServiceHealthStrip } from "@/components/service-health-strip";
 
 export const Route = createFileRoute("/")({ component: Dashboard });
@@ -87,7 +85,6 @@ function Dashboard() {
   const profileCompleteness = useProfileCompleteness();
   const [query, setQuery] = useState("");
   const [thinking, setThinking] = useState(false);
-  const [servicesOpen, setServicesOpen] = useState(false);
 
   const aiEnabled = isApiKeyConfigured();
   const ragEnabled = isSupabaseConfigured();
@@ -105,13 +102,6 @@ function Dashboard() {
         : hour < 18
           ? "Bună ziua"
           : "Bună seara";
-
-  // Best-effort "localitate" extraction: take the last comma-separated chunk of address
-  const localitate = profile.address
-    ?.split(",")
-    .map((s) => s.trim())
-    .filter(Boolean)
-    .pop();
 
   const alerts = useMemo<DashboardAlert[]>(() => {
     const items: DashboardAlert[] = [];
@@ -199,51 +189,7 @@ function Dashboard() {
 
   return (
     <AppShell showOfficialFooter>
-      <PageHeader
-        title={`${timeGreeting}, ${greet}`}
-        description="Dashboard simplificat pentru proceduri, documente și asistență."
-      >
-        <Button variant="outline" size="sm" onClick={() => setServicesOpen(true)}>
-          Vezi toate serviciile
-        </Button>
-      </PageHeader>
-
-      <section className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4" aria-label="Statistici">
-        <Card className="border-border/80 shadow-none">
-          <CardHeader className="pb-1">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Sarcini active
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-3xl font-semibold tracking-tight">{tasks.length}</p>
-          </CardContent>
-        </Card>
-        <Card className="border-border/80 shadow-none">
-          <CardHeader className="pb-1">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Documente</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-3xl font-semibold tracking-tight">{documents.length}</p>
-          </CardContent>
-        </Card>
-        <Card className="border-border/80 shadow-none">
-          <CardHeader className="pb-1">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Profil</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-3xl font-semibold tracking-tight">{profile.fullName ? "OK" : "—"}</p>
-          </CardContent>
-        </Card>
-        <Card className="border-border/80 shadow-none">
-          <CardHeader className="pb-1">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Localitate</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="truncate text-lg font-semibold">{localitate ?? "Nesetată"}</p>
-          </CardContent>
-        </Card>
-      </section>
+      <HomeWelcomeHeader greeting={timeGreeting} name={greet} />
 
       {alerts.length > 0 ? (
         <Card className="mt-4 border-border/80 shadow-none">
@@ -294,8 +240,8 @@ function Dashboard() {
                 Căutarea locală și toate ghidurile pas-cu-pas funcționează în continuare.
               </p>
             </div>
-            <Button size="sm" variant="outline" onClick={() => setServicesOpen(true)}>
-              Vezi toate procedurile
+            <Button asChild size="sm" variant="outline">
+              <Link to="/services">Vezi toate procedurile</Link>
             </Button>
           </CardContent>
         </Card>
@@ -395,13 +341,12 @@ function Dashboard() {
                 <p className="text-sm text-muted-foreground mb-3">
                   Nu ai nicio procedură în desfășurare.
                 </p>
-                <button
-                  type="button"
-                  onClick={() => setServicesOpen(true)}
+                <Link
+                  to="/services"
                   className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline"
                 >
                   Răsfoiește toate procedurile <ArrowRight className="size-3" />
-                </button>
+                </Link>
               </div>
             ) : (
               <div className="space-y-2">
@@ -440,7 +385,7 @@ function Dashboard() {
           <CardContent className="space-y-3">
             <Button asChild variant="outline" className="w-full justify-start">
               <Link to="/vault">
-                <MapPin className="size-4" />
+                <FolderLock className="size-4" />
                 Deschide seiful
               </Link>
             </Button>
@@ -450,20 +395,16 @@ function Dashboard() {
                 Scanează un document
               </Link>
             </Button>
-            <Button
-              type="button"
-              onClick={() => setServicesOpen(true)}
-              variant="ghost"
-              className="w-full justify-start"
-            >
-              <FileText className="size-4" />
-              Toate procedurile
+            <Button asChild variant="ghost" className="w-full justify-start">
+              <Link to="/services">
+                <FileText className="size-4" />
+                Toate procedurile
+              </Link>
             </Button>
           </CardContent>
         </Card>
       </div>
 
-      <AllServicesDrawer open={servicesOpen} onOpenChange={setServicesOpen} />
     </AppShell>
   );
 }
