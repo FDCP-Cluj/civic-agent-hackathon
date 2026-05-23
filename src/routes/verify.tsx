@@ -44,12 +44,12 @@ function Verify() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <div className="h-1.5 bg-tricolor" />
+      <div className="h-2 bg-tricolor" aria-hidden />
       <div className="flex-1 flex items-center justify-center px-4 py-10">
         <div className="w-full max-w-md">
           <div className="flex flex-col items-center text-center mb-8">
-            <div className="size-14 rounded-2xl bg-accent flex items-center justify-center mb-4">
-              <Smartphone className="size-7 text-primary" />
+            <div className="size-14 rounded-2xl bg-tricolor-flag flex items-center justify-center mb-4 shadow-card">
+              <Smartphone className="size-7 text-white drop-shadow" />
             </div>
             <h1 className="text-2xl font-semibold tracking-tight">Verificare în 2 pași</h1>
             <p className="text-sm text-muted-foreground mt-1.5 max-w-sm">

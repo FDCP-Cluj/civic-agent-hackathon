@@ -51,12 +51,15 @@ function Login() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <div className="relative h-1.5 bg-tricolor before:absolute before:inset-x-0 before:bottom-full before:h-[100vh] before:bg-tricolor" />
+      <div
+        aria-hidden
+        className="relative h-2 bg-tricolor before:absolute before:inset-x-0 before:bottom-full before:h-[100vh] before:bg-tricolor"
+      />
       <div className="flex-1 flex items-center justify-center px-4 py-10">
         <div className="w-full max-w-md">
           <div className="flex flex-col items-center text-center mb-8">
-            <div className="mb-4 flex size-14 items-center justify-center rounded-2xl bg-primary/10">
-              <ShieldCheck className="size-7 text-primary" />
+            <div className="mb-4 flex size-14 items-center justify-center rounded-2xl bg-tricolor-flag shadow-card">
+              <ShieldCheck className="size-7 text-white drop-shadow" />
             </div>
             <h1 className="text-2xl font-semibold tracking-tight">Bine ai venit la ActeAI</h1>
             <p className="text-sm text-muted-foreground mt-1.5 max-w-sm">

@@ -55,10 +55,21 @@
   --gradient-tricolor: linear-gradient(
     90deg,
     var(--ro-blue) 0%,
-    var(--ro-blue) 33%,
-    var(--ro-yellow) 33%,
-    var(--ro-yellow) 66%,
-    var(--ro-red) 66%,
+    var(--ro-blue) 33.33%,
+    var(--ro-yellow) 33.33%,
+    var(--ro-yellow) 66.66%,
+    var(--ro-red) 66.66%,
+    var(--ro-red) 100%
+  );
+  /* Romanian flag rendered as diagonal bands — used on brand chips/icons
+     where the horizontal tricolor strip would be too thin to read. */
+  --gradient-tricolor-flag: linear-gradient(
+    135deg,
+    var(--ro-blue) 0%,
+    var(--ro-blue) 33.33%,
+    var(--ro-yellow) 33.33%,
+    var(--ro-yellow) 66.66%,
+    var(--ro-red) 66.66%,
     var(--ro-red) 100%
   );
 }
@@ -316,6 +327,9 @@
   }
   .bg-tricolor {
     background-image: var(--gradient-tricolor);
+  }
+  .bg-tricolor-flag {
+    background-image: var(--gradient-tricolor-flag);
   }
   .shadow-soft {
     box-shadow: var(--shadow-soft);
