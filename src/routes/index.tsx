@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   Search,
   Mic,
@@ -11,22 +11,28 @@ import {
   ArrowRight,
   Clock,
   ScanLine,
-  LayoutGrid,
   MapPin,
+  CalendarDays,
+  AlertTriangle,
+  FolderLock,
 } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { useAuth, useChatUi, useTasks, useVault } from "@/store";
+import {
+  RENEWAL_WORKFLOW_FOR_DOC,
+  useAuth,
+  useChatUi,
+  useExpiringDocuments,
+  useProfileCompleteness,
+  useTasks,
+  useVault,
+} from "@/store";
 import { govApi } from "@/services/govApiMock";
 import { isApiKeyConfigured } from "@/services/geminiChat";
 import { isSupabaseConfigured } from "@/services/supabaseClient";
 import { AllServicesDrawer } from "@/components/all-services-drawer";
-import { CivicHero } from "@/components/civic-hero";
-import { ServiceHealthStrip } from "@/components/service-health-strip";
-import { CivicCalendar } from "@/components/civic-calendar";
-import { ProfileCompleteness } from "@/components/profile-completeness";
 import { useSpeechRecognition } from "@/hooks/use-speech-recognition";
 import { toast } from "sonner";
 import { PageHeader } from "@/components/dashboard/page-header";
@@ -38,21 +44,36 @@ const QUICK = [
     id: "car-registration-2nd-hand",
     label: "Înmatriculare auto",
     icon: Car,
-    tint: "from-blue-500/15 to-blue-500/5",
   },
   {
     id: "renew-driver-license",
     label: "Reînnoire permis",
     icon: IdCard,
-    tint: "from-amber-500/15 to-amber-500/5",
   },
   {
     id: "anaf-declaration",
     label: "Declarație ANAF",
     icon: Receipt,
-    tint: "from-emerald-500/15 to-emerald-500/5",
   },
 ];
+
+type DashboardAlert =
+  | {
+      tone: "warning";
+      title: string;
+      description: string;
+      icon: typeof AlertTriangle;
+      action: { label: string; to: "/workflow/$id"; params: { id: string } };
+    }
+  | {
+      tone: "proactive";
+      title: string;
+      description: string;
+      icon: typeof FolderLock | typeof CalendarDays;
+      action:
+        | { label: string; to: "/workflow/$id"; params: { id: string } }
+        | { label: string; to: "/vault" };
+    };
 
 function Dashboard() {
   const navigate = useNavigate();
@@ -61,6 +82,8 @@ function Dashboard() {
   const profile = useVault((s) => s.profile);
   const documents = useVault((s) => s.documents);
   const openChat = useChatUi((s) => s.openChat);
+  const expiringDocuments = useExpiringDocuments(60);
+  const profileCompleteness = useProfileCompleteness();
   const [query, setQuery] = useState("");
   const [thinking, setThinking] = useState(false);
   const [servicesOpen, setServicesOpen] = useState(false);
@@ -88,6 +111,60 @@ function Dashboard() {
     .map((s) => s.trim())
     .filter(Boolean)
     .pop();
+
+  const alerts = useMemo<DashboardAlert[]>(() => {
+    const items: DashboardAlert[] = [];
+
+    for (const expiring of expiringDocuments.slice(0, 2)) {
+      const renewWorkflowId = RENEWAL_WORKFLOW_FOR_DOC[expiring.type];
+      if (!renewWorkflowId) continue;
+      const expiryText =
+        expiring.daysLeft <= 0
+          ? "a expirat"
+          : expiring.daysLeft === 1
+            ? "expiră mâine"
+            : `expiră în ${expiring.daysLeft} zile`;
+
+      items.push({
+        tone: "warning",
+        title: `${expiring.label} ${expiryText}`,
+        description: "Pornește reînnoirea din timp pentru a evita întârzieri administrative.",
+        icon: AlertTriangle,
+        action: {
+          label: "Pornește reînnoirea",
+          to: "/workflow/$id",
+          params: { id: renewWorkflowId },
+        },
+      });
+    }
+
+    if (profileCompleteness < 0.75) {
+      items.push({
+        tone: "proactive",
+        title: "Completează seiful pentru autofill",
+        description: "Datele complete în seif reduc timpul pentru proceduri viitoare.",
+        icon: FolderLock,
+        action: { label: "Deschide seiful", to: "/vault" },
+      });
+    }
+
+    const month = new Date().getMonth();
+    if (month === 3 || month === 4) {
+      items.push({
+        tone: "proactive",
+        title: "Sezon fiscal: Declarația Unică ANAF",
+        description: "Pregătește din timp pașii pentru depunere.",
+        icon: CalendarDays,
+        action: {
+          label: "Vezi ghidul ANAF",
+          to: "/workflow/$id",
+          params: { id: "anaf-declaration" },
+        },
+      });
+    }
+
+    return items.slice(0, 4);
+  }, [expiringDocuments, profileCompleteness]);
 
   const ask = async (q: string) => {
     if (!q.trim()) return;
@@ -122,221 +199,249 @@ function Dashboard() {
     <AppShell showOfficialFooter>
       <PageHeader
         title={`${timeGreeting}, ${greet}`}
-        description="Panou civic unificat pentru proceduri, documente și asistență AI."
-      />
+        description="Dashboard simplificat pentru proceduri, documente și asistență."
+      >
+        <Button variant="outline" size="sm" onClick={() => setServicesOpen(true)}>
+          Vezi toate serviciile
+        </Button>
+      </PageHeader>
 
-      {/* Greeting */}
-      <div className="mt-5 mb-5">
-        <p className="text-sm text-muted-foreground">{timeGreeting},</p>
-        <div className="flex items-center gap-2 flex-wrap">
-          <h1 className="text-2xl font-semibold tracking-tight capitalize">{greet} 👋</h1>
-          {localitate && (
-            <span
-              className="inline-flex items-center gap-1 text-[11px] font-medium text-muted-foreground bg-muted/70 px-2 py-0.5 rounded-full"
-              title="Localitate detectată din datele tale din seif"
-            >
-              <MapPin className="size-3" aria-hidden /> {localitate}
-            </span>
-          )}
-        </div>
-      </div>
-
-      {/* Civic hero — context-aware "next step" */}
-      <CivicHero />
-
-      <Card className="p-3 mb-4 border-border bg-card/80">
-        <div className="flex flex-wrap items-center gap-2 text-xs">
-          <span className="font-semibold">Status asistență:</span>
-          <span
-            className={`px-2 py-0.5 rounded-full ${aiEnabled ? "bg-success/15 text-success" : "bg-muted text-muted-foreground"}`}
-          >
-            Chat AI {aiEnabled ? "activ" : "indisponibil"}
-          </span>
-          <span
-            className={`px-2 py-0.5 rounded-full ${ragEnabled ? "bg-success/15 text-success" : "bg-warning/15 text-warning"}`}
-          >
-            RAG {ragEnabled ? "activ" : "fallback local"}
-          </span>
-        </div>
-      </Card>
-
-      <div className="grid grid-cols-3 gap-2 mb-4">
-        <Card className="p-3 text-center">
-          <div className="text-[11px] text-muted-foreground uppercase tracking-wider">Sarcini</div>
-          <div className="text-lg font-semibold">{tasks.length}</div>
+      <section className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4" aria-label="Statistici">
+        <Card className="border-border/80 shadow-none">
+          <CardHeader className="pb-1">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Sarcini active
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-3xl font-semibold tracking-tight">{tasks.length}</p>
+          </CardContent>
         </Card>
-        <Card className="p-3 text-center">
-          <div className="text-[11px] text-muted-foreground uppercase tracking-wider">
-            Documente
-          </div>
-          <div className="text-lg font-semibold">{documents.length}</div>
+        <Card className="border-border/80 shadow-none">
+          <CardHeader className="pb-1">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Documente</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-3xl font-semibold tracking-tight">{documents.length}</p>
+          </CardContent>
         </Card>
-        <Card className="p-3 text-center">
-          <div className="text-[11px] text-muted-foreground uppercase tracking-wider">Profil</div>
-          <div className="text-lg font-semibold">{profile.fullName ? "setat" : "gol"}</div>
+        <Card className="border-border/80 shadow-none">
+          <CardHeader className="pb-1">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Profil</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-3xl font-semibold tracking-tight">{profile.fullName ? "OK" : "—"}</p>
+          </CardContent>
         </Card>
-      </div>
+        <Card className="border-border/80 shadow-none">
+          <CardHeader className="pb-1">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Localitate</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="truncate text-lg font-semibold">{localitate ?? "Nesetată"}</p>
+          </CardContent>
+        </Card>
+      </section>
 
-      {/* AI search */}
-      <Card className="p-4 shadow-card border-border bg-gradient-to-br from-card to-accent/30">
-        <div className="flex items-center gap-2 mb-3">
-          <div className="size-7 rounded-lg bg-primary/10 flex items-center justify-center">
-            <Sparkles className="size-4 text-primary" />
-          </div>
-          <div className="text-sm font-medium flex-1">Întreabă agentul Civis</div>
-          {aiEnabled && (
-            <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-success font-semibold">
-              <span className="relative flex size-1.5">
-                <span className="absolute inset-0 rounded-full bg-success animate-ping opacity-70" />
-                <span className="relative inline-flex size-1.5 rounded-full bg-success" />
-              </span>
-              Online
-            </div>
-          )}
-        </div>
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            ask(query);
-          }}
-          className="relative"
-        >
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-          <input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Ex: vreau să-mi fac PFA sau să-mi schimb buletinul"
-            className="w-full h-12 pl-9 pr-20 rounded-xl bg-background border border-input text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-          />
-          <button
-            type="button"
-            onClick={mic}
-            className="absolute right-12 top-1/2 -translate-y-1/2 size-8 rounded-lg hover:bg-muted flex items-center justify-center text-muted-foreground"
-            aria-label="Vorbește"
-          >
-            <Mic className="size-4" />
-          </button>
-          <button
-            type="submit"
-            disabled={thinking}
-            className="absolute right-1.5 top-1/2 -translate-y-1/2 size-9 rounded-lg bg-primary text-primary-foreground flex items-center justify-center disabled:opacity-50"
-            aria-label="Caută"
-          >
-            <ArrowRight className="size-4" />
-          </button>
-        </form>
-        {thinking && (
-          <div className="mt-3 text-xs text-muted-foreground flex items-center gap-2">
-            <span className="size-1.5 rounded-full bg-primary animate-pulse" />
-            Construiesc planul tău…
-          </div>
-        )}
-      </Card>
-
-      {/* Service health strip — real-time state of the public-service network */}
-      <ServiceHealthStrip />
-
-      {/* Vault completeness donut — only renders when 0 < pct < 100 */}
-      <ProfileCompleteness />
-
-      {/* Quick actions */}
-      <div className="mt-6">
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            Proceduri populare
-          </h2>
-          <button
-            type="button"
-            onClick={() => setServicesOpen(true)}
-            className="inline-flex items-center gap-1 text-xs text-primary font-medium hover:underline"
-          >
-            <LayoutGrid className="size-3" /> Vezi toate
-          </button>
-        </div>
-        <div className="grid grid-cols-3 gap-3">
-          {QUICK.map((q) => {
-            const Icon = q.icon;
-            return (
-              <Link
-                key={q.id}
-                to="/workflow/$id"
-                params={{ id: q.id }}
-                className={`group relative overflow-hidden rounded-2xl border border-border bg-gradient-to-br ${q.tint} p-3.5 hover:shadow-card transition-all`}
+      {alerts.length > 0 ? (
+        <Card className="mt-4 border-border/80 shadow-none">
+          <CardHeader className="pb-1">
+            <CardTitle className="text-base">Alerte si sugestii</CardTitle>
+            <CardDescription>Documente care expiră curând și pași recomandați.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            {alerts.map((alert, idx) => (
+              <div
+                key={`${alert.title}-${idx}`}
+                className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border/70 px-3 py-2"
               >
-                <Icon className="size-5 text-primary mb-6" />
-                <div className="text-[13px] font-medium leading-tight">{q.label}</div>
-              </Link>
-            );
-          })}
-        </div>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2">
+                    <alert.icon
+                      className={`size-4 ${alert.tone === "warning" ? "text-warning" : "text-primary"}`}
+                    />
+                    <p className="truncate text-sm font-medium">{alert.title}</p>
+                  </div>
+                  <p className="mt-0.5 text-xs text-muted-foreground">{alert.description}</p>
+                </div>
+                {"params" in alert.action ? (
+                  <Button asChild size="sm" variant="outline">
+                    <Link to={alert.action.to} params={alert.action.params}>
+                      {alert.action.label}
+                    </Link>
+                  </Button>
+                ) : (
+                  <Button asChild size="sm" variant="outline">
+                    <Link to={alert.action.to}>{alert.action.label}</Link>
+                  </Button>
+                )}
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      ) : null}
+
+      <div className="mt-6 grid gap-6 lg:grid-cols-2">
+        <Card className="shadow-none">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Sparkles className="h-4 w-4 text-primary" />
+              Întreabă agentul Civis
+            </CardTitle>
+            <CardDescription>
+              {aiEnabled ? "Asistent AI activ" : "Asistent AI indisponibil"} ·{" "}
+              {ragEnabled ? "RAG activ" : "fallback local"}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                ask(query);
+              }}
+              className="relative"
+            >
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+              <input
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Ex: vreau să-mi fac PFA sau să-mi schimb buletinul"
+                className="h-11 w-full rounded-lg border border-input bg-background pl-9 pr-20 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+              />
+              <button
+                type="button"
+                onClick={mic}
+                className="absolute right-12 top-1/2 flex size-8 -translate-y-1/2 items-center justify-center rounded-md text-muted-foreground hover:bg-muted"
+                aria-label="Vorbește"
+              >
+                <Mic className="size-4" />
+              </button>
+              <button
+                type="submit"
+                disabled={thinking}
+                className="absolute right-1.5 top-1/2 flex size-8 -translate-y-1/2 items-center justify-center rounded-md bg-primary text-primary-foreground disabled:opacity-50"
+                aria-label="Caută"
+              >
+                <ArrowRight className="size-4" />
+              </button>
+            </form>
+            {thinking ? (
+              <p className="mt-2 text-xs text-muted-foreground">Construiesc planul tău…</p>
+            ) : null}
+          </CardContent>
+        </Card>
+
+        <Card className="shadow-none">
+          <CardHeader>
+            <CardTitle>Proceduri populare</CardTitle>
+            <CardDescription>Pornește rapid o procedură frecventă.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            {QUICK.map((q) => {
+              const Icon = q.icon;
+              return (
+                <Link
+                  key={q.id}
+                  to="/workflow/$id"
+                  params={{ id: q.id }}
+                  className="flex items-center justify-between rounded-lg border border-border/80 px-3 py-2 text-sm hover:bg-muted/40"
+                >
+                  <span className="flex items-center gap-2">
+                    <Icon className="size-4 text-primary" />
+                    {q.label}
+                  </span>
+                  <ArrowRight className="size-4 text-muted-foreground" />
+                </Link>
+              );
+            })}
+          </CardContent>
+        </Card>
       </div>
 
-      {/* Civic calendar — upcoming national deadlines */}
-      <CivicCalendar />
+      <div className="mt-6 grid gap-6 lg:grid-cols-2">
+        <Card className="shadow-none">
+          <CardHeader>
+            <CardTitle className="flex items-center justify-between">
+              <span>Sarcini active</span>
+              <Link to="/tasks" className="text-xs font-medium text-primary hover:underline">
+                Vezi toate
+              </Link>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {tasks.length === 0 ? (
+              <div className="rounded-lg border border-dashed p-6 text-center">
+                <Clock className="mx-auto mb-2 size-5 text-muted-foreground" />
+                <p className="text-sm text-muted-foreground mb-3">
+                  Nu ai nicio procedură în desfășurare.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setServicesOpen(true)}
+                  className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline"
+                >
+                  Răsfoiește toate procedurile <ArrowRight className="size-3" />
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {tasks.slice(0, 3).map((t) => (
+                  <Link
+                    key={t.id}
+                    to="/workflow/$id"
+                    params={{ id: t.workflowId }}
+                    className="block"
+                  >
+                    <div className="rounded-lg border border-border/80 p-3 hover:bg-muted/30">
+                      <div className="mb-2 flex items-center justify-between gap-2">
+                        <div className="truncate pr-2 text-sm font-medium">{t.title}</div>
+                        <div className="tabular-nums text-xs text-muted-foreground">
+                          {t.currentStep}/{t.totalSteps}
+                        </div>
+                      </div>
+                      <Progress value={t.progress} className="h-1.5" />
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
 
-      {/* Active tasks */}
-      <div className="mt-6">
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            Sarcini active
-          </h2>
-          <Link to="/tasks" className="text-xs text-primary font-medium">
-            Vezi toate
-          </Link>
-        </div>
-        {tasks.length === 0 ? (
-          <Card className="p-5 text-center border-dashed">
-            <Clock className="size-5 text-muted-foreground mx-auto mb-2" />
-            <p className="text-sm text-muted-foreground mb-3">
-              Nu ai nicio procedură în desfășurare.
-            </p>
-            <button
+        <Card className="shadow-none">
+          <CardHeader>
+            <CardTitle>Documente și scanare</CardTitle>
+            <CardDescription>
+              {documents.length > 0
+                ? `${documents.length} documente în seif.`
+                : "Nu ai încă documente în seif."}
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <Button asChild variant="outline" className="w-full justify-start">
+              <Link to="/vault">
+                <MapPin className="size-4" />
+                Deschide seiful
+              </Link>
+            </Button>
+            <Button asChild variant="outline" className="w-full justify-start">
+              <Link to="/scan">
+                <ScanLine className="size-4" />
+                Scanează un document
+              </Link>
+            </Button>
+            <Button
               type="button"
               onClick={() => setServicesOpen(true)}
-              className="text-xs text-primary font-medium hover:underline inline-flex items-center gap-1"
+              variant="ghost"
+              className="w-full justify-start"
             >
-              Răsfoiește toate procedurile <ArrowRight className="size-3" />
-            </button>
-          </Card>
-        ) : (
-          <div className="space-y-2">
-            {tasks.slice(0, 3).map((t) => (
-              <Link key={t.id} to="/workflow/$id" params={{ id: t.workflowId }} className="block">
-                <Card className="p-4 hover:shadow-card transition-shadow">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="text-sm font-medium truncate pr-2">{t.title}</div>
-                    <div className="text-xs text-muted-foreground tabular-nums">
-                      {t.currentStep}/{t.totalSteps}
-                    </div>
-                  </div>
-                  <Progress value={t.progress} className="h-1.5" />
-                </Card>
-              </Link>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Document scanner CTA */}
-      <Card className="mt-6 p-4 border-border bg-card">
-        <div className="flex items-center gap-3">
-          <div className="size-11 rounded-xl bg-accent flex items-center justify-center">
-            <ScanLine className="size-5 text-primary" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <div className="text-sm font-medium">Nu înțelegi un document?</div>
-            <div className="text-xs text-muted-foreground">
-              Scanează-l și îți explic în cuvinte simple.
-            </div>
-          </div>
-          <Button asChild size="sm" variant="outline">
-            <Link to="/scan">
               <FileText className="size-4" />
-              Scanează
-            </Link>
-          </Button>
-        </div>
-      </Card>
+              Toate procedurile
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
 
       <AllServicesDrawer open={servicesOpen} onOpenChange={setServicesOpen} />
     </AppShell>

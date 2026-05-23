@@ -8,7 +8,16 @@ import {
   ShieldCheck,
   Sparkles,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+} from "@/components/ui/sidebar";
 
 const NAV_ITEMS = [
   { to: "/", label: "Acasă", icon: Home },
@@ -21,55 +30,58 @@ const NAV_ITEMS = [
 export function AppSidebar() {
   const path = useRouterState({ select: (s) => s.location.pathname });
   return (
-    <aside className="flex h-screen w-64 flex-col border-r border-sidebar-border bg-sidebar px-3 py-4">
-      <div className="mb-5 rounded-xl border border-sidebar-border/70 bg-sidebar-accent/35 p-3">
-        <div className="flex items-center gap-2">
-          <div className="size-9 rounded-xl bg-gradient-hero flex items-center justify-center shadow-soft">
-            <ShieldCheck className="size-4 text-primary-foreground" />
-          </div>
-          <div className="min-w-0">
-            <div className="truncate text-sm font-semibold text-sidebar-foreground">Civis</div>
-            <div className="truncate text-[10px] uppercase tracking-wider text-sidebar-foreground/70">
-              Agent civic AI
+    <Sidebar collapsible="none" className="border-r border-sidebar-border">
+      <SidebarHeader>
+        <div className="rounded-lg border border-sidebar-border/70 bg-sidebar-accent/35 p-3">
+          <div className="flex items-center gap-2">
+            <div className="size-9 rounded-lg bg-primary flex items-center justify-center">
+              <ShieldCheck className="size-4 text-primary-foreground" />
+            </div>
+            <div className="min-w-0">
+              <div className="truncate text-sm font-semibold text-sidebar-foreground">Civis</div>
+              <div className="truncate text-[10px] uppercase tracking-wider text-sidebar-foreground/70">
+                Agent civic AI
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      </SidebarHeader>
 
-      <nav className="flex flex-1 flex-col gap-1" aria-label="Navigare principală">
-        {NAV_ITEMS.map((item) => {
-          const active =
-            item.to === "/"
-              ? path === "/" || path.startsWith("/workflow/")
-              : path.startsWith(item.to);
-          const Icon = item.icon;
-          return (
-            <Link
-              key={item.to}
-              to={item.to}
-              className={cn(
-                "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors",
-                active
-                  ? "bg-sidebar-primary text-sidebar-primary-foreground"
-                  : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-              )}
-            >
-              <Icon className="size-4 shrink-0" />
-              <span>{item.label}</span>
-            </Link>
-          );
-        })}
-      </nav>
+      <SidebarContent>
+        <SidebarGroup>
+          <SidebarMenu>
+            {NAV_ITEMS.map((item) => {
+              const active =
+                item.to === "/"
+                  ? path === "/" || path.startsWith("/workflow/")
+                  : path.startsWith(item.to);
+              const Icon = item.icon;
+              return (
+                <SidebarMenuItem key={item.to}>
+                  <SidebarMenuButton asChild isActive={active} tooltip={item.label}>
+                    <Link to={item.to}>
+                      <Icon className="size-4" />
+                      <span>{item.label}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              );
+            })}
+          </SidebarMenu>
+        </SidebarGroup>
+      </SidebarContent>
 
-      <div className="rounded-xl border border-sidebar-border/70 bg-sidebar-accent/35 p-3">
-        <div className="flex items-center gap-2 text-sm font-medium text-sidebar-foreground">
-          <Sparkles className="size-4 text-primary" />
-          Obiectiv nou
+      <SidebarFooter>
+        <div className="rounded-lg border border-sidebar-border/70 bg-sidebar-accent/35 p-3">
+          <div className="flex items-center gap-2 text-sm font-medium text-sidebar-foreground">
+            <Sparkles className="size-4 text-primary" />
+            Obiectiv nou
+          </div>
+          <p className="mt-1 text-[11px] leading-relaxed text-sidebar-foreground/75">
+            Folosește chatul Civis pentru a porni rapid o procedură.
+          </p>
         </div>
-        <p className="mt-1 text-[11px] leading-relaxed text-sidebar-foreground/75">
-          Folosește chatul Civis pentru a porni rapid o procedură.
-        </p>
-      </div>
-    </aside>
+      </SidebarFooter>
+    </Sidebar>
   );
 }

@@ -7,6 +7,7 @@ import { CivisChat } from "@/components/civis-chat";
 import { AccessibilityClassSync, AccessibilityMenu } from "@/components/accessibility-menu";
 import { isApiKeyConfigured } from "@/services/geminiChat";
 import { AppSidebar } from "@/components/dashboard/app-sidebar";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 
 type AppShellProps = {
   children: React.ReactNode;
@@ -35,117 +36,119 @@ export function AppShell({ children, showOfficialFooter = false }: AppShellProps
       {/* Keeps senior-mode / high-contrast / dyslexic-font classes in sync with the store */}
       <AccessibilityClassSync />
 
-      <div className="flex min-h-screen bg-background">
-        <div className="hidden md:block">
-          <AppSidebar />
-        </div>
-
-        <div className="flex min-w-0 flex-1 flex-col">
-          {/* Mobile header */}
-          <header className="flex items-center justify-between border-b border-border/80 bg-card/60 px-4 py-3 backdrop-blur md:hidden">
-            <Link to="/" className="inline-flex items-center gap-2">
-              <div className="size-8 rounded-xl bg-gradient-hero flex items-center justify-center shadow-soft">
-                <ShieldCheck className="size-4 text-primary-foreground" />
-              </div>
-              <div className="text-sm font-semibold">Civis</div>
-            </Link>
-            <div className="flex items-center gap-1.5">
-              <button
-                type="button"
-                onClick={() => setA11yOpen(true)}
-                aria-label="Setări de accesibilitate"
-                className="inline-flex size-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-accent/50 hover:text-foreground"
-              >
-                <Accessibility className="size-4" />
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  logout();
-                  navigate({ to: "/login" });
-                }}
-                aria-label="Deconectare"
-                className="inline-flex size-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-accent/50 hover:text-foreground"
-              >
-                <LogOut className="size-4" />
-              </button>
-            </div>
-          </header>
-
-          {/* Mobile nav pills */}
-          <nav className="flex gap-2 overflow-x-auto border-b border-border/80 px-4 py-2 md:hidden">
-            {mobileNav.map((item) => {
-              const active =
-                item.to === "/"
-                  ? path === "/" || path.startsWith("/workflow/")
-                  : path.startsWith(item.to);
-              return (
-                <Link
-                  key={item.to}
-                  to={item.to}
-                  className={cn(
-                    "whitespace-nowrap rounded-full px-3 py-1 text-xs font-medium",
-                    active
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-muted text-muted-foreground",
-                  )}
-                >
-                  {item.label}
-                </Link>
-              );
-            })}
-          </nav>
-
-          {/* Desktop top bar */}
-          <div className="hidden items-center justify-between border-b border-border/80 px-6 py-3 md:flex">
-            <div className="text-xs text-muted-foreground">
-              {email ? `Conectat ca ${email}` : "Cont conectat"}
-            </div>
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => setA11yOpen(true)}
-                aria-label="Setări de accesibilitate"
-                className="inline-flex items-center gap-1.5 rounded-lg border border-border px-2.5 py-1.5 text-xs text-muted-foreground hover:bg-accent/50 hover:text-foreground"
-              >
-                <Accessibility className="size-3.5" /> Accesibilitate
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  logout();
-                  navigate({ to: "/login" });
-                }}
-                className="inline-flex items-center gap-1.5 rounded-lg border border-border px-2.5 py-1.5 text-xs text-muted-foreground hover:bg-accent/50 hover:text-foreground"
-              >
-                <LogOut className="size-3.5" />
-                Deconectare
-              </button>
-            </div>
+      <SidebarProvider defaultOpen>
+        <div className="flex min-h-screen bg-background">
+          <div className="hidden md:block">
+            <AppSidebar />
           </div>
 
-          <main
-            className={cn(
-              "mx-auto w-full flex-1 overflow-auto p-4 md:max-w-6xl md:p-8 animate-[fade-in_0.3s_ease-out]",
-              showOfficialFooter ? "pb-20" : "",
-            )}
-          >
-            {children}
-            {showOfficialFooter && (
-              <div
-                role="contentinfo"
-                aria-label="Informații pilot Civis"
-                className="mt-6 text-center text-[10px] text-muted-foreground leading-relaxed"
-              >
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-card/85 backdrop-blur border border-border/60">
-                  <ShieldCheck className="size-3 text-success" aria-hidden />
-                  Pilot Civis · Inițiativă civică independentă · GDPR · Hostat în România · v0.4.0
-                </span>
+          <SidebarInset className="flex min-w-0 flex-1 flex-col">
+            {/* Mobile header */}
+            <header className="flex items-center justify-between border-b border-border/80 bg-card/60 px-4 py-3 backdrop-blur md:hidden">
+              <Link to="/" className="inline-flex items-center gap-2">
+                <div className="size-8 rounded-xl bg-gradient-hero flex items-center justify-center shadow-soft">
+                  <ShieldCheck className="size-4 text-primary-foreground" />
+                </div>
+                <div className="text-sm font-semibold">Civis</div>
+              </Link>
+              <div className="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => setA11yOpen(true)}
+                  aria-label="Setări de accesibilitate"
+                  className="inline-flex size-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-accent/50 hover:text-foreground"
+                >
+                  <Accessibility className="size-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    logout();
+                    navigate({ to: "/login" });
+                  }}
+                  aria-label="Deconectare"
+                  className="inline-flex size-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-accent/50 hover:text-foreground"
+                >
+                  <LogOut className="size-4" />
+                </button>
               </div>
-            )}
-          </main>
+            </header>
+
+            {/* Mobile nav pills */}
+            <nav className="flex gap-2 overflow-x-auto border-b border-border/80 px-4 py-2 md:hidden">
+              {mobileNav.map((item) => {
+                const active =
+                  item.to === "/"
+                    ? path === "/" || path.startsWith("/workflow/")
+                    : path.startsWith(item.to);
+                return (
+                  <Link
+                    key={item.to}
+                    to={item.to}
+                    className={cn(
+                      "whitespace-nowrap rounded-full px-3 py-1 text-xs font-medium",
+                      active
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-muted text-muted-foreground",
+                    )}
+                  >
+                    {item.label}
+                  </Link>
+                );
+              })}
+            </nav>
+
+            {/* Desktop top bar */}
+            <div className="hidden items-center justify-between border-b border-border/80 px-6 py-3 md:flex">
+              <div className="text-xs text-muted-foreground">
+                {email ? `Conectat ca ${email}` : "Cont conectat"}
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setA11yOpen(true)}
+                  aria-label="Setări de accesibilitate"
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-border px-2.5 py-1.5 text-xs text-muted-foreground hover:bg-accent/50 hover:text-foreground"
+                >
+                  <Accessibility className="size-3.5" /> Accesibilitate
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    logout();
+                    navigate({ to: "/login" });
+                  }}
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-border px-2.5 py-1.5 text-xs text-muted-foreground hover:bg-accent/50 hover:text-foreground"
+                >
+                  <LogOut className="size-3.5" />
+                  Deconectare
+                </button>
+              </div>
+            </div>
+
+            <main
+              className={cn(
+                "mx-auto w-full flex-1 overflow-auto p-4 md:max-w-6xl md:p-8 animate-[fade-in_0.3s_ease-out]",
+                showOfficialFooter ? "pb-20" : "",
+              )}
+            >
+              {children}
+              {showOfficialFooter && (
+                <div
+                  role="contentinfo"
+                  aria-label="Informații pilot Civis"
+                  className="mt-6 text-center text-[10px] text-muted-foreground leading-relaxed"
+                >
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-card/85 backdrop-blur border border-border/60">
+                    <ShieldCheck className="size-3 text-success" aria-hidden />
+                    Pilot Civis · Inițiativă civică independentă · GDPR · Hostat în România · v0.4.0
+                  </span>
+                </div>
+              )}
+            </main>
+          </SidebarInset>
         </div>
-      </div>
+      </SidebarProvider>
 
       {/* Global chat drawer — mounted once, opens from anywhere via useChatUi() */}
       {aiEnabled && !chatOpen && (
