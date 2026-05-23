@@ -43,7 +43,7 @@ export function AppShell({ children, showOfficialFooter = false }: AppShellProps
       <AccessibilityClassSync />
 
       <SidebarProvider defaultOpen>
-        <div className="flex min-h-screen bg-background">
+        <div className="flex min-h-screen w-full min-w-0 flex-1 bg-background">
           <div className="hidden shrink-0 md:sticky md:top-0 md:block md:h-svh">
             <AppSidebar />
           </div>
@@ -142,24 +142,26 @@ export function AppShell({ children, showOfficialFooter = false }: AppShellProps
 
             <main
               className={cn(
-                "mx-auto w-full flex-1 overflow-auto p-4 md:max-w-6xl md:p-8 animate-[fade-in_0.3s_ease-out]",
+                "w-full min-w-0 flex-1 overflow-x-hidden overflow-y-auto animate-[fade-in_0.3s_ease-out]",
                 showOfficialFooter ? "pb-20" : "",
               )}
             >
-              {children}
-              {showOfficialFooter && (
-                <div
-                  role="contentinfo"
-                  aria-label="Informații pilot ActeAI"
-                  className="mt-6 text-center text-[10px] text-muted-foreground leading-relaxed"
-                >
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-card/85 backdrop-blur border border-border/60">
-                    <ShieldCheck className="size-3 text-success" aria-hidden />
-                    Pilot ActeAI · Inițiativă civică independentă · GDPR · Hostat în România ·
-                    v0.4.0
-                  </span>
-                </div>
-              )}
+              <div className="mx-auto flex w-full min-w-0 flex-col px-4 py-4 md:px-6 md:py-6 xl:px-8">
+                <div className="mx-auto w-full min-w-0">{children}</div>
+                {showOfficialFooter && (
+                  <div
+                    role="contentinfo"
+                    aria-label="Informații pilot ActeAI"
+                    className="mt-6 text-center text-[10px] leading-relaxed text-muted-foreground"
+                  >
+                    <span className="inline-flex items-center gap-1.5 rounded-full border border-border/60 bg-card/85 px-2.5 py-1 backdrop-blur">
+                      <ShieldCheck className="size-3 text-success" aria-hidden />
+                      Pilot ActeAI · Inițiativă civică independentă · GDPR · Hostat în România ·
+                      v0.4.0
+                    </span>
+                  </div>
+                )}
+              </div>
             </main>
           </SidebarInset>
         </div>

@@ -48,7 +48,7 @@ function Tasks() {
         </div>
       </PageHeader>
 
-      <div className="mt-5">
+      <div className="mt-5 w-full space-y-3">
         {tasks.length === 0 ? (
           <EmptyState
             icon={Inbox}
@@ -61,9 +61,10 @@ function Tasks() {
               </Button>
             }
           />
-        ) : (
-          <div className="space-y-3">
-            {tasks.map((t) => (
+        ) : null}
+
+        {tasks.length > 0
+          ? tasks.map((t) => (
               <TaskCard
                 key={t.id}
                 task={t}
@@ -71,9 +72,8 @@ function Tasks() {
                 onRemove={() => remove(t.id)}
                 onToggleStep={(stepOrder) => toggleStep(t.id, stepOrder)}
               />
-            ))}
-          </div>
-        )}
+            ))
+          : null}
       </div>
     </AppShell>
   );

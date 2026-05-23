@@ -154,7 +154,7 @@ function Scan() {
             <div className="absolute inset-0 rounded-2xl bg-accent" />
             <FileText className="size-10 text-primary absolute inset-0 m-auto" />
           </div>
-          <p className="text-sm text-muted-foreground mb-6 max-w-xs mx-auto">
+          <p className="mb-6 text-sm text-muted-foreground">
             Atașează o poză. Vom rula OCR + clasificare 100% local pentru a-ți spune ce tip de
             document este și ce conține.
           </p>
@@ -210,7 +210,7 @@ function ScanningView({
             style={{ width: `${pct}%` }}
           />
         </div>
-        <div className="relative mx-auto aspect-[4/5] w-full max-w-[260px] overflow-hidden rounded-lg border border-border bg-muted/30">
+        <div className="relative mx-auto aspect-[4/5] w-full overflow-hidden rounded-lg border border-border bg-muted/30">
           <div className="p-4 space-y-2">
             <div className="h-3 w-1/2 rounded bg-foreground/10" />
             <div className="h-2 w-3/4 rounded bg-foreground/10" />
