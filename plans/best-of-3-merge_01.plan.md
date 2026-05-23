@@ -32,6 +32,7 @@ isProject: false
 # Best-of-3 Consolidation Plan
 
 ## Target And Constraints
+
 - Implement only in [`/Users/buiandragos/Documents/faculta/Cluj-Hackathon/civic-agent-hackathon`](/Users/buiandragos/Documents/faculta/Cluj-Hackathon/civic-agent-hackathon).
 - Treat [`/Users/buiandragos/Documents/faculta/Cluj-Hackathon/civic-agent-hackathon/HANDOFF.md`](/Users/buiandragos/Documents/faculta/Cluj-Hackathon/civic-agent-hackathon/HANDOFF.md) as source of truth for merge status and priorities.
 - Keep V3 foundations (TanStack routes, accessibility shell, workflow route structure) and layer in V2 backend strengths where beneficial.
@@ -40,6 +41,7 @@ isProject: false
 - Delivery priority is feature completeness and reliability first; UX/visual polish follows once core capabilities are fully integrated.
 
 ## Best Implementation Selection (By Feature)
+
 - **App shell + accessibility + mobile coherence:** keep V3 implementation in [`src/components/app-shell.tsx`](/Users/buiandragos/Documents/faculta/Cluj-Hackathon/civic-agent-hackathon/src/components/app-shell.tsx), [`src/styles.css`](/Users/buiandragos/Documents/faculta/Cluj-Hackathon/civic-agent-hackathon/src/styles.css), [`src/components/accessibility-menu.tsx`](/Users/buiandragos/Documents/faculta/Cluj-Hackathon/civic-agent-hackathon/src/components/accessibility-menu.tsx).
 - **Workflow data richness + action semantics:** use V2 as canonical content source from [`civic-agent-buian/Civic Guide AI/src/lib/flows-catalog.ts`](/Users/buiandragos/Documents/faculta/Cluj-Hackathon/civic-agent-buian/Civic%20Guide%20AI/src/lib/flows-catalog.ts), normalized into [`src/services/govApiMock.ts`](/Users/buiandragos/Documents/faculta/Cluj-Hackathon/civic-agent-hackathon/src/services/govApiMock.ts).
 - **Auth/session model:** adopt Supabase auth patterns from V2 and replace mock login/OTP in target routes/stores.
@@ -53,23 +55,27 @@ isProject: false
 ## Execution Phases
 
 ### Phase 1 — Supabase + RAG Foundation
+
 - Integrate Supabase client/server wiring and required environment contracts into `civic-agent-hackathon`.
 - Bring over essential V2 schema concepts for auth/profile/chat/retrieval paths and adapt to target routing architecture.
 - Re-enable retrieval-backed `explain` actions (RAG) with strict prompt-level and payload-level privacy filters.
 - Keep local static resolver (`govApiMock.resolveQuery`) as an explicit fallback path when RAG is unavailable.
 
 ### Phase 2 — Feature Core: RAG-First Assistant Capabilities
+
 - Implement RAG-backed CAEN and business-flow intelligence as the default behavior for PFA-related actions.
 - Route step actions (`caen_suggest`, explain/help actions, related assistant helpers) through retrieval-backed tools where possible.
 - Define reliable fallback behavior (local CAEN dataset + static guidance) for degraded/offline scenarios.
 - Validate retrieval grounding quality and source confidence before UX polish work begins.
 
 ### Phase 3 — Auth Unification
+
 - Replace mock login/OTP with Supabase auth flows, route guards, and persistent session handling.
 - Migrate profile bootstrap and onboarding expectations to align with Supabase user records while keeping vault UX continuity.
 - Ensure backward-safe migration for existing local demo state (graceful fallback and/or one-time migration logic).
 
 ### Phase 4 — Complete Workflow Content Parity (Highest Leverage)
+
 - Expand enriched `info[]` + `actions[]` coverage across priority workflows in [`src/services/govApiMock.ts`](/Users/buiandragos/Documents/faculta/Cluj-Hackathon/civic-agent-hackathon/src/services/govApiMock.ts):
   - `car-registration-2nd-hand`
   - `passport-issuance`
@@ -79,6 +85,7 @@ isProject: false
 - Add step-level `mode` metadata (`online` / `in_person` / `hybrid`) where absent and keep existing fee/location/time fields aligned.
 
 ### Phase 5 — Workflow UI Upgrade (Visible “Best-of-3” Shift)
+
 - Upgrade [`src/routes/workflow.$id.tsx`](/Users/buiandragos/Documents/faculta/Cluj-Hackathon/civic-agent-hackathon/src/routes/workflow.$id.tsx):
   - render mode chips and compact “Unde / Cost / Durată” row on every step,
   - keep accordions/actions but make density consistent for all workflows,
@@ -86,6 +93,7 @@ isProject: false
 - Ensure action affordances remain identical for deep links/maps/CAEN/PDF/chat explain paths via [`src/components/workflow/step-action-button.tsx`](/Users/buiandragos/Documents/faculta/Cluj-Hackathon/civic-agent-hackathon/src/components/workflow/step-action-button.tsx).
 
 ### Phase 6 — Port Specialized V2 Flows Into Hackathon Routes
+
 - Add a dedicated PFA wizard route (under workflow scope) that reuses current local vault and PDF generator in [`src/services/pdf/declaratiePfa.ts`](/Users/buiandragos/Documents/faculta/Cluj-Hackathon/civic-agent-hackathon/src/services/pdf/declaratiePfa.ts).
 - Port all high-value functional affordances from V2 PFA flow first (most detailed reference), including CAEN assist context, copy helpers, guided checklist states, and declaration support.
 - Rework visual structure of that PFA route to align with target coherent style (clean hierarchy, improved spacing/typography, consistent cards/badges), rather than replicating V2 styling directly.
@@ -93,6 +101,7 @@ isProject: false
 - Link these specialized screens from relevant workflow steps and task context.
 
 ### Phase 7 — Home/Vault UX Coherence Pass (alexia-inspired density)
+
 - Upgrade dashboard composition in [`src/routes/index.tsx`](/Users/buiandragos/Documents/faculta/Cluj-Hackathon/civic-agent-hackathon/src/routes/index.tsx):
   - stronger at-a-glance cards (active tasks, vault docs, profile completeness),
   - clearer start-flow grid,
@@ -100,6 +109,7 @@ isProject: false
 - Improve vault layout in [`src/routes/vault.tsx`](/Users/buiandragos/Documents/faculta/Cluj-Hackathon/civic-agent-hackathon/src/routes/vault.tsx) with sectioned structure and stronger quality/error surfacing for uploads.
 
 ### Phase 8 — Trust And Quality Polish
+
 - Surface document quality and type mismatch feedback more prominently (not only toasts) using existing `docIntelligence` outputs in:
   - [`src/components/vault-upload-card.tsx`](/Users/buiandragos/Documents/faculta/Cluj-Hackathon/civic-agent-hackathon/src/components/vault-upload-card.tsx)
   - [`src/routes/scan.tsx`](/Users/buiandragos/Documents/faculta/Cluj-Hackathon/civic-agent-hackathon/src/routes/scan.tsx)
@@ -107,11 +117,13 @@ isProject: false
 - Validate RAG safety boundaries (redaction, no document-byte leakage, explicit source citation in responses).
 
 ## Merge Boundary (What We Explicitly Do Not Port)
+
 - Do not port V1 FastAPI/Next app wholesale; only portable document-intelligence logic and UX patterns.
 - Do not remove existing accessibility and mobile-first shell behaviors from V3 while integrating Supabase/RAG capabilities.
 - Do not send full document binaries or unredacted sensitive identifiers to generative model calls.
 
 ## Validation Checklist
+
 - Typecheck/lint/build pass in target repo.
 - Manual QA on key flows:
   - Supabase auth login/logout/session restore works across reloads,
@@ -127,6 +139,7 @@ isProject: false
   - task progress remains synced with workflow updates.
 
 ## Implementation Map Diagram
+
 ```mermaid
 flowchart TD
   v3Base[V3Base_Hackathon]

@@ -17,10 +17,12 @@ isProject: false
 # Accessible Decluttered UI Alignment Plan (06)
 
 ## Objective
+
 - Bring the entire app UI in line with the new homepage direction: accessible, decluttered, and calm.
 - Remove visually busy patterns and standardize clean hierarchy across shared surfaces and route-level layouts.
 
 ## Phase 1 (Audit + Prioritization)
+
 - Review high-traffic routes and shared components for:
   - oversaturated accents or mixed color semantics,
   - excessive borders/shadows/gradients,
@@ -29,6 +31,7 @@ isProject: false
 - Prioritize fixes that improve scanning and usability without reducing feature coverage.
 
 ## Phase 2 (Design Language Rollout)
+
 - Apply a consistent low-noise visual style across targeted screens:
   - neutral and purposeful color usage,
   - minimal decorative treatments,
@@ -37,6 +40,7 @@ isProject: false
 - Keep interactions explicit and lightweight so important actions stand out.
 
 ## Phase 3 (Accessibility + Quality Validation)
+
 - Validate accessibility and readability outcomes:
   - contrast clarity for text and controls,
   - visible focus and interaction cues,
@@ -45,6 +49,7 @@ isProject: false
 - Run lint/typecheck and smoke-check key journeys after UI updates.
 
 ## Acceptance Criteria
+
 - Core surfaces reflect the same accessible, decluttered visual language as the homepage.
 - Busy elements (excessive colors, ornamental effects, crowded composition) are reduced on prioritized pages.
 - Readability and interaction clarity improve without feature regressions.

@@ -1,25 +1,30 @@
 import fontkit from "@pdf-lib/fontkit";
 import type { PDFFont, PDFDocument } from "pdf-lib";
-import notoSansBoldUrl from "@fontsource/noto-sans/files/noto-sans-latin-ext-700-normal.woff?url";
-import notoSansRegularUrl from "@fontsource/noto-sans/files/noto-sans-latin-ext-400-normal.woff?url";
 
 type PdfFontSet = {
   regular: PDFFont;
   bold: PDFFont;
 };
 
-async function fetchFontBytes(url: string): Promise<ArrayBuffer> {
-  const res = await fetch(url);
-  if (!res.ok) throw new Error(`Font load failed (${res.status})`);
-  return res.arrayBuffer();
+let cachedBytes: { regular: ArrayBuffer; bold: ArrayBuffer } | null = null;
+
+async function loadFontBytes(): Promise<{ regular: ArrayBuffer; bold: ArrayBuffer }> {
+  if (cachedBytes) return cachedBytes;
+  const [regularRes, boldRes] = await Promise.all([
+    fetch("/fonts/NotoSans-Regular.ttf"),
+    fetch("/fonts/NotoSans-Bold.ttf"),
+  ]);
+  if (!regularRes.ok || !boldRes.ok) {
+    throw new Error("Nu am putut încărca fonturile Noto Sans pentru PDF.");
+  }
+  const [regular, bold] = await Promise.all([regularRes.arrayBuffer(), boldRes.arrayBuffer()]);
+  cachedBytes = { regular, bold };
+  return cachedBytes;
 }
 
 export async function embedRomanianFonts(pdf: PDFDocument): Promise<PdfFontSet> {
   pdf.registerFontkit(fontkit);
-  const [regularBytes, boldBytes] = await Promise.all([
-    fetchFontBytes(notoSansRegularUrl),
-    fetchFontBytes(notoSansBoldUrl),
-  ]);
+  const { regular: regularBytes, bold: boldBytes } = await loadFontBytes();
 
   const [regular, bold] = await Promise.all([
     pdf.embedFont(regularBytes, { subset: true }),

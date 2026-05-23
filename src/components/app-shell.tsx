@@ -155,7 +155,8 @@ export function AppShell({ children, showOfficialFooter = false }: AppShellProps
                 >
                   <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-card/85 backdrop-blur border border-border/60">
                     <ShieldCheck className="size-3 text-success" aria-hidden />
-                    Pilot ActeAI · Inițiativă civică independentă · GDPR · Hostat în România · v0.4.0
+                    Pilot ActeAI · Inițiativă civică independentă · GDPR · Hostat în România ·
+                    v0.4.0
                   </span>
                 </div>
               )}

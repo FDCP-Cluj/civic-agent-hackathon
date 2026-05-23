@@ -23,8 +23,9 @@ import {
   type ClassifiedDocumentType,
   type DocumentValidationResult,
 } from "@/services/docIntelligence";
-import { useVault } from "@/store";
+import { useVault, usePfaDossier } from "@/store";
 import { toast } from "sonner";
+import { useNavigate } from "@tanstack/react-router";
 
 type FriendlyResult = Awaited<ReturnType<typeof govApi.explainDocument>>;
 
@@ -60,6 +61,8 @@ function Scan() {
   const [result, setResult] = useState<ScanState | null>(null);
   const [fileName, setFileName] = useState("");
   const updateProfile = useVault((s) => s.updateProfile);
+  const syncFromProfile = usePfaDossier((s) => s.syncFromProfile);
+  const navigate = useNavigate();
 
   // Warm up Tesseract on mount so the WASM + lang download overlaps with
   // the user thinking about which document to pick.
@@ -110,6 +113,25 @@ function Scan() {
     if (Object.keys(patch).length === 0) return;
     updateProfile(patch);
     toast.success("Datele confirmate au fost adăugate în seif.");
+    return patch;
+  };
+
+  const adoptForPfaDossier = (fields: EditableScanFields) => {
+    const patch = adoptToVault(fields);
+    if (!patch) {
+      toast.error("Completează cel puțin nume sau CNP înainte de dosar PFA.");
+      return;
+    }
+    syncFromProfile({
+      fullName: patch.fullName ?? "",
+      cnp: patch.cnp ?? "",
+      address: patch.address ?? "",
+    });
+    navigate({
+      to: "/workflow/$id/pfa",
+      params: { id: "pfa-registration" },
+      search: { autofill: "1" },
+    });
   };
 
   return (
@@ -148,7 +170,12 @@ function Scan() {
       )}
 
       {phase === "done" && result && (
-        <ResultView result={result} onReset={reset} onAdopt={adoptToVault} />
+        <ResultView
+          result={result}
+          onReset={reset}
+          onAdopt={adoptToVault}
+          onAdoptForPfa={adoptForPfaDossier}
+        />
       )}
     </AppShell>
   );
@@ -264,10 +291,12 @@ function ResultView({
   result,
   onReset,
   onAdopt,
+  onAdoptForPfa,
 }: {
   result: ScanState;
   onReset: () => void;
   onAdopt: (fields: EditableScanFields) => void;
+  onAdoptForPfa: (fields: EditableScanFields) => void;
 }) {
   const { validation } = result;
   const [editedType, setEditedType] = useState<ClassifiedDocumentType>(
@@ -391,14 +420,23 @@ function ResultView({
                 Verifică manual datele înainte să le folosești pentru autofill.
               </p>
             </div>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => onAdopt(editedFields)}
-              disabled={!hasProfileData}
-            >
-              Actualizează profilul
-            </Button>
+            <div className="flex flex-wrap gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => onAdopt(editedFields)}
+                disabled={!hasProfileData}
+              >
+                Actualizează profilul
+              </Button>
+              <Button
+                size="sm"
+                onClick={() => onAdoptForPfa(editedFields)}
+                disabled={!hasProfileData}
+              >
+                Folosește pentru dosar PFA
+              </Button>
+            </div>
           </div>
           <div className="grid gap-3 sm:grid-cols-2">
             <label className="space-y-1.5 sm:col-span-2">
