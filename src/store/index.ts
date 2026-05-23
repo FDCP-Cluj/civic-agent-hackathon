@@ -22,3 +22,6 @@ export { useAccessibility } from "./accessibility";
 export type { AppLanguage } from "./accessibility";
 
 export { useChatUi } from "./chatUi";
+
+export { usePfaDossier, defaultDenumireFromName } from "./pfaDossier";
+export type { PfaDossierState, PfaAttachmentType } from "./pfaDossier";

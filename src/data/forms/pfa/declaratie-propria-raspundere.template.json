@@ -1,0 +1,2005 @@
+{
+  "id": "declaratie-propria-raspundere",
+  "name": "Declarație pe propria răspundere",
+  "procedureId": "24952",
+  "pdfFileName": "declaratie-propria-raspundere.pdf",
+  "version": 1,
+  "createdAt": "2026-05-23T21:10:02.431Z",
+  "fields": [
+    {
+      "pdfFieldName": "SubNume",
+      "type": "text",
+      "label": "Sub Nume",
+      "hint": "",
+      "group": "",
+      "order": 0,
+      "isRequired": false,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "SubPrenume",
+      "type": "text",
+      "label": "Sub Prenume",
+      "hint": "",
+      "group": "",
+      "order": 1,
+      "isRequired": false,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "SubCNP",
+      "type": "text",
+      "label": "Sub CNP",
+      "hint": "",
+      "group": "",
+      "order": 2,
+      "isRequired": false,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "SubLocalitatea",
+      "type": "text",
+      "label": "Sub Localitatea",
+      "hint": "",
+      "group": "",
+      "order": 3,
+      "isRequired": false,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "SubStrada",
+      "type": "text",
+      "label": "Sub Strada",
+      "hint": "",
+      "group": "",
+      "order": 4,
+      "isRequired": false,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "SubNr",
+      "type": "text",
+      "label": "Sub Nr",
+      "hint": "",
+      "group": "",
+      "order": 5,
+      "isRequired": false,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "SubBl",
+      "type": "text",
+      "label": "Sub Bl",
+      "hint": "",
+      "group": "",
+      "order": 6,
+      "isRequired": false,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "SubSc",
+      "type": "text",
+      "label": "Sub Sc",
+      "hint": "",
+      "group": "",
+      "order": 7,
+      "isRequired": false,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "SubEt",
+      "type": "text",
+      "label": "Sub Et",
+      "hint": "",
+      "group": "",
+      "order": 8,
+      "isRequired": false,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "SubAp",
+      "type": "text",
+      "label": "Sub Ap",
+      "hint": "",
+      "group": "",
+      "order": 9,
+      "isRequired": false,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "SubJudSect",
+      "type": "text",
+      "label": "Sub Jud Sect",
+      "hint": "",
+      "group": "",
+      "order": 10,
+      "isRequired": false,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "SubTara",
+      "type": "text",
+      "label": "Sub Tara",
+      "hint": "",
+      "group": "",
+      "order": 11,
+      "isRequired": false,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "SubCetatenia",
+      "type": "text",
+      "label": "Sub Cetatenia",
+      "hint": "",
+      "group": "",
+      "order": 12,
+      "isRequired": false,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "SubNLocalitatea",
+      "type": "text",
+      "label": "Sub NLocalitatea",
+      "hint": "",
+      "group": "",
+      "order": 13,
+      "isRequired": false,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "SubNSectJud",
+      "type": "text",
+      "label": "Sub NSect Jud",
+      "hint": "",
+      "group": "",
+      "order": 14,
+      "isRequired": false,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "SubNTara",
+      "type": "text",
+      "label": "Sub NTara",
+      "hint": "",
+      "group": "",
+      "order": 15,
+      "isRequired": false,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "SubNData",
+      "type": "text",
+      "label": "Sub NData",
+      "hint": "",
+      "group": "",
+      "order": 16,
+      "isRequired": false,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "SubTipActIdent",
+      "type": "text",
+      "label": "Sub Tip Act Ident",
+      "hint": "",
+      "group": "",
+      "order": 17,
+      "isRequired": false,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "SubSerieActIdent",
+      "type": "text",
+      "label": "Sub Serie Act Ident",
+      "hint": "",
+      "group": "",
+      "order": 18,
+      "isRequired": false,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "SubNrActIdent",
+      "type": "text",
+      "label": "Sub Nr Act Ident",
+      "hint": "",
+      "group": "",
+      "order": 19,
+      "isRequired": false,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "SubEmisActIdent",
+      "type": "text",
+      "label": "Sub Emis Act Ident",
+      "hint": "",
+      "group": "",
+      "order": 20,
+      "isRequired": false,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "SubEmisActIdentLaData",
+      "type": "text",
+      "label": "Sub Emis Act Ident La Data",
+      "hint": "",
+      "group": "",
+      "order": 21,
+      "isRequired": false,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "SubEmisActIdentPanaData",
+      "type": "text",
+      "label": "Sub Emis Act Ident Pana Data",
+      "hint": "",
+      "group": "",
+      "order": 22,
+      "isRequired": false,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "SubCalitate",
+      "type": "text",
+      "label": "Sub Calitate",
+      "hint": "",
+      "group": "",
+      "order": 23,
+      "isRequired": false,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "InmFirma",
+      "type": "text",
+      "label": "Inm Firma",
+      "hint": "",
+      "group": "",
+      "order": 24,
+      "isRequired": false,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "InmStrada",
+      "type": "text",
+      "label": "Inm Strada",
+      "hint": "",
+      "group": "",
+      "order": 25,
+      "isRequired": false,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "InmNr",
+      "type": "text",
+      "label": "Inm Nr",
+      "hint": "",
+      "group": "",
+      "order": 26,
+      "isRequired": false,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "InmBl",
+      "type": "text",
+      "label": "Inm Bl",
+      "hint": "",
+      "group": "",
+      "order": 27,
+      "isRequired": false,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "InmSc",
+      "type": "text",
+      "label": "Inm Sc",
+      "hint": "",
+      "group": "",
+      "order": 28,
+      "isRequired": false,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "InmEt",
+      "type": "text",
+      "label": "Inm Et",
+      "hint": "",
+      "group": "",
+      "order": 29,
+      "isRequired": false,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "InmAp",
+      "type": "text",
+      "label": "Inm Ap",
+      "hint": "",
+      "group": "",
+      "order": 30,
+      "isRequired": false,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "InmJudSect",
+      "type": "text",
+      "label": "Inm Jud Sect",
+      "hint": "",
+      "group": "",
+      "order": 31,
+      "isRequired": false,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "InmEmail",
+      "type": "text",
+      "label": "Inm Email",
+      "hint": "",
+      "group": "",
+      "order": 32,
+      "isRequired": false,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "InmTel",
+      "type": "text",
+      "label": "Inm Tel",
+      "hint": "",
+      "group": "",
+      "order": 33,
+      "isRequired": false,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "InmSite",
+      "type": "text",
+      "label": "Inm Site",
+      "hint": "",
+      "group": "",
+      "order": 34,
+      "isRequired": false,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "clasa_caen.0.0",
+      "type": "text",
+      "label": "0",
+      "hint": "",
+      "group": "",
+      "order": 35,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "clasa_caen.0.1",
+      "type": "text",
+      "label": "1",
+      "hint": "",
+      "group": "",
+      "order": 36,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "clasa_caen.0.2",
+      "type": "text",
+      "label": "2",
+      "hint": "",
+      "group": "",
+      "order": 37,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "clasa_caen.0.3",
+      "type": "text",
+      "label": "3",
+      "hint": "",
+      "group": "",
+      "order": 38,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "clasa_caen.0.4",
+      "type": "text",
+      "label": "4",
+      "hint": "",
+      "group": "",
+      "order": 39,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "clasa_caen.0.5",
+      "type": "text",
+      "label": "5",
+      "hint": "",
+      "group": "",
+      "order": 40,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "clasa_caen.0.6",
+      "type": "text",
+      "label": "6",
+      "hint": "",
+      "group": "",
+      "order": 41,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "clasa_caen.0.7",
+      "type": "text",
+      "label": "7",
+      "hint": "",
+      "group": "",
+      "order": 42,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "clasa_caen.0.8",
+      "type": "text",
+      "label": "8",
+      "hint": "",
+      "group": "",
+      "order": 43,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "clasa_caen.0.9",
+      "type": "text",
+      "label": "9",
+      "hint": "",
+      "group": "",
+      "order": 44,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "clasa_caen.0.10",
+      "type": "text",
+      "label": "10",
+      "hint": "",
+      "group": "",
+      "order": 45,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "clasa_caen.0.11",
+      "type": "text",
+      "label": "11",
+      "hint": "",
+      "group": "",
+      "order": 46,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "clasa_caen.0.12",
+      "type": "text",
+      "label": "12",
+      "hint": "",
+      "group": "",
+      "order": 47,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "clasa_caen.0.13",
+      "type": "text",
+      "label": "13",
+      "hint": "",
+      "group": "",
+      "order": 48,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "clasa_caen.0.14",
+      "type": "text",
+      "label": "14",
+      "hint": "",
+      "group": "",
+      "order": 49,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "clasa_caen.0.15",
+      "type": "text",
+      "label": "15",
+      "hint": "",
+      "group": "",
+      "order": 50,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "clasa_caen.0.16",
+      "type": "text",
+      "label": "16",
+      "hint": "",
+      "group": "",
+      "order": 51,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "clasa_caen.0.17",
+      "type": "text",
+      "label": "17",
+      "hint": "",
+      "group": "",
+      "order": 52,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "clasa_caen.1.0",
+      "type": "text",
+      "label": "0",
+      "hint": "",
+      "group": "",
+      "order": 53,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "clasa_caen.1.1",
+      "type": "text",
+      "label": "1",
+      "hint": "",
+      "group": "",
+      "order": 54,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "clasa_caen.1.2",
+      "type": "text",
+      "label": "2",
+      "hint": "",
+      "group": "",
+      "order": 55,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "clasa_caen.1.3",
+      "type": "text",
+      "label": "3",
+      "hint": "",
+      "group": "",
+      "order": 56,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "clasa_caen.1.4",
+      "type": "text",
+      "label": "4",
+      "hint": "",
+      "group": "",
+      "order": 57,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "clasa_caen.1.5",
+      "type": "text",
+      "label": "5",
+      "hint": "",
+      "group": "",
+      "order": 58,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "clasa_caen.1.6",
+      "type": "text",
+      "label": "6",
+      "hint": "",
+      "group": "",
+      "order": 59,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "clasa_caen.1.7",
+      "type": "text",
+      "label": "7",
+      "hint": "",
+      "group": "",
+      "order": 60,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "clasa_caen.1.8",
+      "type": "text",
+      "label": "8",
+      "hint": "",
+      "group": "",
+      "order": 61,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "clasa_caen.1.9",
+      "type": "text",
+      "label": "9",
+      "hint": "",
+      "group": "",
+      "order": 62,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "clasa_caen.1.10",
+      "type": "text",
+      "label": "10",
+      "hint": "",
+      "group": "",
+      "order": 63,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "clasa_caen.1.11",
+      "type": "text",
+      "label": "11",
+      "hint": "",
+      "group": "",
+      "order": 64,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "clasa_caen.1.12",
+      "type": "text",
+      "label": "12",
+      "hint": "",
+      "group": "",
+      "order": 65,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "clasa_caen.1.13",
+      "type": "text",
+      "label": "13",
+      "hint": "",
+      "group": "",
+      "order": 66,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "clasa_caen.1.14",
+      "type": "text",
+      "label": "14",
+      "hint": "",
+      "group": "",
+      "order": 67,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "clasa_caen.1.15",
+      "type": "text",
+      "label": "15",
+      "hint": "",
+      "group": "",
+      "order": 68,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "clasa_caen.1.16",
+      "type": "text",
+      "label": "16",
+      "hint": "",
+      "group": "",
+      "order": 69,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "clasa_caen.1.17",
+      "type": "text",
+      "label": "17",
+      "hint": "",
+      "group": "",
+      "order": 70,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "clasa_caen_desc.0.0",
+      "type": "text",
+      "label": "0",
+      "hint": "",
+      "group": "",
+      "order": 71,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "clasa_caen_desc.0.1",
+      "type": "text",
+      "label": "1",
+      "hint": "",
+      "group": "",
+      "order": 72,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "clasa_caen_desc.0.2",
+      "type": "text",
+      "label": "2",
+      "hint": "",
+      "group": "",
+      "order": 73,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "clasa_caen_desc.0.3",
+      "type": "text",
+      "label": "3",
+      "hint": "",
+      "group": "",
+      "order": 74,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "clasa_caen_desc.0.4",
+      "type": "text",
+      "label": "4",
+      "hint": "",
+      "group": "",
+      "order": 75,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "clasa_caen_desc.0.5",
+      "type": "text",
+      "label": "5",
+      "hint": "",
+      "group": "",
+      "order": 76,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "clasa_caen_desc.0.6",
+      "type": "text",
+      "label": "6",
+      "hint": "",
+      "group": "",
+      "order": 77,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "clasa_caen_desc.0.7",
+      "type": "text",
+      "label": "7",
+      "hint": "",
+      "group": "",
+      "order": 78,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "clasa_caen_desc.0.8",
+      "type": "text",
+      "label": "8",
+      "hint": "",
+      "group": "",
+      "order": 79,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "clasa_caen_desc.0.9",
+      "type": "text",
+      "label": "9",
+      "hint": "",
+      "group": "",
+      "order": 80,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "clasa_caen_desc.0.10",
+      "type": "text",
+      "label": "10",
+      "hint": "",
+      "group": "",
+      "order": 81,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "clasa_caen_desc.0.11",
+      "type": "text",
+      "label": "11",
+      "hint": "",
+      "group": "",
+      "order": 82,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "clasa_caen_desc.0.12",
+      "type": "text",
+      "label": "12",
+      "hint": "",
+      "group": "",
+      "order": 83,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "clasa_caen_desc.0.13",
+      "type": "text",
+      "label": "13",
+      "hint": "",
+      "group": "",
+      "order": 84,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "clasa_caen_desc.0.14",
+      "type": "text",
+      "label": "14",
+      "hint": "",
+      "group": "",
+      "order": 85,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "clasa_caen_desc.0.15",
+      "type": "text",
+      "label": "15",
+      "hint": "",
+      "group": "",
+      "order": 86,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "clasa_caen_desc.0.16",
+      "type": "text",
+      "label": "16",
+      "hint": "",
+      "group": "",
+      "order": 87,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "clasa_caen_desc.0.17",
+      "type": "text",
+      "label": "17",
+      "hint": "",
+      "group": "",
+      "order": 88,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "clasa_caen_desc.1.0",
+      "type": "text",
+      "label": "0",
+      "hint": "",
+      "group": "",
+      "order": 89,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "clasa_caen_desc.1.1",
+      "type": "text",
+      "label": "1",
+      "hint": "",
+      "group": "",
+      "order": 90,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "clasa_caen_desc.1.2",
+      "type": "text",
+      "label": "2",
+      "hint": "",
+      "group": "",
+      "order": 91,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "clasa_caen_desc.1.3",
+      "type": "text",
+      "label": "3",
+      "hint": "",
+      "group": "",
+      "order": 92,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "clasa_caen_desc.1.4",
+      "type": "text",
+      "label": "4",
+      "hint": "",
+      "group": "",
+      "order": 93,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "clasa_caen_desc.1.5",
+      "type": "text",
+      "label": "5",
+      "hint": "",
+      "group": "",
+      "order": 94,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "clasa_caen_desc.1.6",
+      "type": "text",
+      "label": "6",
+      "hint": "",
+      "group": "",
+      "order": 95,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "clasa_caen_desc.1.7",
+      "type": "text",
+      "label": "7",
+      "hint": "",
+      "group": "",
+      "order": 96,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "clasa_caen_desc.1.8",
+      "type": "text",
+      "label": "8",
+      "hint": "",
+      "group": "",
+      "order": 97,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "clasa_caen_desc.1.9",
+      "type": "text",
+      "label": "9",
+      "hint": "",
+      "group": "",
+      "order": 98,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "clasa_caen_desc.1.10",
+      "type": "text",
+      "label": "10",
+      "hint": "",
+      "group": "",
+      "order": 99,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "clasa_caen_desc.1.11",
+      "type": "text",
+      "label": "11",
+      "hint": "",
+      "group": "",
+      "order": 100,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "clasa_caen_desc.1.12",
+      "type": "text",
+      "label": "12",
+      "hint": "",
+      "group": "",
+      "order": 101,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "clasa_caen_desc.1.13",
+      "type": "text",
+      "label": "13",
+      "hint": "",
+      "group": "",
+      "order": 102,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "clasa_caen_desc.1.14",
+      "type": "text",
+      "label": "14",
+      "hint": "",
+      "group": "",
+      "order": 103,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "clasa_caen_desc.1.15",
+      "type": "text",
+      "label": "15",
+      "hint": "",
+      "group": "",
+      "order": 104,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "clasa_caen_desc.1.16",
+      "type": "text",
+      "label": "16",
+      "hint": "",
+      "group": "",
+      "order": 105,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "clasa_caen_desc.1.17",
+      "type": "text",
+      "label": "17",
+      "hint": "",
+      "group": "",
+      "order": 106,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "nr_crt.0.0",
+      "type": "text",
+      "label": "0",
+      "hint": "",
+      "group": "",
+      "order": 107,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "nr_crt.0.1",
+      "type": "text",
+      "label": "1",
+      "hint": "",
+      "group": "",
+      "order": 108,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "nr_crt.0.2",
+      "type": "text",
+      "label": "2",
+      "hint": "",
+      "group": "",
+      "order": 109,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "nr_crt.0.3",
+      "type": "text",
+      "label": "3",
+      "hint": "",
+      "group": "",
+      "order": 110,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "nr_crt.0.4",
+      "type": "text",
+      "label": "4",
+      "hint": "",
+      "group": "",
+      "order": 111,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "nr_crt.0.5",
+      "type": "text",
+      "label": "5",
+      "hint": "",
+      "group": "",
+      "order": 112,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "nr_crt.0.6",
+      "type": "text",
+      "label": "6",
+      "hint": "",
+      "group": "",
+      "order": 113,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "nr_crt.0.7",
+      "type": "text",
+      "label": "7",
+      "hint": "",
+      "group": "",
+      "order": 114,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "nr_crt.0.8",
+      "type": "text",
+      "label": "8",
+      "hint": "",
+      "group": "",
+      "order": 115,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "nr_crt.0.9",
+      "type": "text",
+      "label": "9",
+      "hint": "",
+      "group": "",
+      "order": 116,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "nr_crt.0.10",
+      "type": "text",
+      "label": "10",
+      "hint": "",
+      "group": "",
+      "order": 117,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "nr_crt.0.11",
+      "type": "text",
+      "label": "11",
+      "hint": "",
+      "group": "",
+      "order": 118,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "nr_crt.0.12",
+      "type": "text",
+      "label": "12",
+      "hint": "",
+      "group": "",
+      "order": 119,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "sedii_sec_adresa.0.0",
+      "type": "text",
+      "label": "0",
+      "hint": "",
+      "group": "",
+      "order": 120,
+      "isRequired": true,
+      "isMultiline": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "sedii_sec_adresa.0.1",
+      "type": "text",
+      "label": "1",
+      "hint": "",
+      "group": "",
+      "order": 121,
+      "isRequired": true,
+      "isMultiline": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "sedii_sec_adresa.0.2",
+      "type": "text",
+      "label": "2",
+      "hint": "",
+      "group": "",
+      "order": 122,
+      "isRequired": true,
+      "isMultiline": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "sedii_sec_adresa.0.3",
+      "type": "text",
+      "label": "3",
+      "hint": "",
+      "group": "",
+      "order": 123,
+      "isRequired": true,
+      "isMultiline": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "sedii_sec_adresa.0.4",
+      "type": "text",
+      "label": "4",
+      "hint": "",
+      "group": "",
+      "order": 124,
+      "isRequired": true,
+      "isMultiline": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "sedii_sec_adresa.0.5",
+      "type": "text",
+      "label": "5",
+      "hint": "",
+      "group": "",
+      "order": 125,
+      "isRequired": true,
+      "isMultiline": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "sedii_sec_adresa.0.6",
+      "type": "text",
+      "label": "6",
+      "hint": "",
+      "group": "",
+      "order": 126,
+      "isRequired": true,
+      "isMultiline": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "sedii_sec_adresa.0.7",
+      "type": "text",
+      "label": "7",
+      "hint": "",
+      "group": "",
+      "order": 127,
+      "isRequired": true,
+      "isMultiline": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "sedii_sec_adresa.0.8",
+      "type": "text",
+      "label": "8",
+      "hint": "",
+      "group": "",
+      "order": 128,
+      "isRequired": true,
+      "isMultiline": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "sedii_sec_adresa.0.9",
+      "type": "text",
+      "label": "9",
+      "hint": "",
+      "group": "",
+      "order": 129,
+      "isRequired": true,
+      "isMultiline": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "sedii_sec_adresa.0.10",
+      "type": "text",
+      "label": "10",
+      "hint": "",
+      "group": "",
+      "order": 130,
+      "isRequired": true,
+      "isMultiline": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "sedii_sec_adresa.0.11",
+      "type": "text",
+      "label": "11",
+      "hint": "",
+      "group": "",
+      "order": 131,
+      "isRequired": true,
+      "isMultiline": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "sedii_sec_adresa.0.12",
+      "type": "text",
+      "label": "12",
+      "hint": "",
+      "group": "",
+      "order": 132,
+      "isRequired": true,
+      "isMultiline": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "sedii_sec_caen.0.0",
+      "type": "text",
+      "label": "0",
+      "hint": "",
+      "group": "",
+      "order": 133,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "sedii_sec_caen.0.1",
+      "type": "text",
+      "label": "1",
+      "hint": "",
+      "group": "",
+      "order": 134,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "sedii_sec_caen.0.2",
+      "type": "text",
+      "label": "2",
+      "hint": "",
+      "group": "",
+      "order": 135,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "sedii_sec_caen.0.3",
+      "type": "text",
+      "label": "3",
+      "hint": "",
+      "group": "",
+      "order": 136,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "sedii_sec_caen.0.4",
+      "type": "text",
+      "label": "4",
+      "hint": "",
+      "group": "",
+      "order": 137,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "sedii_sec_caen.0.5",
+      "type": "text",
+      "label": "5",
+      "hint": "",
+      "group": "",
+      "order": 138,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "sedii_sec_caen.0.6",
+      "type": "text",
+      "label": "6",
+      "hint": "",
+      "group": "",
+      "order": 139,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "sedii_sec_caen.0.7",
+      "type": "text",
+      "label": "7",
+      "hint": "",
+      "group": "",
+      "order": 140,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "sedii_sec_caen.0.8",
+      "type": "text",
+      "label": "8",
+      "hint": "",
+      "group": "",
+      "order": 141,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "sedii_sec_caen.0.9",
+      "type": "text",
+      "label": "9",
+      "hint": "",
+      "group": "",
+      "order": 142,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "sedii_sec_caen.0.10",
+      "type": "text",
+      "label": "10",
+      "hint": "",
+      "group": "",
+      "order": 143,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "sedii_sec_caen.0.11",
+      "type": "text",
+      "label": "11",
+      "hint": "",
+      "group": "",
+      "order": 144,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "sedii_sec_caen.0.12",
+      "type": "text",
+      "label": "12",
+      "hint": "",
+      "group": "",
+      "order": 145,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "sedii_sec_caen.0.13",
+      "type": "text",
+      "label": "13",
+      "hint": "",
+      "group": "",
+      "order": 146,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "sedii_sec_caen.0.14",
+      "type": "text",
+      "label": "14",
+      "hint": "",
+      "group": "",
+      "order": 147,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "sedii_sec_caen.0.15",
+      "type": "text",
+      "label": "15",
+      "hint": "",
+      "group": "",
+      "order": 148,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "sedii_sec_caen.0.16",
+      "type": "text",
+      "label": "16",
+      "hint": "",
+      "group": "",
+      "order": 149,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "sedii_sec_caen.0.17",
+      "type": "text",
+      "label": "17",
+      "hint": "",
+      "group": "",
+      "order": 150,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "sedii_sec_caen.0.18",
+      "type": "text",
+      "label": "18",
+      "hint": "",
+      "group": "",
+      "order": 151,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "sedii_sec_caen.0.19",
+      "type": "text",
+      "label": "19",
+      "hint": "",
+      "group": "",
+      "order": 152,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "sedii_sec_caen.0.20",
+      "type": "text",
+      "label": "20",
+      "hint": "",
+      "group": "",
+      "order": 153,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "sedii_sec_caen.0.21",
+      "type": "text",
+      "label": "21",
+      "hint": "",
+      "group": "",
+      "order": 154,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "sedii_sec_caen.0.22",
+      "type": "text",
+      "label": "22",
+      "hint": "",
+      "group": "",
+      "order": 155,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "sedii_sec_caen.0.23",
+      "type": "text",
+      "label": "23",
+      "hint": "",
+      "group": "",
+      "order": 156,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "sedii_sec_caen.0.24",
+      "type": "text",
+      "label": "24",
+      "hint": "",
+      "group": "",
+      "order": 157,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "sedii_sec_caen.0.25",
+      "type": "text",
+      "label": "25",
+      "hint": "",
+      "group": "",
+      "order": 158,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "sedii_sec_caen_desc.0.0",
+      "type": "text",
+      "label": "0",
+      "hint": "",
+      "group": "",
+      "order": 159,
+      "isRequired": true,
+      "isMultiline": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "sedii_sec_caen_desc.0.1",
+      "type": "text",
+      "label": "1",
+      "hint": "",
+      "group": "",
+      "order": 160,
+      "isRequired": true,
+      "isMultiline": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "sedii_sec_caen_desc.0.2",
+      "type": "text",
+      "label": "2",
+      "hint": "",
+      "group": "",
+      "order": 161,
+      "isRequired": true,
+      "isMultiline": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "sedii_sec_caen_desc.0.3",
+      "type": "text",
+      "label": "3",
+      "hint": "",
+      "group": "",
+      "order": 162,
+      "isRequired": true,
+      "isMultiline": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "sedii_sec_caen_desc.0.4",
+      "type": "text",
+      "label": "4",
+      "hint": "",
+      "group": "",
+      "order": 163,
+      "isRequired": true,
+      "isMultiline": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "sedii_sec_caen_desc.0.5",
+      "type": "text",
+      "label": "5",
+      "hint": "",
+      "group": "",
+      "order": 164,
+      "isRequired": true,
+      "isMultiline": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "sedii_sec_caen_desc.0.6",
+      "type": "text",
+      "label": "6",
+      "hint": "",
+      "group": "",
+      "order": 165,
+      "isRequired": true,
+      "isMultiline": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "sedii_sec_caen_desc.0.7",
+      "type": "text",
+      "label": "7",
+      "hint": "",
+      "group": "",
+      "order": 166,
+      "isRequired": true,
+      "isMultiline": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "sedii_sec_caen_desc.0.8",
+      "type": "text",
+      "label": "8",
+      "hint": "",
+      "group": "",
+      "order": 167,
+      "isRequired": true,
+      "isMultiline": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "sedii_sec_caen_desc.0.9",
+      "type": "text",
+      "label": "9",
+      "hint": "",
+      "group": "",
+      "order": 168,
+      "isRequired": true,
+      "isMultiline": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "sedii_sec_caen_desc.0.10",
+      "type": "text",
+      "label": "10",
+      "hint": "",
+      "group": "",
+      "order": 169,
+      "isRequired": true,
+      "isMultiline": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "sedii_sec_caen_desc.0.11",
+      "type": "text",
+      "label": "11",
+      "hint": "",
+      "group": "",
+      "order": 170,
+      "isRequired": true,
+      "isMultiline": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "sedii_sec_caen_desc.0.12",
+      "type": "text",
+      "label": "12",
+      "hint": "",
+      "group": "",
+      "order": 171,
+      "isRequired": true,
+      "isMultiline": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "sedii_sec_caen_desc.0.13",
+      "type": "text",
+      "label": "13",
+      "hint": "",
+      "group": "",
+      "order": 172,
+      "isRequired": true,
+      "isMultiline": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "sedii_sec_caen_desc.0.14",
+      "type": "text",
+      "label": "14",
+      "hint": "",
+      "group": "",
+      "order": 173,
+      "isRequired": true,
+      "isMultiline": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "sedii_sec_caen_desc.0.15",
+      "type": "text",
+      "label": "15",
+      "hint": "",
+      "group": "",
+      "order": 174,
+      "isRequired": true,
+      "isMultiline": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "sedii_sec_caen_desc.0.16",
+      "type": "text",
+      "label": "16",
+      "hint": "",
+      "group": "",
+      "order": 175,
+      "isRequired": true,
+      "isMultiline": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "sedii_sec_caen_desc.0.17",
+      "type": "text",
+      "label": "17",
+      "hint": "",
+      "group": "",
+      "order": 176,
+      "isRequired": true,
+      "isMultiline": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "sedii_sec_caen_desc.0.18",
+      "type": "text",
+      "label": "18",
+      "hint": "",
+      "group": "",
+      "order": 177,
+      "isRequired": true,
+      "isMultiline": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "sedii_sec_caen_desc.0.19",
+      "type": "text",
+      "label": "19",
+      "hint": "",
+      "group": "",
+      "order": 178,
+      "isRequired": true,
+      "isMultiline": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "sedii_sec_caen_desc.0.20",
+      "type": "text",
+      "label": "20",
+      "hint": "",
+      "group": "",
+      "order": 179,
+      "isRequired": true,
+      "isMultiline": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "sedii_sec_caen_desc.0.21",
+      "type": "text",
+      "label": "21",
+      "hint": "",
+      "group": "",
+      "order": 180,
+      "isRequired": true,
+      "isMultiline": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "sedii_sec_caen_desc.0.22",
+      "type": "text",
+      "label": "22",
+      "hint": "",
+      "group": "",
+      "order": 181,
+      "isRequired": true,
+      "isMultiline": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "sedii_sec_caen_desc.0.23",
+      "type": "text",
+      "label": "23",
+      "hint": "",
+      "group": "",
+      "order": 182,
+      "isRequired": true,
+      "isMultiline": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "sedii_sec_caen_desc.0.24",
+      "type": "text",
+      "label": "24",
+      "hint": "",
+      "group": "",
+      "order": 183,
+      "isRequired": true,
+      "isMultiline": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "sedii_sec_caen_desc.0.25",
+      "type": "text",
+      "label": "25",
+      "hint": "",
+      "group": "",
+      "order": 184,
+      "isRequired": true,
+      "isMultiline": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "DataCerere",
+      "type": "text",
+      "label": "Data Cerere",
+      "hint": "",
+      "group": "",
+      "order": 185,
+      "isRequired": false,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "TRIBUNALUL",
+      "type": "text",
+      "label": "TRIBUNALUL",
+      "hint": "",
+      "group": "",
+      "order": 186,
+      "isRequired": false,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "3",
+      "type": "text",
+      "label": "3",
+      "hint": "",
+      "group": "",
+      "order": 187,
+      "isRequired": false,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "4",
+      "type": "text",
+      "label": "4",
+      "hint": "",
+      "group": "",
+      "order": 188,
+      "isRequired": false,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "2",
+      "type": "text",
+      "label": "2",
+      "hint": "",
+      "group": "",
+      "order": 189,
+      "isRequired": false,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "1",
+      "type": "text",
+      "label": "1",
+      "hint": "",
+      "group": "",
+      "order": 190,
+      "isRequired": false,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "InmLocalitatea",
+      "type": "text",
+      "label": "Inm Localitatea",
+      "hint": "",
+      "group": "",
+      "order": 191,
+      "isRequired": false,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "nr100",
+      "type": "text",
+      "label": "Nr100",
+      "hint": "",
+      "group": "",
+      "order": 192,
+      "isRequired": false,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "nr101",
+      "type": "text",
+      "label": "Nr101",
+      "hint": "",
+      "group": "",
+      "order": 193,
+      "isRequired": false,
+      "hidden": false
+    }
+  ],
+  "submission": {
+    "institution": "ONRC",
+    "channels": [
+      {
+        "label": "Portal online",
+        "url": "https://portal.onrc.ro/",
+        "requires": ["semnatura_electronica_calificata"]
+      },
+      {
+        "label": "Ghișeu ORCT",
+        "url": "https://www.onrc.ro",
+        "requires": ["deplasare"]
+      }
+    ]
+  },
+  "fieldSources": {}
+}

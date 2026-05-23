@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import {
   ArrowLeft,
@@ -37,6 +37,10 @@ export const Route = createFileRoute("/workflow/$id")({ component: WorkflowPage 
 
 function WorkflowPage() {
   const { id } = Route.useParams();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const isChildRoute =
+    pathname.startsWith(`/workflow/${id}/`) && pathname !== `/workflow/${id}`;
+
   const [wf, setWf] = useState<Workflow | null | undefined>(undefined);
   const tasks = useTasks((s) => s.tasks);
   const startTask = useTasks((s) => s.startTask);
@@ -47,6 +51,8 @@ function WorkflowPage() {
   useEffect(() => {
     govApi.getWorkflow(id).then((w) => setWf(w ?? null));
   }, [id]);
+
+  if (isChildRoute) return <Outlet />;
 
   if (wf === undefined) {
     return (
@@ -188,8 +194,8 @@ function WorkflowPage() {
         {wf.id === "pfa-registration" && (
           <div className="mt-2">
             <Button asChild variant="secondary" className="w-full sm:w-auto">
-              <Link to="/workflow/$id/pfa" params={{ id: wf.id } as never}>
-                Wizard PFA dedicat
+              <Link to="/workflow/$id/pfa" params={{ id: wf.id }}>
+                Deschide dosarul PFA
               </Link>
             </Button>
           </div>
@@ -250,7 +256,7 @@ function WorkflowPage() {
         </Card>
       )}
 
-      <TipizatulFormsCard workflowId={wf.id} />
+      {wf.id !== "pfa-registration" && <TipizatulFormsCard workflowId={wf.id} />}
 
       {/* Steps */}
       <div className="relative">
@@ -424,7 +430,7 @@ function StepCard({
 
           {!completed && step.order === 1 && (
             <div className="mt-3">
-              <MagicAutofillButton />
+              <MagicAutofillButton workflowId={workflowId} />
             </div>
           )}
         </div>

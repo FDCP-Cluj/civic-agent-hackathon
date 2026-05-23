@@ -208,8 +208,8 @@ function Login() {
               <div className="flex items-start gap-2 text-xs text-muted-foreground">
                 <ShieldCheck className="size-4 text-success shrink-0 mt-0.5" />
                 <span>
-                  Documentele tale rămân doar pe acest dispozitiv. ActeAI nu stochează acte personale
-                  pe serverele sale.
+                  Documentele tale rămân doar pe acest dispozitiv. ActeAI nu stochează acte
+                  personale pe serverele sale.
                 </span>
               </div>
             </div>

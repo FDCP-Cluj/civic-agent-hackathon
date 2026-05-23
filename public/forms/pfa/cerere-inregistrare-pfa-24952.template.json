@@ -1,0 +1,25 @@
+{
+  "id": "cerere-inregistrare-pfa-24952",
+  "name": "Cerere înregistrare PFA",
+  "procedureId": "24952",
+  "pdfFileName": "cerere-inregistrare-pfa-24952.pdf",
+  "version": 1,
+  "createdAt": "2026-05-23T21:10:02.401Z",
+  "fields": [],
+  "submission": {
+    "institution": "ONRC",
+    "channels": [
+      {
+        "label": "Portal online",
+        "url": "https://portal.onrc.ro/",
+        "requires": ["semnatura_electronica_calificata"]
+      },
+      {
+        "label": "Ghișeu ORCT",
+        "url": "https://www.onrc.ro",
+        "requires": ["deplasare"]
+      }
+    ]
+  },
+  "fieldSources": {}
+}

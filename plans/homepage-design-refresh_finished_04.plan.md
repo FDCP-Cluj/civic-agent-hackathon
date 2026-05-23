@@ -20,15 +20,18 @@ isProject: false
 # Homepage Design Refresh Plan
 
 ## Objective
+
 - Make `/` visually calmer and easier to scan, aligned with `civic-agent-alexia` design patterns.
 - Keep all current dashboard capabilities and interactions unchanged.
 
 ## Target Files
+
 - [`/Users/buiandragos/Documents/faculta/Cluj-Hackathon/civic-agent-hackathon/src/routes/index.tsx`](/Users/buiandragos/Documents/faculta/Cluj-Hackathon/civic-agent-hackathon/src/routes/index.tsx)
 - [`/Users/buiandragos/Documents/faculta/Cluj-Hackathon/civic-agent-hackathon/src/components/dashboard/page-header.tsx`](/Users/buiandragos/Documents/faculta/Cluj-Hackathon/civic-agent-hackathon/src/components/dashboard/page-header.tsx)
 - [`/Users/buiandragos/Documents/faculta/Cluj-Hackathon/civic-agent-hackathon/src/styles.css`](/Users/buiandragos/Documents/faculta/Cluj-Hackathon/civic-agent-hackathon/src/styles.css)
 
 ## Short Execution Plan
+
 1. Inventory sections on `/` and classify each as keep/simplify/remove-noise.
 2. Apply alexia-like structure: stronger header zone, calmer KPI area, cleaner section rhythm.
 3. Reduce visual noise:
@@ -42,6 +45,7 @@ isProject: false
 5. Validate on desktop/mobile and confirm no regression.
 
 ## Acceptance Criteria
+
 - Homepage looks less busy and more consistent with alexia patterns.
 - Existing `/` interactions remain intact.
 - Color usage is calmer while semantic meaning remains clear.

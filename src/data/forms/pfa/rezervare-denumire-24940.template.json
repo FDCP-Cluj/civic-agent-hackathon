@@ -1,0 +1,736 @@
+{
+  "id": "rezervare-denumire-24940",
+  "name": "Cerere rezervare denumire PFA",
+  "procedureId": "24940",
+  "pdfFileName": "rezervare-denumire-24940.pdf",
+  "version": 1,
+  "createdAt": "2026-05-23T21:10:02.447Z",
+  "fields": [
+    {
+      "pdfFieldName": "Text1",
+      "type": "text",
+      "label": "Text1",
+      "hint": "",
+      "group": "",
+      "order": 0,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "Text2",
+      "type": "text",
+      "label": "Text2",
+      "hint": "",
+      "group": "",
+      "order": 1,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "Text3",
+      "type": "text",
+      "label": "Text3",
+      "hint": "",
+      "group": "",
+      "order": 2,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "Text4",
+      "type": "text",
+      "label": "Text4",
+      "hint": "",
+      "group": "",
+      "order": 3,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "Text5",
+      "type": "text",
+      "label": "Text5",
+      "hint": "",
+      "group": "",
+      "order": 4,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "Text6",
+      "type": "text",
+      "label": "Text6",
+      "hint": "",
+      "group": "",
+      "order": 5,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "Text7",
+      "type": "text",
+      "label": "Text7",
+      "hint": "",
+      "group": "",
+      "order": 6,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "Text8",
+      "type": "text",
+      "label": "Text8",
+      "hint": "",
+      "group": "",
+      "order": 7,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "Text9",
+      "type": "text",
+      "label": "Text9",
+      "hint": "",
+      "group": "",
+      "order": 8,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "Text10",
+      "type": "text",
+      "label": "Text10",
+      "hint": "",
+      "group": "",
+      "order": 9,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "Text11",
+      "type": "text",
+      "label": "Text11",
+      "hint": "",
+      "group": "",
+      "order": 10,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "Text12",
+      "type": "text",
+      "label": "Text12",
+      "hint": "",
+      "group": "",
+      "order": 11,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "Text13",
+      "type": "text",
+      "label": "Text13",
+      "hint": "",
+      "group": "",
+      "order": 12,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "Text14",
+      "type": "text",
+      "label": "Text14",
+      "hint": "",
+      "group": "",
+      "order": 13,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "Text15",
+      "type": "text",
+      "label": "Text15",
+      "hint": "",
+      "group": "",
+      "order": 14,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "Text16",
+      "type": "text",
+      "label": "Text16",
+      "hint": "",
+      "group": "",
+      "order": 15,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "Text17",
+      "type": "text",
+      "label": "Text17",
+      "hint": "",
+      "group": "",
+      "order": 16,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "Text18",
+      "type": "text",
+      "label": "Text18",
+      "hint": "",
+      "group": "",
+      "order": 17,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "Text19",
+      "type": "text",
+      "label": "Text19",
+      "hint": "",
+      "group": "",
+      "order": 18,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "Text20",
+      "type": "text",
+      "label": "Text20",
+      "hint": "",
+      "group": "",
+      "order": 19,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "Text21",
+      "type": "text",
+      "label": "Text21",
+      "hint": "",
+      "group": "",
+      "order": 20,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "Text22",
+      "type": "text",
+      "label": "Text22",
+      "hint": "",
+      "group": "",
+      "order": 21,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "Text23",
+      "type": "text",
+      "label": "Text23",
+      "hint": "",
+      "group": "",
+      "order": 22,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "Text24",
+      "type": "text",
+      "label": "Text24",
+      "hint": "",
+      "group": "",
+      "order": 23,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "Text25",
+      "type": "text",
+      "label": "Text25",
+      "hint": "",
+      "group": "",
+      "order": 24,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "Text26",
+      "type": "text",
+      "label": "Text26",
+      "hint": "",
+      "group": "",
+      "order": 25,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "Text27",
+      "type": "text",
+      "label": "Text27",
+      "hint": "",
+      "group": "",
+      "order": 26,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "Text28",
+      "type": "text",
+      "label": "Text28",
+      "hint": "",
+      "group": "",
+      "order": 27,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "Text29",
+      "type": "text",
+      "label": "Text29",
+      "hint": "",
+      "group": "",
+      "order": 28,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "Text30",
+      "type": "text",
+      "label": "Text30",
+      "hint": "",
+      "group": "",
+      "order": 29,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "Text31",
+      "type": "text",
+      "label": "Text31",
+      "hint": "",
+      "group": "",
+      "order": 30,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "Text32",
+      "type": "text",
+      "label": "Text32",
+      "hint": "",
+      "group": "",
+      "order": 31,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "Text33",
+      "type": "text",
+      "label": "Text33",
+      "hint": "",
+      "group": "",
+      "order": 32,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "Text34",
+      "type": "text",
+      "label": "Text34",
+      "hint": "",
+      "group": "",
+      "order": 33,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "Text35",
+      "type": "text",
+      "label": "Text35",
+      "hint": "",
+      "group": "",
+      "order": 34,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "Text36",
+      "type": "text",
+      "label": "Text36",
+      "hint": "",
+      "group": "",
+      "order": 35,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "Text37",
+      "type": "text",
+      "label": "Text37",
+      "hint": "",
+      "group": "",
+      "order": 36,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "Text38",
+      "type": "text",
+      "label": "Text38",
+      "hint": "",
+      "group": "",
+      "order": 37,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "Text39",
+      "type": "text",
+      "label": "Text39",
+      "hint": "",
+      "group": "",
+      "order": 38,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "Text40",
+      "type": "text",
+      "label": "Text40",
+      "hint": "",
+      "group": "",
+      "order": 39,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "Text41",
+      "type": "text",
+      "label": "Text41",
+      "hint": "",
+      "group": "",
+      "order": 40,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "Text42",
+      "type": "text",
+      "label": "Text42",
+      "hint": "",
+      "group": "",
+      "order": 41,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "Text43",
+      "type": "text",
+      "label": "Text43",
+      "hint": "",
+      "group": "",
+      "order": 42,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "Text44",
+      "type": "text",
+      "label": "Text44",
+      "hint": "",
+      "group": "",
+      "order": 43,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "Text45",
+      "type": "text",
+      "label": "Text45",
+      "hint": "",
+      "group": "",
+      "order": 44,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "Text46",
+      "type": "text",
+      "label": "Text46",
+      "hint": "",
+      "group": "",
+      "order": 45,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "Text47",
+      "type": "text",
+      "label": "Text47",
+      "hint": "",
+      "group": "",
+      "order": 46,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "Text48",
+      "type": "text",
+      "label": "Text48",
+      "hint": "",
+      "group": "",
+      "order": 47,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "Text49",
+      "type": "text",
+      "label": "Text49",
+      "hint": "",
+      "group": "",
+      "order": 48,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "Text50",
+      "type": "text",
+      "label": "Text50",
+      "hint": "",
+      "group": "",
+      "order": 49,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "Text51",
+      "type": "text",
+      "label": "Text51",
+      "hint": "",
+      "group": "",
+      "order": 50,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "Text52",
+      "type": "text",
+      "label": "Text52",
+      "hint": "",
+      "group": "",
+      "order": 51,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "Text53",
+      "type": "text",
+      "label": "Text53",
+      "hint": "",
+      "group": "",
+      "order": 52,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "Text54",
+      "type": "text",
+      "label": "Text54",
+      "hint": "",
+      "group": "",
+      "order": 53,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "Text55",
+      "type": "text",
+      "label": "Text55",
+      "hint": "",
+      "group": "",
+      "order": 54,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "Text56",
+      "type": "text",
+      "label": "Text56",
+      "hint": "",
+      "group": "",
+      "order": 55,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "Text57",
+      "type": "text",
+      "label": "Text57",
+      "hint": "",
+      "group": "",
+      "order": 56,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "Text58",
+      "type": "text",
+      "label": "Text58",
+      "hint": "",
+      "group": "",
+      "order": 57,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "Text59",
+      "type": "text",
+      "label": "Text59",
+      "hint": "",
+      "group": "",
+      "order": 58,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "Text60",
+      "type": "text",
+      "label": "Text60",
+      "hint": "",
+      "group": "",
+      "order": 59,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "Text61",
+      "type": "text",
+      "label": "Text61",
+      "hint": "",
+      "group": "",
+      "order": 60,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "Text62",
+      "type": "text",
+      "label": "Text62",
+      "hint": "",
+      "group": "",
+      "order": 61,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "Text63",
+      "type": "text",
+      "label": "Text63",
+      "hint": "",
+      "group": "",
+      "order": 62,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "Text64",
+      "type": "text",
+      "label": "Text64",
+      "hint": "",
+      "group": "",
+      "order": 63,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "Text65",
+      "type": "text",
+      "label": "Text65",
+      "hint": "",
+      "group": "",
+      "order": 64,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "Text66",
+      "type": "text",
+      "label": "Text66",
+      "hint": "",
+      "group": "",
+      "order": 65,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "Text67",
+      "type": "text",
+      "label": "Text67",
+      "hint": "",
+      "group": "",
+      "order": 66,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "Text68",
+      "type": "text",
+      "label": "Text68",
+      "hint": "",
+      "group": "",
+      "order": 67,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "Text69",
+      "type": "text",
+      "label": "Text69",
+      "hint": "",
+      "group": "",
+      "order": 68,
+      "isRequired": true,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "CheckBox1",
+      "type": "checkbox",
+      "label": "Check Box1",
+      "hint": "",
+      "group": "",
+      "order": 69,
+      "isRequired": false,
+      "hidden": false
+    },
+    {
+      "pdfFieldName": "CheckBox1_2",
+      "type": "checkbox",
+      "label": "Check Box1 2",
+      "hint": "",
+      "group": "",
+      "order": 70,
+      "isRequired": false,
+      "hidden": false
+    }
+  ],
+  "submission": {
+    "institution": "ONRC",
+    "channels": [
+      {
+        "label": "Portal online",
+        "url": "https://portal.onrc.ro/",
+        "requires": ["semnatura_electronica_calificata"]
+      },
+      {
+        "label": "Ghișeu ORCT",
+        "url": "https://www.onrc.ro",
+        "requires": ["deplasare"]
+      }
+    ]
+  },
+  "fieldSources": {}
+}

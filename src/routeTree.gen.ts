@@ -22,6 +22,7 @@ import { Route as WorkflowIdRouteImport } from './routes/workflow.$id'
 import { Route as WorkflowIdPfaRouteImport } from './routes/workflow.$id.pfa'
 import { Route as WorkflowIdAntecontractRouteImport } from './routes/workflow.$id.antecontract'
 import { Route as AuthEidkitCallbackRouteImport } from './routes/auth.eidkit.callback'
+import { Route as WorkflowIdPfaFormFormIdRouteImport } from './routes/workflow.$id.pfa.form.$formId'
 
 const VerifyRoute = VerifyRouteImport.update({
   id: '/verify',
@@ -88,6 +89,11 @@ const AuthEidkitCallbackRoute = AuthEidkitCallbackRouteImport.update({
   path: '/auth/eidkit/callback',
   getParentRoute: () => rootRouteImport,
 } as any)
+const WorkflowIdPfaFormFormIdRoute = WorkflowIdPfaFormFormIdRouteImport.update({
+  id: '/form/$formId',
+  path: '/form/$formId',
+  getParentRoute: () => WorkflowIdPfaRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -102,7 +108,8 @@ export interface FileRoutesByFullPath {
   '/workflow/$id': typeof WorkflowIdRouteWithChildren
   '/auth/eidkit/callback': typeof AuthEidkitCallbackRoute
   '/workflow/$id/antecontract': typeof WorkflowIdAntecontractRoute
-  '/workflow/$id/pfa': typeof WorkflowIdPfaRoute
+  '/workflow/$id/pfa': typeof WorkflowIdPfaRouteWithChildren
+  '/workflow/$id/pfa/form/$formId': typeof WorkflowIdPfaFormFormIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -117,7 +124,8 @@ export interface FileRoutesByTo {
   '/workflow/$id': typeof WorkflowIdRouteWithChildren
   '/auth/eidkit/callback': typeof AuthEidkitCallbackRoute
   '/workflow/$id/antecontract': typeof WorkflowIdAntecontractRoute
-  '/workflow/$id/pfa': typeof WorkflowIdPfaRoute
+  '/workflow/$id/pfa': typeof WorkflowIdPfaRouteWithChildren
+  '/workflow/$id/pfa/form/$formId': typeof WorkflowIdPfaFormFormIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -133,7 +141,8 @@ export interface FileRoutesById {
   '/workflow/$id': typeof WorkflowIdRouteWithChildren
   '/auth/eidkit/callback': typeof AuthEidkitCallbackRoute
   '/workflow/$id/antecontract': typeof WorkflowIdAntecontractRoute
-  '/workflow/$id/pfa': typeof WorkflowIdPfaRoute
+  '/workflow/$id/pfa': typeof WorkflowIdPfaRouteWithChildren
+  '/workflow/$id/pfa/form/$formId': typeof WorkflowIdPfaFormFormIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -151,6 +160,7 @@ export interface FileRouteTypes {
     | '/auth/eidkit/callback'
     | '/workflow/$id/antecontract'
     | '/workflow/$id/pfa'
+    | '/workflow/$id/pfa/form/$formId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -166,6 +176,7 @@ export interface FileRouteTypes {
     | '/auth/eidkit/callback'
     | '/workflow/$id/antecontract'
     | '/workflow/$id/pfa'
+    | '/workflow/$id/pfa/form/$formId'
   id:
     | '__root__'
     | '/'
@@ -181,6 +192,7 @@ export interface FileRouteTypes {
     | '/auth/eidkit/callback'
     | '/workflow/$id/antecontract'
     | '/workflow/$id/pfa'
+    | '/workflow/$id/pfa/form/$formId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -290,17 +302,36 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthEidkitCallbackRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/workflow/$id/pfa/form/$formId': {
+      id: '/workflow/$id/pfa/form/$formId'
+      path: '/form/$formId'
+      fullPath: '/workflow/$id/pfa/form/$formId'
+      preLoaderRoute: typeof WorkflowIdPfaFormFormIdRouteImport
+      parentRoute: typeof WorkflowIdPfaRoute
+    }
   }
 }
 
+interface WorkflowIdPfaRouteChildren {
+  WorkflowIdPfaFormFormIdRoute: typeof WorkflowIdPfaFormFormIdRoute
+}
+
+const WorkflowIdPfaRouteChildren: WorkflowIdPfaRouteChildren = {
+  WorkflowIdPfaFormFormIdRoute: WorkflowIdPfaFormFormIdRoute,
+}
+
+const WorkflowIdPfaRouteWithChildren = WorkflowIdPfaRoute._addFileChildren(
+  WorkflowIdPfaRouteChildren,
+)
+
 interface WorkflowIdRouteChildren {
   WorkflowIdAntecontractRoute: typeof WorkflowIdAntecontractRoute
-  WorkflowIdPfaRoute: typeof WorkflowIdPfaRoute
+  WorkflowIdPfaRoute: typeof WorkflowIdPfaRouteWithChildren
 }
 
 const WorkflowIdRouteChildren: WorkflowIdRouteChildren = {
   WorkflowIdAntecontractRoute: WorkflowIdAntecontractRoute,
-  WorkflowIdPfaRoute: WorkflowIdPfaRoute,
+  WorkflowIdPfaRoute: WorkflowIdPfaRouteWithChildren,
 }
 
 const WorkflowIdRouteWithChildren = WorkflowIdRoute._addFileChildren(

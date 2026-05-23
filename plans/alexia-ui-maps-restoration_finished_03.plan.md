@@ -26,20 +26,24 @@ isProject: false
 # Alexia UI/UX + Maps Restoration Plan
 
 ## Objectives
+
 - Create a repo-level `plans` directory and keep working plans there for team visibility.
 - Replace the current mobile-bottom-nav shell with full `civic-agent-alexia` shell standards (left sidebar desktop-first, alexia-like page hierarchy).
 - Restore Google Maps institution lookup behavior to match `civic-agent-buian` (Places lookup path + fallback search URL path).
 
 ## Target Repositories and Canonical Sources
+
 - **Implementation target:** [`/Users/buiandragos/Documents/faculta/Cluj-Hackathon/civic-agent-hackathon`](/Users/buiandragos/Documents/faculta/Cluj-Hackathon/civic-agent-hackathon)
-- **UI shell reference (authoritative):** [`/Users/buiandragos/Documents/faculta/Cluj-Hackathon/civic-agent-alexia/apps/web/src/app/(dashboard)/layout.tsx`](/Users/buiandragos/Documents/faculta/Cluj-Hackathon/civic-agent-alexia/apps/web/src/app/(dashboard)/layout.tsx), [`/Users/buiandragos/Documents/faculta/Cluj-Hackathon/civic-agent-alexia/apps/web/src/components/dashboard/app-sidebar.tsx`](/Users/buiandragos/Documents/faculta/Cluj-Hackathon/civic-agent-alexia/apps/web/src/components/dashboard/app-sidebar.tsx), [`/Users/buiandragos/Documents/faculta/Cluj-Hackathon/civic-agent-alexia/apps/web/src/components/dashboard/page-header.tsx`](/Users/buiandragos/Documents/faculta/Cluj-Hackathon/civic-agent-alexia/apps/web/src/components/dashboard/page-header.tsx)
+- **UI shell reference (authoritative):** [`/Users/buiandragos/Documents/faculta/Cluj-Hackathon/civic-agent-alexia/apps/web/src/app/(dashboard)/layout.tsx`](</Users/buiandragos/Documents/faculta/Cluj-Hackathon/civic-agent-alexia/apps/web/src/app/(dashboard)/layout.tsx>), [`/Users/buiandragos/Documents/faculta/Cluj-Hackathon/civic-agent-alexia/apps/web/src/components/dashboard/app-sidebar.tsx`](/Users/buiandragos/Documents/faculta/Cluj-Hackathon/civic-agent-alexia/apps/web/src/components/dashboard/app-sidebar.tsx), [`/Users/buiandragos/Documents/faculta/Cluj-Hackathon/civic-agent-alexia/apps/web/src/components/dashboard/page-header.tsx`](/Users/buiandragos/Documents/faculta/Cluj-Hackathon/civic-agent-alexia/apps/web/src/components/dashboard/page-header.tsx)
 - **Maps behavior reference (authoritative):** [`/Users/buiandragos/Documents/faculta/Cluj-Hackathon/civic-agent-buian/Civic Guide AI/src/components/flow/StepActionButton.tsx`](/Users/buiandragos/Documents/faculta/Cluj-Hackathon/civic-agent-buian/Civic%20Guide%20AI/src/components/flow/StepActionButton.tsx), [`/Users/buiandragos/Documents/faculta/Cluj-Hackathon/civic-agent-buian/Civic Guide AI/src/lib/agent.functions.ts`](/Users/buiandragos/Documents/faculta/Cluj-Hackathon/civic-agent-buian/Civic%20Guide%20AI/src/lib/agent.functions.ts)
 
 ## Phase 0 — Planning Artifacts Location
+
 - Create [`/Users/buiandragos/Documents/faculta/Cluj-Hackathon/civic-agent-hackathon/plans`](/Users/buiandragos/Documents/faculta/Cluj-Hackathon/civic-agent-hackathon/plans).
 - Copy/move active plan markdown into this folder (without modifying intent/content), so execution docs live in-repo.
 
 ## Phase 1 — Full Alexia Shell Migration
+
 - Refactor [`/Users/buiandragos/Documents/faculta/Cluj-Hackathon/civic-agent-hackathon/src/components/app-shell.tsx`](/Users/buiandragos/Documents/faculta/Cluj-Hackathon/civic-agent-hackathon/src/components/app-shell.tsx) to alexia-style structure:
   - desktop: persistent left sidebar + top user strip + main content column,
   - mobile: compact header + horizontal nav pills (not bottom tab bar).
@@ -51,6 +55,7 @@ isProject: false
   - auth/logout behavior.
 
 ## Phase 2 — Page Composition Alignment (Alexia Standard)
+
 - Update layout density and hierarchy in:
   - [`/Users/buiandragos/Documents/faculta/Cluj-Hackathon/civic-agent-hackathon/src/routes/index.tsx`](/Users/buiandragos/Documents/faculta/Cluj-Hackathon/civic-agent-hackathon/src/routes/index.tsx)
   - [`/Users/buiandragos/Documents/faculta/Cluj-Hackathon/civic-agent-hackathon/src/routes/vault.tsx`](/Users/buiandragos/Documents/faculta/Cluj-Hackathon/civic-agent-hackathon/src/routes/vault.tsx)
@@ -59,6 +64,7 @@ isProject: false
 - Ensure visual parity with alexia standards for spacing, sidebar states, and page-level card rhythm.
 
 ## Phase 3 — Restore Buian-Style Google Maps Institution Lookup
+
 - Replace current link-only institution logic in:
   - [`/Users/buiandragos/Documents/faculta/Cluj-Hackathon/civic-agent-hackathon/src/services/findInstitution.ts`](/Users/buiandragos/Documents/faculta/Cluj-Hackathon/civic-agent-hackathon/src/services/findInstitution.ts)
   - [`/Users/buiandragos/Documents/faculta/Cluj-Hackathon/civic-agent-hackathon/src/components/workflow/step-action-button.tsx`](/Users/buiandragos/Documents/faculta/Cluj-Hackathon/civic-agent-hackathon/src/components/workflow/step-action-button.tsx)
@@ -71,12 +77,14 @@ isProject: false
   - deterministic fallback to Google Maps search URL when keys are missing or API fails.
 
 ## Phase 4 — Routing and Navigation Hardening
+
 - Ensure all authenticated routes keep consistent shell behavior:
   - workflow pages and nested specialized pages stay visually consistent in sidebar context.
 - Keep `/login` and `/verify` outside dashboard shell.
 - Verify route tree generation and active-link behavior for nested workflow routes.
 
 ## Phase 5 — Validation and Acceptance
+
 - Run and verify:
   - `typecheck`, `lint`, `build`
 - Manual checks:
@@ -87,6 +95,7 @@ isProject: false
   - no regression in workflow/task/vault paths.
 
 ## Architecture/Data Flow
+
 ```mermaid
 flowchart TD
   alexiaShell[AlexiaShellReference] --> appShell[HackathonAppShellRefactor]
@@ -101,6 +110,7 @@ flowchart TD
 ```
 
 ## Key Risks and Controls
+
 - **Risk:** sidebar migration breaks mobile navigation discoverability.
   - **Control:** explicit mobile pill nav parity and route coverage check.
 - **Risk:** maps connector keys unavailable in some environments.

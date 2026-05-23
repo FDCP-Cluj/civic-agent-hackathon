@@ -1,49 +1,76 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
-import { ArrowLeft, CheckCircle2, FileDown, Sparkles } from "lucide-react";
+import { createFileRoute, Link, Outlet, useRouterState, useSearch } from "@tanstack/react-router";
+import { useEffect } from "react";
+import { ArrowLeft, CheckCircle2, FileDown, FileText, Sparkles, Wand2 } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { PageHeader } from "@/components/dashboard/page-header";
-import { useVault } from "@/store";
+import { SubmissionStrip } from "@/components/pfa/submission-strip";
+import { useVault, usePfaDossier } from "@/store";
 import { suggestCaenWithRag } from "@/services/rag";
+import { PFA_DOSSIER_CARDS, loadPfaTemplate, type PfaDossierCardDef } from "@/services/forms";
 import { toast } from "sonner";
+import { useState } from "react";
+import { Switch } from "@/components/ui/switch";
+import { generateCererePfaPdf } from "@/services/pdf/cererePfa";
+import { downloadPdf } from "@/services/pdf/antecontract";
+import { generateDeclaratiePfaPdf } from "@/services/pdf/declaratiePfa";
+
+type Search = { autofill?: string };
 
 export const Route = createFileRoute("/workflow/$id/pfa")({
-  component: PfaWizardPage,
+  component: PfaDossierHubPage,
+  validateSearch: (s: Record<string, unknown>): Search => ({
+    autofill: s.autofill === "1" || s.autofill === "true" ? "1" : undefined,
+  }),
 });
 
-function PfaWizardPage() {
-  const { id } = Route.useParams();
-  const profile = useVault((s) => s.profile);
-  const [activity, setActivity] = useState("");
-  const [caenCode, setCaenCode] = useState("");
-  const [ragLoading, setRagLoading] = useState(false);
-  const [ragSource, setRagSource] = useState<"supabase_rag" | "local_fallback" | null>(null);
-  const [suggestions, setSuggestions] = useState<
-    Array<{ code: string; title: string; score: number }>
-  >([]);
+function cardStatusLabel(status: string | undefined): string {
+  if (status === "gata") return "Gata";
+  if (status === "draft") return "Draft";
+  return "Necompletat";
+}
 
-  const steps = useMemo(
-    () => [
-      "Alege codul CAEN principal și confirmă activitatea.",
-      "Verifică sediul profesional și documentele suport.",
-      "Generează declarația pe propria răspundere precompletată.",
-      "Depune dosarul la ONRC și urmărește statusul.",
-    ],
-    [],
-  );
+function PfaDossierHubPage() {
+  const { id } = Route.useParams();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const isFormRoute = /\/pfa\/form\//.test(pathname);
+  const { autofill } = useSearch({ from: "/workflow/$id/pfa" });
+  const profile = useVault((s) => s.profile);
+  const documents = useVault((s) => s.documents);
+  const dossier = usePfaDossier();
+  const updateDossier = usePfaDossier((s) => s.updateDossier);
+  const setCardMode = usePfaDossier((s) => s.setCardMode);
+  const setCardStatus = usePfaDossier((s) => s.setCardStatus);
+  const syncFromProfile = usePfaDossier((s) => s.syncFromProfile);
+
+  const [activity, setActivity] = useState(dossier.activitateDescriere);
+  const [caenCode, setCaenCode] = useState(dossier.codCaenPrincipal);
+  const [ragLoading, setRagLoading] = useState(false);
+
+  useEffect(() => {
+    if (id === "pfa-registration") syncFromProfile(profile);
+  }, [id, profile.fullName, profile.address, syncFromProfile]);
+
+  useEffect(() => {
+    if (autofill === "1" && profile.fullName && profile.cnp) {
+      toast.info("Deschide un formular PDF și verifică datele completate automat.");
+    }
+  }, [autofill, profile.fullName, profile.cnp]);
+
+  if (isFormRoute) return <Outlet />;
 
   if (id !== "pfa-registration") {
     return (
       <AppShell>
         <Card className="p-5">
-          <p className="text-sm">Acest wizard este disponibil doar pentru fluxul PFA.</p>
+          <p className="text-sm">Dosarul PFA este disponibil doar pentru înregistrare PFA.</p>
           <Button asChild className="mt-3">
             <Link to="/workflow/$id" params={{ id }}>
-              Înapoi la workflow
+              Înapoi
             </Link>
           </Button>
         </Card>
@@ -53,108 +80,231 @@ function PfaWizardPage() {
 
   const handleSuggest = async () => {
     if (!activity.trim()) {
-      toast.info("Descrie activitatea pentru a sugera coduri CAEN.");
+      toast.info("Descrie activitatea pentru CAEN.");
       return;
     }
     setRagLoading(true);
     const res = await suggestCaenWithRag(activity);
-    setSuggestions(res.matches.map((m) => ({ code: m.code, title: m.title, score: m.score })));
-    setRagSource(res.source);
-    if (!caenCode && res.matches[0]?.code) setCaenCode(res.matches[0].code);
+    const code = res.matches[0]?.code ?? "";
+    if (code) {
+      setCaenCode(code);
+      updateDossier({
+        codCaenPrincipal: code,
+        activitateDescriere: activity,
+      });
+    }
     setRagLoading(false);
   };
 
-  const handleGeneratePdf = async () => {
-    const [{ generateDeclaratiePfaPdf }, { downloadPdf }] = await Promise.all([
-      import("@/services/pdf/declaratiePfa"),
-      import("@/services/pdf/antecontract"),
-    ]);
+  const saveDossierMeta = () => {
+    updateDossier({
+      codCaenPrincipal: caenCode,
+      activitateDescriere: activity,
+      denumirePfa: dossier.denumirePfa || `${profile.fullName.trim()} PFA`,
+      sediuProfesional: dossier.sediuProfesional || profile.address,
+    });
+    toast.success("Date dosar salvate.");
+  };
+
+  const handleGeneratedCerere = async () => {
+    if (!profile.fullName || !profile.cnp) {
+      toast.error("Completează seiful (nume, CNP) mai întâi.");
+      return;
+    }
+    saveDossierMeta();
+    const bytes = await generateCererePfaPdf({ profile, dossier });
+    downloadPdf(bytes, "acteai-cerere-inregistrare-pfa-draft.pdf");
+    setCardStatus("cerere-inregistrare", "gata");
+    toast.success("Cerere draft descărcată.");
+  };
+
+  const handleDeclaratieFallback = async () => {
     const bytes = await generateDeclaratiePfaPdf({
       profile,
-      codCaen: caenCode || undefined,
-      descriereActivitate: activity || undefined,
-      sediuProfesional: profile.address || undefined,
-      doarAdresaAdministrativa: false,
+      codCaen: caenCode || dossier.codCaenPrincipal,
+      descriereActivitate: activity,
+      sediuProfesional: dossier.sediuProfesional || profile.address,
     });
-    downloadPdf(bytes, "civis-declaratie-pfa-wizard.pdf");
-    toast.success("Declarația PFA a fost generată.");
+    downloadPdf(bytes, "acteai-declaratie-pfa-draft.pdf");
+    toast.success("Declarație draft (generator ActeAI) descărcată.");
   };
 
   return (
     <AppShell>
       <PageHeader
-        title="Înființare PFA — ghid asistat"
-        description="Flux bazat pe varianta detaliată din `civic-agent-buian`, adaptat în UI-ul curent."
+        title="Dosar PFA — completare în aplicație"
+        description="Formulare PDF, atașamente și instrucțiuni de depunere. Totul rămâne pe dispozitivul tău."
       >
         <Button asChild variant="outline" size="sm">
           <Link to="/workflow/$id" params={{ id: "pfa-registration" }}>
             <ArrowLeft className="size-4" />
-            Înapoi
+            Ghid PFA
           </Link>
         </Button>
       </PageHeader>
 
-      <Card className="mb-4 mt-4 p-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <Card className="mt-4 p-4 mb-4 border-border/80">
+        <h2 className="text-sm font-semibold mb-3">Date dosar (din seif + activitate)</h2>
+        <div className="grid gap-3 sm:grid-cols-2">
           <div className="space-y-1.5 sm:col-span-2">
-            <Label>Descrie activitatea ta</Label>
-            <Input
-              value={activity}
-              onChange={(e) => setActivity(e.target.value)}
-              placeholder="Ex: dezvoltare software web pentru companii mici"
-            />
+            <Label>Activitate</Label>
+            <Input value={activity} onChange={(e) => setActivity(e.target.value)} />
           </div>
           <div className="space-y-1.5">
-            <Label>Cod CAEN principal</Label>
+            <Label>CAEN principal</Label>
             <Input
               value={caenCode}
               onChange={(e) => setCaenCode(e.target.value)}
-              placeholder="6201"
               className="font-mono"
             />
           </div>
-          <div className="flex items-end">
-            <Button onClick={handleSuggest} disabled={ragLoading} className="w-full">
-              <Sparkles className="size-4" />
-              {ragLoading ? "Caut..." : "Sugerează CAEN (RAG)"}
-            </Button>
+          <div className="space-y-1.5">
+            <Label>Denumire PFA</Label>
+            <Input
+              value={dossier.denumirePfa}
+              onChange={(e) => updateDossier({ denumirePfa: e.target.value })}
+            />
+          </div>
+          <div className="space-y-1.5 sm:col-span-2">
+            <Label>Sediu profesional</Label>
+            <Input
+              value={dossier.sediuProfesional || profile.address}
+              onChange={(e) => updateDossier({ sediuProfesional: e.target.value })}
+            />
           </div>
         </div>
-
-        {ragSource && (
-          <div className="mt-3 text-sm text-muted-foreground">
-            Sursă sugestii:{" "}
-            <strong>{ragSource === "supabase_rag" ? "RAG Supabase" : "fallback local"}</strong>
-          </div>
-        )}
-
-        {suggestions.length > 0 && (
-          <ul className="mt-3 space-y-2">
-            {suggestions.slice(0, 5).map((s) => (
-              <li key={s.code} className="rounded-lg border border-border p-2">
-                <div className="text-sm font-mono text-primary">{s.code}</div>
-                <div className="text-sm">{s.title}</div>
-              </li>
-            ))}
-          </ul>
-        )}
+        <div className="flex flex-wrap gap-2 mt-3">
+          <Button size="sm" variant="outline" onClick={handleSuggest} disabled={ragLoading}>
+            <Sparkles className="size-4" />
+            Sugerează CAEN
+          </Button>
+          <Button size="sm" onClick={saveDossierMeta}>
+            Salvează în dosar
+          </Button>
+        </div>
       </Card>
 
-      <Card className="p-4 mb-4">
-        <div className="text-sm font-semibold mb-2">Checklist ghidat</div>
-        <ul className="space-y-2">
-          {steps.map((s) => (
-            <li key={s} className="flex items-center gap-2.5 text-sm">
-              <CheckCircle2 className="size-4 text-success shrink-0" />
-              <span>{s}</span>
-            </li>
-          ))}
-        </ul>
-      </Card>
-
-      <Button onClick={handleGeneratePdf} className="w-full">
-        <FileDown className="size-4" /> Generează declarație PFA
-      </Button>
+      <div className="space-y-3">
+        {PFA_DOSSIER_CARDS.map((card) => (
+          <DossierCard
+            key={card.id}
+            card={card}
+            status={dossier.cardStatus[card.id]}
+            mode={dossier.cardModes[card.id] ?? "autofill"}
+            autofillQuery={autofill === "1" ? "1" : undefined}
+            onModeChange={(m) => setCardMode(card.id, m)}
+            onGeneratedCerere={handleGeneratedCerere}
+            onDeclaratieFallback={
+              card.id === "declaratie-propria-raspundere" ? handleDeclaratieFallback : undefined
+            }
+            hasCi={documents.some((d) => d.type === "id_card")}
+          />
+        ))}
+      </div>
     </AppShell>
+  );
+}
+
+function DossierCard({
+  card,
+  status,
+  mode,
+  autofillQuery,
+  onModeChange,
+  onGeneratedCerere,
+  onDeclaratieFallback,
+  hasCi,
+}: {
+  card: PfaDossierCardDef;
+  status?: string;
+  mode: "autofill" | "manual";
+  autofillQuery?: string;
+  onModeChange: (m: "autofill" | "manual") => void;
+  onGeneratedCerere: () => void;
+  onDeclaratieFallback?: () => void;
+  hasCi: boolean;
+}) {
+  const template = card.templateId ? loadPfaTemplate(card.templateId) : undefined;
+  const visibleCount = template?.fields.filter((f) => !f.hidden).length ?? 0;
+
+  return (
+    <Card className="p-4 border-border/80">
+      <div className="flex flex-wrap items-start justify-between gap-2 mb-2">
+        <div>
+          <h3 className="font-semibold text-sm">{card.title}</h3>
+          <p className="text-xs text-muted-foreground mt-0.5">{card.description}</p>
+        </div>
+        <Badge variant={status === "gata" ? "default" : "secondary"}>
+          {cardStatusLabel(status)}
+        </Badge>
+      </div>
+
+      <SubmissionStrip submission={card.submission} compact />
+
+      {card.kind === "acroform" && card.templateId && (
+        <div className="mt-3 flex flex-wrap items-center gap-3">
+          <div className="flex items-center gap-2 text-xs">
+            <Wand2 className="size-3.5" />
+            <span>Autocompletare</span>
+            <Switch
+              checked={mode === "autofill"}
+              onCheckedChange={(c) => onModeChange(c ? "autofill" : "manual")}
+            />
+          </div>
+          <span className="text-xs text-muted-foreground">{visibleCount} câmpuri PDF</span>
+          <Button asChild size="sm">
+            <Link
+              to="/workflow/$id/pfa/form/$formId"
+              params={{ id: "pfa-registration", formId: card.templateId }}
+              search={mode === "autofill" || autofillQuery ? { autofill: "1" } : {}}
+            >
+              <FileText className="size-4" />
+              {mode === "autofill" ? "Completează automat" : "Completează manual"}
+            </Link>
+          </Button>
+          {onDeclaratieFallback && (
+            <Button size="sm" variant="ghost" onClick={onDeclaratieFallback}>
+              Draft text simplu (nu e formularul ONRC)
+            </Button>
+          )}
+        </div>
+      )}
+
+      {card.kind === "generated_pdf" && (
+        <div className="mt-3">
+          <p className="text-xs text-muted-foreground mb-2">
+            PDF-ul oficial de pe eDirect nu are câmpuri editabile. Generăm un draft structurat.
+          </p>
+          <Button size="sm" onClick={onGeneratedCerere}>
+            <FileDown className="size-4" />
+            Generează cerere draft PDF
+          </Button>
+        </div>
+      )}
+
+      {card.kind === "attach" && (
+        <div className="mt-3 flex flex-wrap gap-2">
+          <Button asChild size="sm" variant="outline">
+            <Link to="/vault">Încarcă în seif</Link>
+          </Button>
+          <Button asChild size="sm" variant="outline">
+            <Link to="/scan">Scanează document</Link>
+          </Button>
+          {card.attachType === "ci" && hasCi && (
+            <Badge variant="outline" className="gap-1">
+              <CheckCircle2 className="size-3 text-success" />
+              CI în seif
+            </Badge>
+          )}
+        </div>
+      )}
+
+      {card.kind === "checklist" && (
+        <ul className="mt-3 text-sm space-y-1.5 list-disc pl-5 text-muted-foreground">
+          <li>Specimen la notar (~80–150 RON) sau gratuit la ghișeul ONRC</li>
+          <li>Necesar la depunerea dosarului fizic sau pentru arhivă</li>
+        </ul>
+      )}
+    </Card>
   );
 }

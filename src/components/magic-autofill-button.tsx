@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { Wand2, Check, Loader2 } from "lucide-react";
+import { Wand2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useVault } from "@/store";
@@ -9,54 +8,37 @@ import { useNavigate } from "@tanstack/react-router";
 type Props = {
   size?: "sm" | "default";
   className?: string;
+  workflowId?: string;
 };
 
-export function MagicAutofillButton({ size = "sm", className }: Props) {
+export function MagicAutofillButton({ size = "sm", className, workflowId }: Props) {
   const navigate = useNavigate();
   const profile = useVault((s) => s.profile);
-  const [state, setState] = useState<"idle" | "loading" | "success">("idle");
 
-  const run = async () => {
+  const run = () => {
     if (!profile.fullName || !profile.cnp) {
       toast.error("Completează datele în Seiful local mai întâi.");
       navigate({ to: "/vault" });
       return;
     }
-    setState("loading");
-    await new Promise((r) => setTimeout(r, 700));
-    setState("success");
-    toast.success(`Formular completat cu ${profile.fullName}`, {
-      description: `CNP ${profile.cnp.slice(0, 3)}*** preluat din seiful local.`,
-    });
-    setTimeout(() => setState("idle"), 1800);
+
+    if (workflowId === "pfa-registration") {
+      navigate({
+        to: "/workflow/$id/pfa",
+        params: { id: "pfa-registration" },
+        search: { autofill: "1" },
+      });
+      toast.info("Deschide formularul dorit din dosarul PFA.");
+      return;
+    }
+
+    navigate({ to: "/vault" });
+    toast.info("Magic Autofill este disponibil complet pentru dosarul PFA.");
   };
 
   return (
-    <Button
-      size={size}
-      variant="secondary"
-      onClick={run}
-      disabled={state !== "idle"}
-      className={cn(
-        "transition-all duration-300",
-        state === "success" &&
-          "bg-success text-success-foreground hover:bg-success disabled:opacity-100",
-        className,
-      )}
-    >
-      {state === "loading" ? (
-        <>
-          <Loader2 className="size-4 animate-spin" /> Completez…
-        </>
-      ) : state === "success" ? (
-        <>
-          <Check className="size-4 animate-[scale-in_0.2s_ease-out]" /> Completat
-        </>
-      ) : (
-        <>
-          <Wand2 className="size-4" /> Magic Autofill
-        </>
-      )}
+    <Button size={size} variant="secondary" onClick={run} className={cn(className)}>
+      <Wand2 className="size-4" /> Magic Autofill
     </Button>
   );
 }
