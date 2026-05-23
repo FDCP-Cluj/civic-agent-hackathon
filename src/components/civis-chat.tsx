@@ -46,6 +46,7 @@ import { govApi, type Workflow } from "@/services/govApiMock";
 import { useSpeechRecognition } from "@/hooks/use-speech-recognition";
 import { lookupCompanyByCui, type AnafLookupResult } from "@/services/anaf";
 import { findCaen } from "@/services/caen";
+import { suggestCaenWithRag, type RagCaenSuggestion } from "@/services/rag";
 
 type WorkflowCta = {
   id: string;
@@ -61,6 +62,8 @@ type AnafCard = {
 
 type CaenCard = {
   activitate: string;
+  state: "loading" | "done";
+  result?: RagCaenSuggestion;
 };
 
 type Message = {
@@ -307,8 +310,42 @@ export function CivisChat() {
           } else if (evt.type === "function_call" && evt.name === "find_caen") {
             const activitate = evt.args.activitate;
             setMessages((m) =>
-              m.map((msg) => (msg.id === assistantId ? { ...msg, caen: { activitate } } : msg)),
+              m.map((msg) =>
+                msg.id === assistantId ? { ...msg, caen: { activitate, state: "loading" } } : msg,
+              ),
             );
+            suggestCaenWithRag(activitate)
+              .then((result) => {
+                setMessages((m) =>
+                  m.map((msg) =>
+                    msg.id === assistantId
+                      ? { ...msg, caen: { activitate, state: "done", result } }
+                      : msg,
+                  ),
+                );
+              })
+              .catch((err) => {
+                console.warn("[civis] RAG CAEN suggestion failed, fallback remains local", err);
+                setMessages((m) =>
+                  m.map((msg) =>
+                    msg.id === assistantId
+                      ? {
+                          ...msg,
+                          caen: {
+                            activitate,
+                            state: "done",
+                            result: {
+                              source: "local_fallback",
+                              matches: [],
+                              citations: [],
+                              degraded: true,
+                            },
+                          },
+                        }
+                      : msg,
+                  ),
+                );
+              });
           } else if (evt.type === "sources") {
             setMessages((m) =>
               m.map((msg) => {
@@ -782,8 +819,22 @@ function AnafResultCard({ anaf }: { anaf: AnafCard }) {
 }
 
 function CaenSuggestionCard({ caen }: { caen: CaenCard }) {
-  const matches = findCaen(caen.activitate, 5);
+  const fallbackMatches = findCaen(caen.activitate, 5);
+  const matches = caen.result?.matches ?? fallbackMatches;
+  const source = caen.result?.source ?? "local_fallback";
+  const citations = caen.result?.citations ?? [];
   const searchUrl = `https://www.caen.ro/?s=${encodeURIComponent(caen.activitate)}`;
+
+  if (caen.state === "loading") {
+    return (
+      <Card className="p-3 border-primary/30 bg-card animate-[fade-in_0.3s_ease-out]">
+        <div className="flex items-center gap-2 text-xs font-semibold text-primary">
+          <Loader2 className="size-3.5 animate-spin" />
+          Caut sugestii CAEN prin baza de cunoștințe…
+        </div>
+      </Card>
+    );
+  }
 
   return (
     <Card className="p-3 border-primary/30 bg-card animate-[fade-in_0.3s_ease-out]">
@@ -791,6 +842,9 @@ function CaenSuggestionCard({ caen }: { caen: CaenCard }) {
         <Sparkles className="size-3.5 text-primary" />
         <span className="text-[11px] uppercase tracking-wider font-semibold text-primary">
           CAEN · sugestii
+        </span>
+        <span className="ml-auto text-[10px] uppercase tracking-wider text-muted-foreground">
+          {source === "supabase_rag" ? "RAG" : "fallback local"}
         </span>
       </div>
       <p className="text-xs text-muted-foreground mb-2 leading-relaxed">
@@ -817,9 +871,33 @@ function CaenSuggestionCard({ caen }: { caen: CaenCard }) {
                 </span>
               </div>
               <div className="text-[11px] text-foreground leading-snug">{m.title}</div>
+              {"evidence" in m && typeof (m as { evidence?: string }).evidence === "string" && (
+                <div className="text-[10px] text-muted-foreground mt-1 line-clamp-2">
+                  {(m as { evidence?: string }).evidence}
+                </div>
+              )}
             </li>
           ))}
         </ul>
+      )}
+
+      {citations.length > 0 && (
+        <div className="mb-3 space-y-1">
+          <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
+            Surse RAG
+          </div>
+          {citations.slice(0, 3).map((c) => (
+            <a
+              key={`${c.source}-${c.url ?? c.title}`}
+              href={c.url ?? "#"}
+              target={c.url ? "_blank" : undefined}
+              rel={c.url ? "noreferrer" : undefined}
+              className="block rounded-md border border-border bg-background/60 px-2 py-1 text-[11px] text-muted-foreground hover:bg-accent/40"
+            >
+              <span className="font-medium text-foreground">{c.title}</span> · {c.source}
+            </a>
+          ))}
+        </div>
       )}
 
       <Button size="sm" variant="outline" asChild className="w-full">

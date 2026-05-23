@@ -17,6 +17,8 @@ import { Route as ScanRouteImport } from './routes/scan'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as WorkflowIdRouteImport } from './routes/workflow.$id'
+import { Route as WorkflowIdPfaRouteImport } from './routes/workflow.$id.pfa'
+import { Route as WorkflowIdAntecontractRouteImport } from './routes/workflow.$id.antecontract'
 
 const VerifyRoute = VerifyRouteImport.update({
   id: '/verify',
@@ -58,6 +60,16 @@ const WorkflowIdRoute = WorkflowIdRouteImport.update({
   path: '/workflow/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const WorkflowIdPfaRoute = WorkflowIdPfaRouteImport.update({
+  id: '/pfa',
+  path: '/pfa',
+  getParentRoute: () => WorkflowIdRoute,
+} as any)
+const WorkflowIdAntecontractRoute = WorkflowIdAntecontractRouteImport.update({
+  id: '/antecontract',
+  path: '/antecontract',
+  getParentRoute: () => WorkflowIdRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -67,7 +79,9 @@ export interface FileRoutesByFullPath {
   '/tasks': typeof TasksRoute
   '/vault': typeof VaultRoute
   '/verify': typeof VerifyRoute
-  '/workflow/$id': typeof WorkflowIdRoute
+  '/workflow/$id': typeof WorkflowIdRouteWithChildren
+  '/workflow/$id/antecontract': typeof WorkflowIdAntecontractRoute
+  '/workflow/$id/pfa': typeof WorkflowIdPfaRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -77,7 +91,9 @@ export interface FileRoutesByTo {
   '/tasks': typeof TasksRoute
   '/vault': typeof VaultRoute
   '/verify': typeof VerifyRoute
-  '/workflow/$id': typeof WorkflowIdRoute
+  '/workflow/$id': typeof WorkflowIdRouteWithChildren
+  '/workflow/$id/antecontract': typeof WorkflowIdAntecontractRoute
+  '/workflow/$id/pfa': typeof WorkflowIdPfaRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -88,7 +104,9 @@ export interface FileRoutesById {
   '/tasks': typeof TasksRoute
   '/vault': typeof VaultRoute
   '/verify': typeof VerifyRoute
-  '/workflow/$id': typeof WorkflowIdRoute
+  '/workflow/$id': typeof WorkflowIdRouteWithChildren
+  '/workflow/$id/antecontract': typeof WorkflowIdAntecontractRoute
+  '/workflow/$id/pfa': typeof WorkflowIdPfaRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -101,6 +119,8 @@ export interface FileRouteTypes {
     | '/vault'
     | '/verify'
     | '/workflow/$id'
+    | '/workflow/$id/antecontract'
+    | '/workflow/$id/pfa'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -111,6 +131,8 @@ export interface FileRouteTypes {
     | '/vault'
     | '/verify'
     | '/workflow/$id'
+    | '/workflow/$id/antecontract'
+    | '/workflow/$id/pfa'
   id:
     | '__root__'
     | '/'
@@ -121,6 +143,8 @@ export interface FileRouteTypes {
     | '/vault'
     | '/verify'
     | '/workflow/$id'
+    | '/workflow/$id/antecontract'
+    | '/workflow/$id/pfa'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -131,7 +155,7 @@ export interface RootRouteChildren {
   TasksRoute: typeof TasksRoute
   VaultRoute: typeof VaultRoute
   VerifyRoute: typeof VerifyRoute
-  WorkflowIdRoute: typeof WorkflowIdRoute
+  WorkflowIdRoute: typeof WorkflowIdRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -192,8 +216,36 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WorkflowIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/workflow/$id/pfa': {
+      id: '/workflow/$id/pfa'
+      path: '/pfa'
+      fullPath: '/workflow/$id/pfa'
+      preLoaderRoute: typeof WorkflowIdPfaRouteImport
+      parentRoute: typeof WorkflowIdRoute
+    }
+    '/workflow/$id/antecontract': {
+      id: '/workflow/$id/antecontract'
+      path: '/antecontract'
+      fullPath: '/workflow/$id/antecontract'
+      preLoaderRoute: typeof WorkflowIdAntecontractRouteImport
+      parentRoute: typeof WorkflowIdRoute
+    }
   }
 }
+
+interface WorkflowIdRouteChildren {
+  WorkflowIdAntecontractRoute: typeof WorkflowIdAntecontractRoute
+  WorkflowIdPfaRoute: typeof WorkflowIdPfaRoute
+}
+
+const WorkflowIdRouteChildren: WorkflowIdRouteChildren = {
+  WorkflowIdAntecontractRoute: WorkflowIdAntecontractRoute,
+  WorkflowIdPfaRoute: WorkflowIdPfaRoute,
+}
+
+const WorkflowIdRouteWithChildren = WorkflowIdRoute._addFileChildren(
+  WorkflowIdRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
@@ -203,7 +255,7 @@ const rootRouteChildren: RootRouteChildren = {
   TasksRoute: TasksRoute,
   VaultRoute: VaultRoute,
   VerifyRoute: VerifyRoute,
-  WorkflowIdRoute: WorkflowIdRoute,
+  WorkflowIdRoute: WorkflowIdRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

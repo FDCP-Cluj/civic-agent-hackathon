@@ -54,6 +54,7 @@ export type WorkflowStep = {
   order: number;
   /** Stable slug used by deep-link tables and action dispatchers. */
   key?: string;
+  mode?: "online" | "in_person" | "hybrid";
   title: string;
   institution: Institution;
   description: string;
@@ -185,6 +186,10 @@ const WORKFLOW_SOURCES: Record<string, { authority: Institution; url: string }> 
     authority: "ANAF",
     url: "https://www.anaf.ro/anaf/internet/ANAF/asistenta_contribuabili/declararea_obligatiilor_fiscale/declaratia_unica/",
   },
+  "vanzare-auto": {
+    authority: "DRPCIV",
+    url: "https://www.drpciv.ro/web/ghidul-cetateanului/inmatricularea-vehiculelor",
+  },
 };
 
 const RAW_WORKFLOWS: Workflow[] = [
@@ -292,6 +297,124 @@ const RAW_WORKFLOWS: Workflow[] = [
         location: "Domiciliu / DRPCIV",
         mapsUrl: "https://www.google.com/maps/search/posta+romana",
         estimatedMinutes: 30,
+      },
+    ],
+  },
+  {
+    id: "vanzare-auto",
+    title: "Vânzare-cumpărare auto",
+    category: "auto",
+    summary:
+      "Flux complet pentru vânzător + cumpărător la tranzacția unui autoturism second-hand în România.",
+    totalMinutes: 210,
+    steps: [
+      {
+        order: 1,
+        key: "itp",
+        mode: "in_person",
+        title: "Verificare ITP valabil",
+        institution: "Gov.ro",
+        description: "ITP trebuie să fie valid în ziua semnării contractului.",
+        documents: ["CIV", "Talon", "Număr înmatriculare"],
+        location: "Stație ITP autorizată RAR",
+        mapsUrl: "https://www.google.com/maps/search/statie+ITP+autorizata",
+        estimatedMinutes: 30,
+        fee: "~150 RON",
+        info: [
+          "Dacă ITP expiră în curând, cumpărătorii cer de obicei reînnoirea înainte de vânzare.",
+          "Verificarea valabilității se poate face online pe site-ul RAR.",
+        ],
+        actions: [
+          { kind: "open_url", url: "https://www.rarom.ro/", label: "RAR — informații ITP" },
+          {
+            kind: "find_institution",
+            institutionType: "stație ITP autorizată",
+            label: "Găsește stație ITP",
+          },
+        ],
+      },
+      {
+        order: 2,
+        key: "fiscal_vanzator",
+        mode: "hybrid",
+        title: "Certificat fiscal vânzător",
+        institution: "Primarie",
+        description: "Certificatul fiscal confirmă că nu există datorii locale pentru autoturism.",
+        documents: ["CI vânzător", "CIV", "Talon"],
+        location: "DITL primărie sau online pe ghiseul.ro",
+        mapsUrl: "https://www.google.com/maps/search/directia+taxe+impozite+locale",
+        estimatedMinutes: 45,
+        fee: "Gratuit",
+        info: [
+          "Se emite de primăria de domiciliu a vânzătorului.",
+          "Valabilitatea este, de regulă, până la finalul lunii emiterii.",
+        ],
+        actions: [
+          { kind: "open_url", url: "https://www.ghiseul.ro", label: "Ghișeul.ro — taxe locale" },
+        ],
+      },
+      {
+        order: 3,
+        key: "contract",
+        mode: "hybrid",
+        title: "Contract de vânzare-cumpărare (4 exemplare)",
+        institution: "Notar",
+        description:
+          "Completezi contractul în 4 exemplare: vânzător, cumpărător, primărie vânzător, primărie cumpărător.",
+        documents: ["CI părți", "CIV", "Talon", "Certificat fiscal"],
+        location: "Notar sau sub semnătură privată",
+        mapsUrl: "https://www.google.com/maps/search/notar+public",
+        estimatedMinutes: 40,
+        info: [
+          "Pentru tranzacții simple, contractul sub semnătură privată este suficient.",
+          "Datele din contract trebuie să corespundă exact cu CIV și talon.",
+        ],
+        actions: [
+          {
+            kind: "explain_step",
+            topic: "Ce trebuie să conțină contractul de vânzare-cumpărare auto",
+            label: "Explică pas cu pas",
+          },
+        ],
+      },
+      {
+        order: 4,
+        key: "fiscal_cumparator",
+        mode: "in_person",
+        title: "Înregistrare fiscală la cumpărător",
+        institution: "Primarie",
+        description: "Cumpărătorul înscrie mașina pe rol fiscal la primăria de domiciliu.",
+        documents: ["Contract vânzare-cumpărare", "CI cumpărător", "CIV", "Talon"],
+        location: "DITL cumpărător",
+        mapsUrl: "https://www.google.com/maps/search/directia+taxe+impozite+locale",
+        estimatedMinutes: 45,
+      },
+      {
+        order: 5,
+        key: "inmatriculare_cumparator",
+        mode: "in_person",
+        title: "Înmatriculare pe numele cumpărătorului",
+        institution: "DRPCIV",
+        description:
+          "Cumpărătorul depune dosarul la DRPCIV în termenul legal după semnarea contractului.",
+        documents: [
+          "Contract vânzare-cumpărare",
+          "CIV original",
+          "CI cumpărător",
+          "Dovadă RCA",
+          "Dovadă taxe plătite",
+        ],
+        location: "DRPCIV județean",
+        mapsUrl: "https://www.google.com/maps/search/DRPCIV",
+        estimatedMinutes: 50,
+        fee: "~140 RON",
+        actions: [
+          {
+            kind: "open_url",
+            url: "https://www.drpciv.ro/web/ghidul-cetateanului/inmatricularea-vehiculelor",
+            label: "DRPCIV — ghid înmatriculare",
+          },
+        ],
       },
     ],
   },
@@ -1259,9 +1382,138 @@ const RAW_WORKFLOWS: Workflow[] = [
   },
 ];
 
+type StepEnrichment = Partial<Pick<WorkflowStep, "mode" | "info" | "actions" | "key">>;
+const STEP_ENRICHMENTS: Record<string, Record<number, StepEnrichment>> = {
+  "car-registration-2nd-hand": {
+    1: {
+      mode: "in_person",
+      info: [
+        "Contractul autentificat simplifică pașii fiscali ulteriori.",
+        "Verifică dacă datele din CIV/talon coincid cu identitatea vânzătorului.",
+      ],
+      actions: [
+        {
+          kind: "explain_step",
+          topic: "Documente obligatorii la contractul de vânzare auto",
+          label: "Explică pas cu pas",
+        },
+      ],
+    },
+    2: {
+      mode: "hybrid",
+      actions: [
+        { kind: "open_url", url: "https://www.ghiseul.ro", label: "Ghișeul.ro — taxe locale" },
+      ],
+    },
+    3: {
+      mode: "hybrid",
+      actions: [{ kind: "open_url", url: "https://asfromania.ro", label: "ASF — verificare RCA" }],
+    },
+    4: {
+      key: "inmatriculare_finala",
+      mode: "in_person",
+      actions: [
+        {
+          kind: "open_url",
+          url: "https://www.drpciv.ro/web/ghidul-cetateanului/inmatricularea-vehiculelor",
+          label: "DRPCIV — ghid complet",
+        },
+      ],
+    },
+  },
+  "renew-driver-license": {
+    1: {
+      mode: "in_person",
+      info: ["Clinica trebuie să fie autorizată pentru fișe auto."],
+      actions: [
+        {
+          kind: "find_institution",
+          institutionType: "cabinet medical autorizat auto",
+          label: "Găsește clinică auto",
+        },
+      ],
+    },
+    2: {
+      key: "depunere_drpciv",
+      mode: "hybrid",
+      actions: [
+        {
+          kind: "open_url",
+          url: "https://www.drpciv.ro/",
+          label: "DRPCIV — programări",
+        },
+      ],
+    },
+    3: { mode: "hybrid" },
+  },
+  "passport-issuance": {
+    1: {
+      key: "programare_epasapoarte",
+      mode: "online",
+      actions: [
+        { kind: "open_url", url: "https://www.epasapoarte.ro", label: "ePașapoarte — programare" },
+      ],
+    },
+    2: {
+      mode: "hybrid",
+      actions: [
+        { kind: "open_url", url: "https://www.ghiseul.ro", label: "Ghișeul.ro — plata taxei" },
+      ],
+    },
+    3: { mode: "in_person" },
+    4: { mode: "hybrid" },
+  },
+  "anaf-declaration": {
+    1: {
+      mode: "online",
+      info: [
+        "Separă veniturile estimate de veniturile realizate din anul anterior.",
+        "Pregătește devreme datele pentru a evita blocajele din apropierea termenului.",
+      ],
+      actions: [
+        {
+          kind: "explain_step",
+          topic: "Ce documente sunt utile înainte de completarea declarației unice",
+          label: "Explică pregătirea",
+        },
+      ],
+    },
+    2: {
+      key: "depunere_spv",
+      mode: "online",
+      actions: [
+        {
+          kind: "open_url",
+          url: "https://www.anaf.ro/anaf/internet/ANAF/servicii_online",
+          label: "ANAF SPV — depunere",
+        },
+      ],
+    },
+  },
+};
+
+function enrichWorkflow(workflow: Workflow): Workflow {
+  const byStep = STEP_ENRICHMENTS[workflow.id];
+  if (!byStep) return workflow;
+  return {
+    ...workflow,
+    steps: workflow.steps.map((step) => {
+      const enrich = byStep[step.order];
+      if (!enrich) return step;
+      return {
+        ...step,
+        ...enrich,
+        info: enrich.info ?? step.info,
+        actions: enrich.actions ?? step.actions,
+      };
+    }),
+  };
+}
+
 // Inject dataSource onto every workflow from the centralized source map.
 // Production move: this becomes a build-time merge against a maintained CMS.
-const WORKFLOWS: Workflow[] = RAW_WORKFLOWS.map((w) => {
+const WORKFLOWS: Workflow[] = RAW_WORKFLOWS.map((raw) => {
+  const w = enrichWorkflow(raw);
   const src = WORKFLOW_SOURCES[w.id];
   return src
     ? {
@@ -1380,6 +1632,8 @@ export const govApi = {
     // --- Auto (specific before generic "permis") ---
     if (/(preschimb|permis.*strain|foreign.*license|exchange.*license)/.test(q))
       return find("foreign-license-exchange");
+    if (/(v[âa]nd.*ma[sș]in|vanzare.*auto|contract.*auto.*vanzare)/.test(q))
+      return find("vanzare-auto");
     if (/(masin|auto|înmatricul|inmatricul|second)/.test(q))
       return find("car-registration-2nd-hand");
     if (/(reînnoire|reinnoire|reînnoiesc|reinnoiesc|expira|permis|drive|condu)/.test(q))

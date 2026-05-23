@@ -16,13 +16,17 @@ import {
   validatePhone,
   type FieldResult,
 } from "@/lib/profileValidation";
+import { isSupabaseConfigured } from "@/services/supabaseClient";
+import { PageHeader } from "@/components/dashboard/page-header";
 
 export const Route = createFileRoute("/vault")({ component: Vault });
 
 function Vault() {
   const { profile, updateProfile } = useVault();
+  const docs = useVault((s) => s.documents);
   const completeness = useProfileCompleteness();
   const completenessPct = Math.round(completeness * 100);
+  const ragEnabled = isSupabaseConfigured();
 
   const checks: Record<string, FieldResult> = {
     fullName: validateFullName(profile.fullName),
@@ -37,22 +41,39 @@ function Vault() {
 
   return (
     <AppShell>
-      <div className="mb-5">
-        <div className="flex items-center gap-2 mb-1">
-          <FolderLock className="size-5 text-primary" />
-          <h1 className="text-xl font-semibold tracking-tight">Seiful meu local</h1>
+      <PageHeader
+        title="Seiful meu local"
+        description="Datele și actele tale rămân pe acest dispozitiv. Nu părăsesc niciodată browserul."
+      >
+        <div className="inline-flex items-center gap-2 text-xs text-muted-foreground">
+          <FolderLock className="size-4 text-primary" />
+          Vault local
         </div>
-        <p className="text-sm text-muted-foreground">
-          Datele și actele tale rămân pe acest dispozitiv. Nu părăsesc niciodată browserul.
-        </p>
-      </div>
+      </PageHeader>
 
-      <div className="flex items-center gap-2 rounded-xl bg-success/10 border border-success/20 px-3.5 py-2.5 mb-5">
+      <div className="flex items-center gap-2 rounded-xl bg-success/10 border border-success/20 px-3.5 py-2.5 mb-5 mt-5">
         <ShieldCheck className="size-4 text-success shrink-0" />
         <p className="text-xs">
           <span className="font-medium text-success">Zero GDPR.</span> Civis nu trimite niciun
           document către servere.
         </p>
+      </div>
+
+      <div className="grid grid-cols-3 gap-2 mb-5">
+        <Card className="p-3 text-center">
+          <div className="text-[11px] uppercase tracking-wider text-muted-foreground">Profil</div>
+          <div className="text-lg font-semibold">{completenessPct}%</div>
+        </Card>
+        <Card className="p-3 text-center">
+          <div className="text-[11px] uppercase tracking-wider text-muted-foreground">
+            Documente
+          </div>
+          <div className="text-lg font-semibold">{docs.length}</div>
+        </Card>
+        <Card className="p-3 text-center">
+          <div className="text-[11px] uppercase tracking-wider text-muted-foreground">RAG</div>
+          <div className="text-sm font-semibold">{ragEnabled ? "activ" : "fallback local"}</div>
+        </Card>
       </div>
 
       <Card className="p-5 mb-5">

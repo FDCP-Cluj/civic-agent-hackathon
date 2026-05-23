@@ -21,6 +21,7 @@ import {
   CLASSIFIED_TYPE_LABELS_RO,
   validateDocument,
   type ClassifiedDocumentType,
+  type DocumentValidationResult,
 } from "@/services/docIntelligence";
 
 const DOC_TYPES: { type: VaultDocument["type"]; label: string; icon: LucideIcon }[] = [
@@ -51,6 +52,7 @@ export function VaultUploadCard() {
   const [pickType, setPickType] = useState<VaultDocument["type"]>("id_card");
   const [pickExpiry, setPickExpiry] = useState<string>("");
   const [validating, setValidating] = useState(false);
+  const [lastValidation, setLastValidation] = useState<DocumentValidationResult | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const onFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -76,6 +78,7 @@ export function VaultUploadCard() {
       try {
         const r = await validateDocument(file, { expectedType: expected });
         if (!("error" in r)) {
+          setLastValidation(r);
           if (r.success) {
             validationToast = {
               title: `Verificat: ${CLASSIFIED_TYPE_LABELS_RO[r.documentType]}`,
@@ -110,6 +113,8 @@ export function VaultUploadCard() {
       } finally {
         setValidating(false);
       }
+    } else {
+      setLastValidation(null);
     }
 
     const meta = DOC_TYPES.find((d) => d.type === pickType)!;
@@ -158,6 +163,27 @@ export function VaultUploadCard() {
         />
       ) : (
         <>
+          {lastValidation && !lastValidation.success && (
+            <Card className="p-3 mb-3 border-warning/30 bg-warning/5">
+              <div className="text-xs font-semibold uppercase tracking-wider text-warning mb-1">
+                Ultima verificare locală necesită atenție
+              </div>
+              <ul className="text-xs text-muted-foreground space-y-1">
+                {lastValidation.issues.map((iss) => (
+                  <li key={iss} className="flex items-center gap-1.5">
+                    <span className="size-1 rounded-full bg-warning" />
+                    {issueLabel(iss)}
+                  </li>
+                ))}
+                {lastValidation.rejectionReason && (
+                  <li className="flex items-start gap-1.5">
+                    <span className="size-1 rounded-full bg-destructive mt-1" />
+                    {lastValidation.rejectionReason}
+                  </li>
+                )}
+              </ul>
+            </Card>
+          )}
           <div className="space-y-2 mb-4 animate-[fade-in_0.3s_ease-out]">
             {documents.map((d) => {
               const meta = DOC_TYPES.find((t) => t.type === d.type) ?? DOC_TYPES[5];
@@ -270,6 +296,27 @@ export function VaultUploadCard() {
       )}
     </Card>
   );
+}
+
+function issueLabel(iss: string): string {
+  switch (iss) {
+    case "blurry":
+      return "Imagine neclară — reîncarcă o poză mai clară.";
+    case "low_contrast":
+      return "Contrast redus — folosește fundal neutru și lumină mai bună.";
+    case "too_dark":
+      return "Imagine prea întunecată.";
+    case "too_bright":
+      return "Imagine supraexpusă.";
+    case "glare":
+      return "Reflexii pe document — schimbă unghiul.";
+    case "no_text":
+      return "Nu am detectat text.";
+    case "expected_type_mismatch":
+      return "Tipul documentului nu corespunde slotului selectat.";
+    default:
+      return iss;
+  }
 }
 
 async function fileToDataUrl(file: File): Promise<string> {

@@ -6,6 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/store";
 import { DEMO_EMAIL } from "@/lib/demoSeed";
+import { toast } from "sonner";
+import { isSupabaseAuthConfigured, sendOtpToEmail } from "@/services/supabaseAuth";
 
 export const Route = createFileRoute("/login")({ component: Login });
 
@@ -16,9 +18,20 @@ function Login() {
   const [password, setPassword] = useState("");
   const [mode, setMode] = useState<"login" | "signup">("login");
 
-  const submit = (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) return;
+    const isDemo = email.trim().toLowerCase() === DEMO_EMAIL.toLowerCase();
+    if (isSupabaseAuthConfigured() && !isDemo) {
+      const { error } = await sendOtpToEmail(email);
+      if (error) {
+        toast.error("Nu am putut trimite codul OTP.", { description: error });
+        return;
+      }
+      toast.success("Cod OTP trimis pe email.");
+    } else if (isDemo) {
+      toast.info("Cont demo local activ: confirmarea pe email este dezactivată.");
+    }
     login(email);
     navigate({ to: "/verify" });
   };

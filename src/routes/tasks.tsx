@@ -9,6 +9,7 @@ import { useTasks } from "@/store";
 import type { ActiveTask } from "@/store";
 import { EmptyState } from "@/components/empty-state";
 import { govApi, type Workflow } from "@/services/govApiMock";
+import { PageHeader } from "@/components/dashboard/page-header";
 
 export const Route = createFileRoute("/tasks")({ component: Tasks });
 
@@ -37,43 +38,44 @@ function Tasks() {
 
   return (
     <AppShell>
-      <div className="mb-5">
-        <div className="flex items-center gap-2 mb-1">
-          <ListChecks className="size-5 text-primary" />
-          <h1 className="text-xl font-semibold tracking-tight">Sarcini active</h1>
+      <PageHeader
+        title="Sarcini active"
+        description="Toate procedurile pe care le ai în desfășurare. Marchează pașii direct de aici sau deschide ghidul complet."
+      >
+        <div className="inline-flex items-center gap-2 text-xs text-muted-foreground">
+          <ListChecks className="size-4 text-primary" />
+          Workflow tracker
         </div>
-        <p className="text-sm text-muted-foreground">
-          Toate procedurile pe care le ai în desfășurare. Marchează pașii direct de aici sau
-          deschide ghidul complet.
-        </p>
-      </div>
+      </PageHeader>
 
-      {tasks.length === 0 ? (
-        <EmptyState
-          icon={Inbox}
-          tone="primary"
-          title="Nicio sarcină activă"
-          description="Cere agentului Civis să te ghideze printr-o procedură — îți construiește pașii instant."
-          action={
-            <Button asChild>
-              <Link to="/">Pornește prima procedură</Link>
-            </Button>
-          }
-        />
-      ) : (
-        <div className="space-y-3">
-          {tasks.map((t, i) => (
-            <TaskCard
-              key={t.id}
-              task={t}
-              workflow={workflows[t.workflowId]}
-              animationDelay={`${i * 60}ms`}
-              onRemove={() => remove(t.id)}
-              onToggleStep={(stepOrder) => toggleStep(t.id, stepOrder)}
-            />
-          ))}
-        </div>
-      )}
+      <div className="mt-5">
+        {tasks.length === 0 ? (
+          <EmptyState
+            icon={Inbox}
+            tone="primary"
+            title="Nicio sarcină activă"
+            description="Cere agentului Civis să te ghideze printr-o procedură — îți construiește pașii instant."
+            action={
+              <Button asChild>
+                <Link to="/">Pornește prima procedură</Link>
+              </Button>
+            }
+          />
+        ) : (
+          <div className="space-y-3">
+            {tasks.map((t, i) => (
+              <TaskCard
+                key={t.id}
+                task={t}
+                workflow={workflows[t.workflowId]}
+                animationDelay={`${i * 60}ms`}
+                onRemove={() => remove(t.id)}
+                onToggleStep={(stepOrder) => toggleStep(t.id, stepOrder)}
+              />
+            ))}
+          </div>
+        )}
+      </div>
     </AppShell>
   );
 }

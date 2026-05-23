@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/store";
 import { SeniorModeToggle } from "@/components/senior-mode-toggle";
+import { PageHeader } from "@/components/dashboard/page-header";
 
 export const Route = createFileRoute("/settings")({ component: Settings });
 
@@ -14,15 +15,14 @@ function Settings() {
 
   return (
     <AppShell>
-      <div className="mb-5">
-        <div className="flex items-center gap-2 mb-1">
-          <SettingsIcon className="size-5 text-primary" />
-          <h1 className="text-xl font-semibold tracking-tight">Setări</h1>
+      <PageHeader title="Setări" description={email ?? "Cont conectat"}>
+        <div className="inline-flex items-center gap-2 text-xs text-muted-foreground">
+          <SettingsIcon className="size-4 text-primary" />
+          Preferințe
         </div>
-        <p className="text-sm text-muted-foreground">{email}</p>
-      </div>
+      </PageHeader>
 
-      <Card className="p-4 mb-3">
+      <Card className="p-4 mb-3 mt-5">
         <SeniorModeToggle />
       </Card>
 

@@ -21,6 +21,7 @@ import { Progress } from "@/components/ui/progress";
 import { useAuth, useChatUi, useTasks, useVault } from "@/store";
 import { govApi } from "@/services/govApiMock";
 import { isApiKeyConfigured } from "@/services/geminiChat";
+import { isSupabaseConfigured } from "@/services/supabaseClient";
 import { AllServicesDrawer } from "@/components/all-services-drawer";
 import { CivicHero } from "@/components/civic-hero";
 import { ServiceHealthStrip } from "@/components/service-health-strip";
@@ -28,6 +29,7 @@ import { CivicCalendar } from "@/components/civic-calendar";
 import { ProfileCompleteness } from "@/components/profile-completeness";
 import { useSpeechRecognition } from "@/hooks/use-speech-recognition";
 import { toast } from "sonner";
+import { PageHeader } from "@/components/dashboard/page-header";
 
 export const Route = createFileRoute("/")({ component: Dashboard });
 
@@ -57,12 +59,14 @@ function Dashboard() {
   const email = useAuth((s) => s.email);
   const tasks = useTasks((s) => s.tasks);
   const profile = useVault((s) => s.profile);
+  const documents = useVault((s) => s.documents);
   const openChat = useChatUi((s) => s.openChat);
   const [query, setQuery] = useState("");
   const [thinking, setThinking] = useState(false);
   const [servicesOpen, setServicesOpen] = useState(false);
 
   const aiEnabled = isApiKeyConfigured();
+  const ragEnabled = isSupabaseConfigured();
   const greet = profile.fullName
     ? profile.fullName.split(" ")[0]
     : (email?.split("@")[0] ?? "prieten");
@@ -116,8 +120,13 @@ function Dashboard() {
 
   return (
     <AppShell showOfficialFooter>
+      <PageHeader
+        title={`${timeGreeting}, ${greet}`}
+        description="Panou civic unificat pentru proceduri, documente și asistență AI."
+      />
+
       {/* Greeting */}
-      <div className="mb-5">
+      <div className="mt-5 mb-5">
         <p className="text-sm text-muted-foreground">{timeGreeting},</p>
         <div className="flex items-center gap-2 flex-wrap">
           <h1 className="text-2xl font-semibold tracking-tight capitalize">{greet} 👋</h1>
@@ -134,6 +143,39 @@ function Dashboard() {
 
       {/* Civic hero — context-aware "next step" */}
       <CivicHero />
+
+      <Card className="p-3 mb-4 border-border bg-card/80">
+        <div className="flex flex-wrap items-center gap-2 text-xs">
+          <span className="font-semibold">Status asistență:</span>
+          <span
+            className={`px-2 py-0.5 rounded-full ${aiEnabled ? "bg-success/15 text-success" : "bg-muted text-muted-foreground"}`}
+          >
+            Chat AI {aiEnabled ? "activ" : "indisponibil"}
+          </span>
+          <span
+            className={`px-2 py-0.5 rounded-full ${ragEnabled ? "bg-success/15 text-success" : "bg-warning/15 text-warning"}`}
+          >
+            RAG {ragEnabled ? "activ" : "fallback local"}
+          </span>
+        </div>
+      </Card>
+
+      <div className="grid grid-cols-3 gap-2 mb-4">
+        <Card className="p-3 text-center">
+          <div className="text-[11px] text-muted-foreground uppercase tracking-wider">Sarcini</div>
+          <div className="text-lg font-semibold">{tasks.length}</div>
+        </Card>
+        <Card className="p-3 text-center">
+          <div className="text-[11px] text-muted-foreground uppercase tracking-wider">
+            Documente
+          </div>
+          <div className="text-lg font-semibold">{documents.length}</div>
+        </Card>
+        <Card className="p-3 text-center">
+          <div className="text-[11px] text-muted-foreground uppercase tracking-wider">Profil</div>
+          <div className="text-lg font-semibold">{profile.fullName ? "setat" : "gol"}</div>
+        </Card>
+      </div>
 
       {/* AI search */}
       <Card className="p-4 shadow-card border-border bg-gradient-to-br from-card to-accent/30">

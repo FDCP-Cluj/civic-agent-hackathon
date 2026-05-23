@@ -4,8 +4,9 @@ import { Smartphone, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { useAuth } from "@/store";
-import { maybeSeedDemoVault } from "@/lib/demoSeed";
+import { DEMO_EMAIL, maybeSeedDemoVault } from "@/lib/demoSeed";
 import { toast } from "sonner";
+import { isSupabaseAuthConfigured, verifyEmailOtp } from "@/services/supabaseAuth";
 
 export const Route = createFileRoute("/verify")({ component: Verify });
 
@@ -13,11 +14,26 @@ function Verify() {
   const navigate = useNavigate();
   const { email, verify2FA } = useAuth();
   const [code, setCode] = useState("");
+  const supabaseEnabled = isSupabaseAuthConfigured();
+  const isDemo = (email ?? "").trim().toLowerCase() === DEMO_EMAIL.toLowerCase();
 
-  const submit = (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (code.length !== 6) return;
-    verify2FA();
+    if (supabaseEnabled && !isDemo) {
+      if (!email) {
+        toast.error("Lipsește email-ul pentru verificare OTP.");
+        return;
+      }
+      const { data, error } = await verifyEmailOtp(email, code);
+      if (error || !data) {
+        toast.error("Cod OTP invalid sau expirat.", { description: error ?? undefined });
+        return;
+      }
+      verify2FA(data);
+    } else {
+      verify2FA();
+    }
     if (maybeSeedDemoVault(email)) {
       toast.success("Cont demo activat", {
         description: "Profil și 5 acte mock încărcate în seif pentru autofill.",
@@ -58,7 +74,9 @@ function Verify() {
             </div>
 
             <div className="rounded-lg bg-muted/60 px-3 py-2 text-xs text-muted-foreground text-center">
-              Demo hackathon: orice cod din 6 cifre funcționează.
+              {supabaseEnabled && !isDemo
+                ? "Introdu codul primit pe email (Supabase OTP)."
+                : "Demo hackathon: orice cod din 6 cifre funcționează."}
             </div>
 
             <Button type="submit" disabled={code.length !== 6} className="w-full h-11">

@@ -167,6 +167,25 @@ function WorkflowPage() {
           </Button>
         </div>
 
+        {wf.id === "pfa-registration" && (
+          <div className="mt-2">
+            <Button asChild variant="secondary" className="w-full sm:w-auto">
+              <Link to="/workflow/$id/pfa" params={{ id: wf.id } as never}>
+                Wizard PFA dedicat
+              </Link>
+            </Button>
+          </div>
+        )}
+        {wf.id === "property-sale" && (
+          <div className="mt-2">
+            <Button asChild variant="secondary" className="w-full sm:w-auto">
+              <Link to="/workflow/$id/antecontract" params={{ id: wf.id } as never}>
+                Formular antecontract
+              </Link>
+            </Button>
+          </div>
+        )}
+
         {wf.dataSource && (
           <div className="mt-4 pt-4 border-t border-border/60 flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-muted-foreground">
             <ShieldCheck className="size-3 text-success shrink-0" aria-hidden />
@@ -220,6 +239,15 @@ function StepCard({
   completed: boolean;
   onToggleComplete: () => void;
 }) {
+  const modeLabel =
+    step.mode === "online"
+      ? "online"
+      : step.mode === "in_person"
+        ? "la ghișeu"
+        : step.mode === "hybrid"
+          ? "hibrid"
+          : null;
+
   return (
     <Card
       className={`relative p-4 transition-all animate-[fade-in_0.35s_ease-out] ${
@@ -259,10 +287,26 @@ function StepCard({
             <Badge variant="outline" className="text-[10px] uppercase tracking-wider shrink-0">
               {step.institution}
             </Badge>
+            {modeLabel && (
+              <Badge variant="secondary" className="text-[10px] uppercase tracking-wider shrink-0">
+                {modeLabel}
+              </Badge>
+            )}
           </div>
           <p className="text-sm text-muted-foreground break-words">{step.description}</p>
 
           <div className="mt-3 space-y-2 text-xs">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-[11px]">
+              <div className="rounded-md border border-border/70 bg-background/40 px-2 py-1.5">
+                <span className="text-muted-foreground">Unde:</span> {step.location}
+              </div>
+              <div className="rounded-md border border-border/70 bg-background/40 px-2 py-1.5">
+                <span className="text-muted-foreground">Durată:</span> ~{step.estimatedMinutes} min
+              </div>
+              <div className="rounded-md border border-border/70 bg-background/40 px-2 py-1.5">
+                <span className="text-muted-foreground">Cost:</span> {step.fee ?? "Variabil"}
+              </div>
+            </div>
             <a
               href={step.mapsUrl}
               target="_blank"
