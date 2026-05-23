@@ -31,6 +31,7 @@ import { useTasks } from "@/store";
 import { toast } from "sonner";
 import { MagicAutofillButton } from "@/components/magic-autofill-button";
 import { StepActionButton } from "@/components/workflow/step-action-button";
+import { TipizatulFormsCard } from "@/components/workflow/tipizatul-forms-card";
 
 export const Route = createFileRoute("/workflow/$id")({ component: WorkflowPage });
 
@@ -205,6 +206,8 @@ function WorkflowPage() {
           </div>
         )}
       </Card>
+
+      <TipizatulFormsCard workflowId={wf.id} />
 
       {/* Steps */}
       <div className="relative">

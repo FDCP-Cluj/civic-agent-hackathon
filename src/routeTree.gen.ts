@@ -19,6 +19,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as WorkflowIdRouteImport } from './routes/workflow.$id'
 import { Route as WorkflowIdPfaRouteImport } from './routes/workflow.$id.pfa'
 import { Route as WorkflowIdAntecontractRouteImport } from './routes/workflow.$id.antecontract'
+import { Route as AuthEidkitCallbackRouteImport } from './routes/auth.eidkit.callback'
 
 const VerifyRoute = VerifyRouteImport.update({
   id: '/verify',
@@ -70,6 +71,11 @@ const WorkflowIdAntecontractRoute = WorkflowIdAntecontractRouteImport.update({
   path: '/antecontract',
   getParentRoute: () => WorkflowIdRoute,
 } as any)
+const AuthEidkitCallbackRoute = AuthEidkitCallbackRouteImport.update({
+  id: '/auth/eidkit/callback',
+  path: '/auth/eidkit/callback',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -80,6 +86,7 @@ export interface FileRoutesByFullPath {
   '/vault': typeof VaultRoute
   '/verify': typeof VerifyRoute
   '/workflow/$id': typeof WorkflowIdRouteWithChildren
+  '/auth/eidkit/callback': typeof AuthEidkitCallbackRoute
   '/workflow/$id/antecontract': typeof WorkflowIdAntecontractRoute
   '/workflow/$id/pfa': typeof WorkflowIdPfaRoute
 }
@@ -92,6 +99,7 @@ export interface FileRoutesByTo {
   '/vault': typeof VaultRoute
   '/verify': typeof VerifyRoute
   '/workflow/$id': typeof WorkflowIdRouteWithChildren
+  '/auth/eidkit/callback': typeof AuthEidkitCallbackRoute
   '/workflow/$id/antecontract': typeof WorkflowIdAntecontractRoute
   '/workflow/$id/pfa': typeof WorkflowIdPfaRoute
 }
@@ -105,6 +113,7 @@ export interface FileRoutesById {
   '/vault': typeof VaultRoute
   '/verify': typeof VerifyRoute
   '/workflow/$id': typeof WorkflowIdRouteWithChildren
+  '/auth/eidkit/callback': typeof AuthEidkitCallbackRoute
   '/workflow/$id/antecontract': typeof WorkflowIdAntecontractRoute
   '/workflow/$id/pfa': typeof WorkflowIdPfaRoute
 }
@@ -119,6 +128,7 @@ export interface FileRouteTypes {
     | '/vault'
     | '/verify'
     | '/workflow/$id'
+    | '/auth/eidkit/callback'
     | '/workflow/$id/antecontract'
     | '/workflow/$id/pfa'
   fileRoutesByTo: FileRoutesByTo
@@ -131,6 +141,7 @@ export interface FileRouteTypes {
     | '/vault'
     | '/verify'
     | '/workflow/$id'
+    | '/auth/eidkit/callback'
     | '/workflow/$id/antecontract'
     | '/workflow/$id/pfa'
   id:
@@ -143,6 +154,7 @@ export interface FileRouteTypes {
     | '/vault'
     | '/verify'
     | '/workflow/$id'
+    | '/auth/eidkit/callback'
     | '/workflow/$id/antecontract'
     | '/workflow/$id/pfa'
   fileRoutesById: FileRoutesById
@@ -156,6 +168,7 @@ export interface RootRouteChildren {
   VaultRoute: typeof VaultRoute
   VerifyRoute: typeof VerifyRoute
   WorkflowIdRoute: typeof WorkflowIdRouteWithChildren
+  AuthEidkitCallbackRoute: typeof AuthEidkitCallbackRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -230,6 +243,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WorkflowIdAntecontractRouteImport
       parentRoute: typeof WorkflowIdRoute
     }
+    '/auth/eidkit/callback': {
+      id: '/auth/eidkit/callback'
+      path: '/auth/eidkit/callback'
+      fullPath: '/auth/eidkit/callback'
+      preLoaderRoute: typeof AuthEidkitCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -256,6 +276,7 @@ const rootRouteChildren: RootRouteChildren = {
   VaultRoute: VaultRoute,
   VerifyRoute: VerifyRoute,
   WorkflowIdRoute: WorkflowIdRouteWithChildren,
+  AuthEidkitCallbackRoute: AuthEidkitCallbackRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

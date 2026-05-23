@@ -48,7 +48,8 @@ export type StepAction =
   | { kind: "online_banks"; label?: string }
   | { kind: "caen_suggest"; label?: string }
   | { kind: "explain_step"; topic: string; label?: string }
-  | { kind: "prefill_pdf"; template: "declaratie_pfa" | "antecontract"; label: string };
+  | { kind: "prefill_pdf"; template: "declaratie_pfa" | "antecontract"; label: string }
+  | { kind: "tipizatul"; procedureId?: string; label: string };
 
 export type WorkflowStep = {
   order: number;
@@ -597,6 +598,9 @@ const RAW_WORKFLOWS: Workflow[] = [
         mapsUrl: "https://www.google.com/maps/search/serviciul+evidenta+persoanelor",
         estimatedMinutes: 45,
         fee: "12 RON (7 RON CI + 5 RON viză domiciliu)",
+        actions: [
+          { kind: "tipizatul", procedureId: "26022", label: "Formular CI — Tipizatul" },
+        ],
       },
       {
         order: 4,
@@ -1005,6 +1009,7 @@ const RAW_WORKFLOWS: Workflow[] = [
         actions: [
           { kind: "caen_suggest", label: "Sugerează CAEN cu AI" },
           { kind: "deep_link", label: "ONRC — portal rezervare denumire" },
+          { kind: "tipizatul", procedureId: "24940", label: "Rezervare denumire — Tipizatul" },
           {
             kind: "explain_step",
             topic: "Cum aleg codul CAEN potrivit pentru PFA",
@@ -1077,6 +1082,7 @@ const RAW_WORKFLOWS: Workflow[] = [
         ],
         actions: [
           { kind: "deep_link", label: "ONRC — portal depunere dosar" },
+          { kind: "tipizatul", procedureId: "24952", label: "Formulare PFA — Tipizatul" },
           {
             kind: "prefill_pdf",
             template: "declaratie_pfa",
@@ -1476,6 +1482,7 @@ const STEP_ENRICHMENTS: Record<string, Record<number, StepEnrichment>> = {
           topic: "Ce documente sunt utile înainte de completarea declarației unice",
           label: "Explică pregătirea",
         },
+        { kind: "tipizatul", procedureId: "26045", label: "Formulare ANAF — Tipizatul" },
       ],
     },
     2: {
@@ -1487,6 +1494,7 @@ const STEP_ENRICHMENTS: Record<string, Record<number, StepEnrichment>> = {
           url: "https://www.anaf.ro/anaf/internet/ANAF/servicii_online",
           label: "ANAF SPV — depunere",
         },
+        { kind: "tipizatul", label: "Toate formularele fiscale" },
       ],
     },
   },

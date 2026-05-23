@@ -24,6 +24,7 @@ import {
   Phone,
   Sparkles,
   Star,
+  FileText,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -45,6 +46,7 @@ import { toast } from "sonner";
 import { downloadPdf, generateAntecontractPdf } from "@/services/pdf/antecontract";
 import { generateDeclaratiePfaPdf } from "@/services/pdf/declaratiePfa";
 import { explainStepWithRag } from "@/services/rag";
+import { tipizatulBrowseUrl, tipizatulProcedureUrl } from "@/services/tipizatul";
 
 type Props = {
   action: StepAction;
@@ -338,6 +340,16 @@ export function StepActionButton({ action, workflowId, stepKey, stepTitle, stepI
         >
           <FileDown className="size-3.5" /> {action.label}
         </Button>
+      );
+
+    case "tipizatul":
+      return (
+        <ActionLink
+          href={action.procedureId ? tipizatulProcedureUrl(action.procedureId) : tipizatulBrowseUrl()}
+          icon={FileText}
+        >
+          {action.label}
+        </ActionLink>
       );
   }
 }

@@ -1,22 +1,26 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { ShieldCheck, Mail, Lock, ArrowRight, Sparkles } from "lucide-react";
+import { ShieldCheck, Mail, Lock, ArrowRight, Sparkles, Nfc } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/store";
-import { DEMO_EMAIL } from "@/lib/demoSeed";
+import { DEMO_EMAIL, seedCeiDemoVault } from "@/lib/demoSeed";
 import { toast } from "sonner";
 import { isSupabaseAuthConfigured, sendOtpToEmail } from "@/services/supabaseAuth";
+import { isEidKitConfigured, runDemoEidKitLogin, startEidKitLogin } from "@/services/eidkitAuth";
+import { tipizatulBrowseUrl } from "@/services/tipizatul";
 
 export const Route = createFileRoute("/login")({ component: Login });
 
 function Login() {
   const navigate = useNavigate();
   const login = useAuth((s) => s.login);
+  const completeEidKitLogin = useAuth((s) => s.completeEidKitLogin);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [mode, setMode] = useState<"login" | "signup">("login");
+  const eidkitEnabled = isEidKitConfigured();
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -104,6 +108,74 @@ function Login() {
                 <ArrowRight className="size-4" />
               </Button>
             </form>
+
+            <div className="relative my-5">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t border-border" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-card px-2 text-muted-foreground">sau</span>
+              </div>
+            </div>
+
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full h-11 gap-2"
+              onClick={() => {
+                if (eidkitEnabled) {
+                  try {
+                    startEidKitLogin();
+                  } catch (err) {
+                    toast.error(
+                      err instanceof Error ? err.message : "Nu am putut porni loginul CEI.",
+                    );
+                  }
+                  return;
+                }
+                const { sub, email: ceiEmail } = runDemoEidKitLogin();
+                seedCeiDemoVault();
+                completeEidKitLogin({ sub, email: ceiEmail });
+                toast.success("Demo CEI activat", {
+                  description:
+                    "Profil preluat din simulare (Andrei Popescu). Pentru NFC real, adaugă credențialele EidKit în .env.",
+                });
+                navigate({ to: "/" });
+              }}
+            >
+              <Nfc className="size-4" />
+              Autentificare cu buletinul electronic
+              {!eidkitEnabled ? (
+                <span className="ml-1 rounded bg-muted px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+                  demo
+                </span>
+              ) : null}
+            </Button>
+            <p className="mt-2 text-[11px] text-muted-foreground text-center leading-relaxed">
+              Via{" "}
+              <a
+                href="https://eidkit.ro/sso"
+                target="_blank"
+                rel="noreferrer"
+                className="text-primary hover:underline"
+              >
+                EidKit
+              </a>
+              — atingi cardul NFC, introdu CAN + PIN. Date verificate de MAI, fără parolă.
+              {!eidkitEnabled ? (
+                <>
+                  {" "}
+                  Fără credențiale în <span className="font-mono">.env</span>, folosim simulare
+                  locală.
+                </>
+              ) : null}
+            </p>
+
+            <Button asChild variant="ghost" size="sm" className="mt-3 w-full text-xs">
+              <a href={tipizatulBrowseUrl()} target="_blank" rel="noreferrer">
+                Formulare oficiale pe Tipizatul.eu →
+              </a>
+            </Button>
 
             <button
               type="button"

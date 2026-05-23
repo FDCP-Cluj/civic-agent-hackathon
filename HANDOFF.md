@@ -2,7 +2,9 @@
 
 **Target app:** `civic-agent-hackathon/`  
 **Last updated:** 2026-05-23  
-**Status:** Functional MVP with deep backend/services merge; **UI/UX still reads mostly like V3** — next owner should treat UI hybridization as the top priority.
+**Status:** Demo-ready MVP — Alexia-style dashboard + sidebar shell, V2 wizards ported, enriched workflows on high-traffic flows. Remaining work is polish (health strip, motion, content depth on ~13 flows, offline banner).
+
+**Recent commits:** `feat: update, use alexia UX` · `feat: main page redisign`
 
 ---
 
@@ -32,39 +34,44 @@ The initial brief mapped V1→design, V2→vault, V3→chat. **Reality is invert
 
 | Area | What you get |
 |------|----------------|
-| **Routes** | `/`, `/login`, `/verify`, `/vault`, `/tasks`, `/scan`, `/settings`, `/workflow/$id` |
-| **Auth** | Mock email login + 6-digit OTP (any code passes); demo seed on `test@gmail.com` |
-| **Vault** | Zustand `civis-vault` — profile + documents; upload runs local OCR/classify; CNP validators |
-| **Tasks** | Per-step completion checkboxes; syncs with workflow page |
-| **Workflows** | 18 procedures in `govApiMock.ts`; `pfa-registration` + `property-sale` have V2-style `info[]` + `actions[]` |
-| **Step actions** | `StepActionButton` — deep links, maps, online banks, PDF, CAEN, explain → chat |
-| **Chat (V3)** | Gemini 2.5 Flash, markdown, `open_workflow`, `verify_cui` (real ANAF API), `find_caen` (local nomenclature), Google grounding, speech input, **localStorage history** |
-| **Scan** | V3 laser animation + **V1-derived** Tesseract OCR + classifier + field extract |
-| **Gov data** | Live ANAF CUI lookup; live favicon probes for portal health strip |
-| **PDF** | Client-side antecontract + declarație PFA drafts via `pdf-lib` |
+| **Routes** | `/`, `/login`, `/verify`, `/vault`, `/tasks`, `/scan`, `/settings`, `/workflow/$id`, `/workflow/$id/pfa`, `/workflow/$id/antecontract`, `/auth/eidkit/callback` |
+| **Shell (Alexia UX)** | Desktop `AppSidebar` + mobile pill nav; `PageHeader` on main pages; global Civis FAB + drawer chat; tricolor accent |
+| **Dashboard (`/`)** | Time-of-day greeting, KPI cards (tasks, docs, profile, locality), contextual alerts (expiring docs, profile nudge, ANAF season), ask-Civis search + voice, quick procedures, active tasks, vault/scan shortcuts |
+| **Auth** | Mock email login + 6-digit OTP (any code passes); demo seed on `test@gmail.com`. **Optional** Supabase OTP when `VITE_SUPABASE_*` configured. **Optional** [EidKit](https://eidkit.ro/sso) CEI/NFC login when `VITE_EIDKIT_*` configured |
+| **Vault** | Zustand `civis-vault` — profile + documents; upload runs local OCR/classify; CNP validators; completeness progress bar |
+| **Tasks** | Per-step completion checkboxes; syncs with workflow page; inline step titles |
+| **Workflows** | **19** procedures in `govApiMock.ts`; step UI with mode chips, fee/duration, accordions, offline checklist download |
+| **PFA wizard** | `/workflow/pfa-registration/pfa` — CAEN suggest (RAG or local fallback), declarație PDF |
+| **Antecontract** | `/workflow/property-sale/antecontract` — form pre-filled from vault, PDF draft |
+| **Step actions** | `StepActionButton` — deep links, institution finder (maps dialog), online banks, PDF, CAEN/RAG explain → chat |
+| **Chat** | Gemini 2.5 Flash, markdown, `open_workflow`, `verify_cui` (real ANAF API), `find_caen` / RAG CAEN, Google grounding, speech input, **localStorage history** |
+| **Scan** | Laser animation + **V1-derived** Tesseract OCR + classifier + field extract + add to vault |
+| **Gov data** | Live ANAF CUI lookup; live favicon probes in `serviceHealth.ts` (component exists, see gaps) |
+| **PDF** | Client-side antecontract + declarație PFA via `pdf-lib`; **[Tipizatul.eu](https://www.tipizatul.eu/)** links for official fillable forms per workflow |
 | **A11y** | Senior/high-contrast/dyslexic/read-aloud CSS + `AccessibilityMenu` |
-| **Design** | V3 tokens in `src/styles.css` — trust blue, glass nav, tricolor accent |
+| **Design** | V3 tokens in `src/styles.css`; Alexia-inspired calmer dashboard cards |
 
-### Partially merged / invisible in UI
+### Partially merged / still thin
 
 | Expected from sources | Current state |
 |----------------------|---------------|
-| V2 **PFA wizard** (`flows.$flowId.pfa.tsx`) | Not ported — only inline step actions on workflow page |
-| V2 **dedicated chat page** with conversation list | Still global drawer only (V3 pattern) |
-| V2 **profile page** layout / completeness UX | Vault has validators + progress bar; not V2’s richer profile shell |
+| V2 **dedicated chat page** with conversation list | Global drawer only (V3 pattern) |
+| V2 **profile page** layout | Vault has validators + progress; not V2’s richer profile shell |
 | V2 **flows index** / marketing landing | No public landing; dashboard is home |
-| V1 **document quality rejection UX** | Pipeline exists; scan/vault toasts are subtle |
-| **framer-motion** | In `package.json` but **barely used** in components |
+| V1 **document quality rejection UX** | Pipeline exists; scan/vault feedback is mostly toasts |
+| **`ServiceHealthStrip`** | Built + probed live; **not mounted** on dashboard (regression from old V3 home) |
+| **`CivicHero` / `CivicCalendar`** | Components exist; dashboard uses new Alexia layout instead |
+| **framer-motion** | In `package.json` but **unused** in components (CSS `animate-*` used instead) |
 | **i18n** | Scaffold only (`lib/i18n.ts`); JSX still hardcoded Romanian |
-| V2 **`vanzare-auto`** full step content | Not added as workflow (only `car-registration-2nd-hand` from V3) |
+| **Workflow content depth** | ~8 flows richly enriched; ~11 still generic step cards |
 
 ### Known gaps (user-visible)
 
-- **UI feels like V3 with backend extras** — same shell, cards, typography; little visual lift from V2’s flow wizard density or V1’s dashboard polish.
-- **`info[]` accordions** only on enriched workflows — most of the 18 guides still look like plain V3 step cards.
-- **Chat without `VITE_GEMINI_API_KEY`** falls back to static `resolveQuery` only — FAB hidden, no obvious “offline mode” banner on home.
+- **No offline / no-AI banner** — dashboard shows “Asistent AI indisponibil” in card subtitle only; FAB hidden when no Gemini key; static `resolveQuery` still works from search.
+- **Portal health strip missing from home** — `ServiceHealthStrip` not imported on `/`.
+- **`info[]` accordions** only where steps have `info` — most non-enriched workflows look plain.
 - **PDF templates** strip Romanian diacritics (pdf-lib Helvetica limitation).
-- **`.env.example` may contain real keys** — sanitize before commit; rotate any exposed Gemini/Supabase/Maps keys.
+- **README stale** — still claims scan is “animation-only”; real OCR runs in-browser.
 
 ---
 
@@ -74,19 +81,25 @@ The initial brief mapped V1→design, V2→vault, V3→chat. **Reality is invert
 civic-agent-hackathon/
 ├── HANDOFF.md                 ← this file
 ├── README.md
-├── .env.example               ← template only; NO secrets
+├── .env.example               ← placeholders only; NO secrets
 ├── package.json
 ├── vite.config.ts             ← @lovable.dev/vite-tanstack-config
 ├── components.json            ← shadcn
 └── src/
     ├── routes/                ← TanStack file routes
+    │   ├── index.tsx          ← Alexia-style dashboard
+    │   ├── workflow.$id.tsx
+    │   ├── workflow.$id.pfa.tsx
+    │   └── workflow.$id.antecontract.tsx
     ├── components/
-    │   ├── app-shell.tsx      ← glass bottom nav, Civis FAB, a11y menu
+    │   ├── app-shell.tsx      ← sidebar shell, Civis FAB, a11y menu
+    │   ├── dashboard/         ← app-sidebar.tsx, page-header.tsx
     │   ├── civis-chat.tsx     ← global drawer chat
     │   ├── workflow/step-action-button.tsx
+    │   ├── service-health-strip.tsx  ← built, not on /
     │   └── ui/                ← shadcn primitives
     ├── store/                 ← Zustand slices (persisted except chatUi)
-    │   ├── auth.ts
+    │   ├── auth.ts            ← mock + optional Supabase session
     │   ├── vault.ts
     │   ├── tasks.ts
     │   ├── settings.ts
@@ -94,13 +107,18 @@ civic-agent-hackathon/
     │   ├── chatUi.ts
     │   └── index.ts
     ├── services/
-    │   ├── govApiMock.ts      ← workflow catalog + resolveQuery
+    │   ├── govApiMock.ts      ← workflow catalog + resolveQuery + STEP_ENRICHMENTS
     │   ├── geminiChat.ts      ← streaming + tools
     │   ├── anaf.ts            ← real ANAF TVA API
     │   ├── caen.ts            ← local CAEN search (~70 codes)
+    │   ├── rag.ts             ← optional Supabase RAG (CAEN + step explain); local fallback
+    │   ├── eidkitAuth.ts      ← optional CEI/NFC OIDC login (EidKit)
+    │   ├── tipizatul.ts       ← workflow → Tipizatul.eu form links
+    │   ├── supabaseClient.ts  ← optional; anon key only
+    │   ├── supabaseAuth.ts    ← optional OTP auth
     │   ├── deepLinks.ts
     │   ├── onlineBanks.ts
-    │   ├── findInstitution.ts
+    │   ├── findInstitution.ts ← maps/institution finder for step actions
     │   ├── serviceHealth.ts   ← live portal favicon probes
     │   ├── docIntelligence/   ← client OCR pipeline (V1 port)
     │   └── pdf/               ← antecontract, declaratiePfa
@@ -113,7 +131,7 @@ civic-agent-hackathon/
 
 | Key | Slice | Contents |
 |-----|-------|----------|
-| `civis-auth` | auth | email, mock session flags |
+| `civis-auth` | auth | email, session flags, optional `authProvider: mock \| supabase` |
 | `civis-vault` | vault | **CNP, profile, document previews (base64)** |
 | `civis-tasks` | tasks | active workflows + `completedSteps[]` |
 | `civis-settings` | settings | seniorMode |
@@ -123,21 +141,38 @@ civic-agent-hackathon/
 ### Privacy guardrails (non-negotiable)
 
 - Never send document files or full CNP to Gemini — system prompt masks CNP; chat has no file upload.
-- Vault OCR runs in-browser (`tesseract.js`); no server upload path.
-- Do not wire Supabase/Lovable from V2 unless product direction changes away from local-only vault.
+- Vault OCR runs in-browser (`tesseract.js`); no server upload path for documents.
+- Supabase RAG (when enabled) sends **activity descriptions / step topics only** — queries sanitize 13-digit CNP patterns; vault bytes never leave the browser.
 - Move Gemini key to server proxy before production (`geminiChat.ts` documents the swap point).
 
 ---
 
-## 4. Workflow catalog (18 IDs)
+## 4. Workflow catalog (19 IDs)
 
-Core hackathon set (all present):
+Core hackathon set:
 
 - `car-registration-2nd-hand`, `renew-driver-license`, `pfa-registration`, `passport-issuance`, `cadastral-registration`, `anaf-declaration`, `id-change-relocation`, `birth-certificate`, `civil-marriage`, `police-clearance`
 
-Also: `property-sale` (V2 merge), `foreign-license-exchange`, `child-state-allowance`, `building-permit`, `anaf-declaratie-unica`, `rovinieta-anuala`, `impozit-auto-trim-3`, `itp-anual`
+Also:
 
-**Enriched with V2 `info[]` + `actions[]`:** `pfa-registration`, `property-sale` only.
+- `property-sale`, `vanzare-auto`, `foreign-license-exchange`, `child-state-allowance`, `building-permit`, `anaf-declaratie-unica`, `rovinieta-anuala`, `impozit-auto-trim-3`, `itp-anual`
+
+**Fully enriched** (inline `info[]` + `actions[]` on most steps):
+
+- `pfa-registration`, `property-sale`, `vanzare-auto`
+
+**Enriched via `STEP_ENRICHMENTS`** (mode + info/actions on key steps):
+
+- `car-registration-2nd-hand`, `renew-driver-license`, `passport-issuance`, `anaf-declaration`
+
+**Still generic** (basic steps only):
+
+- `foreign-license-exchange`, `id-change-relocation`, `police-clearance`, `birth-certificate`, `civil-marriage`, `child-state-allowance`, `building-permit`, `cadastral-registration`, `anaf-declaratie-unica`, `rovinieta-anuala`, `impozit-auto-trim-3`, `itp-anual`
+
+Dedicated sub-routes:
+
+- `/workflow/pfa-registration/pfa` — PFA wizard
+- `/workflow/property-sale/antecontract` — antecontract form
 
 ---
 
@@ -146,11 +181,11 @@ Also: `property-sale` (V2 merge), `foreign-license-exchange`, `child-state-allow
 ```bash
 cd civic-agent-hackathon
 npm install
-cp .env.example .env    # add VITE_GEMINI_API_KEY only if you want chat
+cp .env.example .env    # see §9 for optional keys
 npm run dev
 ```
 
-Typical URL: `http://localhost:8080/` (may vary; check terminal).
+Typical URL: `http://localhost:8080/` or `http://localhost:3000/` (check terminal).
 
 ```bash
 npm run typecheck   # should pass
@@ -162,94 +197,56 @@ npm run build
 
 ### Demo login
 
-- Email: `test@gmail.com` → after OTP, `lib/demoSeed.ts` fills vault with Andrei Popescu + 5 documents (ID expiring in ~35 days).
+- Email: `test@gmail.com` → after OTP, `lib/demoSeed.ts` fills vault with Andrei Popescu + 5 documents (ID expiring in ~35 days). Demo account always uses mock auth even if Supabase is configured.
 
-### Quick manual QA
+### Recommended demo script (5–7 min)
 
-1. `/vault` — invalid CNP shows control-digit error; valid CNP shows green “valid”.
-2. `/workflow/property-sale` — accordions + action buttons + PDF antecontract.
-3. Chat (with API key) — “verifică CUI 14399840” → ANAF card; “PFA software” → CAEN list.
-4. `/scan` — upload image → OCR progress → extracted fields → “Adaugă în seif”.
-5. Dashboard — service health strip refreshes live; profile donut if vault incomplete.
+1. Login `test@gmail.com` → OTP → dashboard shows expiring-ID alert + stats.
+2. `/vault` — invalid CNP shows control-digit error; valid CNP shows green “valid”.
+3. `/workflow/property-sale` — accordions + action buttons → **Formular antecontract** → PDF.
+4. `/workflow/pfa-registration/pfa` — describe activity → CAEN suggest → declarație PDF.
+5. Chat (with `VITE_GEMINI_API_KEY`) — “verifică CUI 14399840” → ANAF card; “PFA software” → CAEN list.
+6. `/scan` — upload image → OCR progress → extracted fields → “Adaugă în seif”.
+7. Home search without API key — static routing still opens matching workflow.
 
 ---
 
-## 6. Source → target merge map (for next UI pass)
+## 6. Source → target merge map
 
-Use this when making **visible** hybrid UI/UX.
+### From V3 (`civic-agent-alex`) — KEEP
 
-### From V3 (`civic-agent-alex`) — KEEP as shell base
-
-- `styles.css`, `app-shell.tsx`, glass nav, tricolor, `civis-chat.tsx` drawer
-- `accessibility-menu.tsx`, senior mode CSS
-- `civic-hero.tsx`, `service-health-strip.tsx`, `civic-calendar.tsx`
+- `styles.css`, a11y CSS, `civis-chat.tsx` drawer, `govApiMock.ts` + `geminiChat.ts`
 - Zustand store pattern, mock 2FA, vault model
-- `govApiMock.ts` + `geminiChat.ts` routing
+- `accessibility-menu.tsx`, design tokens, tricolor accent
 
-### From V2 (`civic-agent-buian`) — PORT for UX density
+**Replaced on dashboard:** glass bottom nav → Alexia sidebar + pill nav; `CivicHero` → new `index.tsx` layout.
 
-| V2 asset | Path | Target action |
-|----------|------|---------------|
-| Step `info[]` bullets | `src/lib/flows-catalog.ts` | Copy into **all** high-traffic workflows in `govApiMock.ts` |
-| PFA wizard | `flows.$flowId.pfa.tsx` | New route or modal: CAEN picker, copy helpers, print declarație |
-| Antecontract preview | `flows.$flowId.antecontract.tsx` | Rich form → PDF (beyond one-click draft) |
-| Flow step cards | `flows.$flowId.tsx` | Merge expandable step UI + mode badges (online/in_person/hybrid) |
-| Profile page | `profile.tsx` | Borrow section layout / completeness widget for `/vault` |
-| Landing | `index.tsx` (authenticated off) | Optional marketing hero if needed |
-| Chat page | `chat.tsx` | Optional full-page chat with history sidebar |
+### From V2 (`civic-agent-buian`) — PORT status
 
-**Discard from V2:** Supabase auth, Lovable gateway, RAG/pgvector, server functions.
+| V2 asset | Path | Status |
+|----------|------|--------|
+| Step `info[]` + `actions[]` | `flows-catalog.ts` | **Partial** — 8/19 flows enriched |
+| PFA wizard | `flows.$flowId.pfa.tsx` | **Done** — `/workflow/$id/pfa` |
+| Antecontract preview | `flows.$flowId.antecontract.tsx` | **Done** — `/workflow/$id/antecontract` |
+| Flow step cards | `flows.$flowId.tsx` | **Done** — mode chips, accordions, actions |
+| Profile page | `profile.tsx` | **Partial** — vault has completeness bar |
+| Landing | `index.tsx` | Not ported |
+| Chat page | `chat.tsx` | Not ported (drawer only) |
+| Supabase RAG | server functions | **Optional** — `rag.ts` with local fallback |
+| Supabase auth | auth flow | **Optional** — `supabaseAuth.ts`; demo stays mock |
 
-### From V1 (`civic-agent-alexia`) — PORT for trust / doc UX
+**Not ported from V2:** Lovable AI gateway, server-side pgvector pipeline as required path.
 
-| V1 asset | Path | Target action |
-|----------|------|---------------|
-| OCR pipeline logic | `apps/api/.../document_intelligence/` | Already in `services/docIntelligence/` — **surface** quality scores in scan UI |
-| Romanian rejection copy | `expected_type.py` | Already ported — show prominently on vault upload failure |
-| Dashboard document counts | web dashboard | Add vault doc count + task progress to home hero |
-| Workflow templates | `workflow_generator.py` | Translate missing EN steps if any workflow still generic |
+### From V1 (`civic-agent-alexia`) — PORT status
+
+| V1 asset | Path | Status |
+|----------|------|--------|
+| OCR pipeline | `document_intelligence/` | **Done** — `services/docIntelligence/` |
+| Dashboard layout | web dashboard | **Done** — Alexia-style `/` with KPI cards + alerts |
+| Document quality UX | rejection copy | **Partial** — toasts only |
+| Workflow templates | `workflow_generator.py` | Partial — some EN/generic steps remain |
 
 **Discard from V1:** Next.js app, FastAPI, PostgreSQL, PaddleOCR server.
-
----
-
-## 7. Recommended next work (priority order)
-
-### P0 — Make UI change obvious (1–2 days)
-
-1. **Enrich all workflows** — port V2 `flows-catalog.ts` `info[]` into `govApiMock.ts` for at least: `car-registration-2nd-hand`, `vanzare-auto` (new id or alias), `passport-issuance`, `renew-driver-license`, `anaf-declaration`.
-2. **Workflow step UI upgrade** — V2-style mode chips (`online` / `la ghișeu` / `hibrid`), fee/duration row, collapsible “Detalii” on every step (not just enriched ones).
-3. **Home dashboard** — stronger hero from V3 `civic-hero` + V2-style “start flow” cards grid; show vault completeness + active task count prominently.
-4. **Use framer-motion** — page transitions, step reveal stagger, FAB pulse (already partial), accordion animate.
-5. **Offline / no-AI banner** on home when Gemini key missing — explain static routing still works.
-
-### P1 — Feature parity (2–3 days)
-
-6. **PFA wizard surface** — dedicated sub-view at `/workflow/pfa-registration` (wizard steps, not just generic timeline).
-7. **Antecontract form** — pre-fill from vault, preview before PDF.
-8. **Copy V2 `vanzare-auto` →** `car-registration-2nd-hand` or new workflow id with full actions.
-9. **Sanitize `.env.example`** — placeholders only; document `VITE_GEMINI_API_KEY` in handoff/README.
-
-### P2 — Polish
-
-10. Wire `useT()` into nav labels and vault/chat headers.
-11. Server-side Gemini proxy (Cloudflare/TanStack server fn).
-12. E2E smoke tests for vault persist + workflow completion.
-
----
-
-## 8. Key files to read first
-
-| File | Why |
-|------|-----|
-| `src/styles.css` | Design tokens + a11y |
-| `src/components/app-shell.tsx` | Nav + chat mount |
-| `src/components/civis-chat.tsx` | Chat UX + persistence + tools |
-| `src/services/govApiMock.ts` | Workflow truth + routing |
-| `src/services/geminiChat.ts` | AI contract + privacy prompt |
-| `src/routes/workflow.$id.tsx` | Step UI + completion |
-| `src/store/vault.ts` | Privacy-critical data |
-| `src/services/docIntelligence/pipeline.ts` | Scan/upload brain |
 
 Reference only (do not modify):
 
@@ -259,33 +256,86 @@ Reference only (do not modify):
 
 ---
 
+## 7. Recommended next work (priority order)
+
+### P0 — Demo finish (half day)
+
+1. **Mount `ServiceHealthStrip`** on `/` — live portal status is a strong demo beat; component exists.
+2. **Offline / no-AI banner** on home when `VITE_GEMINI_API_KEY` missing — explain static routing + search still work.
+3. **Set `.env`** — `VITE_GEMINI_API_KEY` required for full AI demo; Supabase optional for RAG/OTP.
+4. **Fix README** — scan runs real OCR; document new routes and optional Supabase.
+5. **Rehearse demo script** (§5).
+
+### P1 — Content + polish (1–2 days)
+
+6. **Enrich remaining ~11 workflows** — port V2 `flows-catalog.ts` into `govApiMock.ts` (priority: `id-change-relocation`, `cadastral-registration`, `building-permit`, `foreign-license-exchange`).
+7. **Homepage visual pass** — plan `plans/homepage-design-refresh_04.plan.md` (calmer colors, less gradient noise).
+8. **Vault/scan rejection UX** — surface quality scores and type-mismatch copy prominently.
+9. **framer-motion** — page transitions, step stagger (CSS animations exist but motion lib unused).
+
+### P2 — Post-hackathon
+
+10. Wire `useT()` into nav labels and vault/chat headers.
+11. Server-side Gemini proxy (Cloudflare/TanStack server fn).
+12. Dedicated full-page chat with history sidebar.
+13. E2E smoke tests for vault persist + workflow completion.
+14. PDF font with Romanian diacritics support.
+
+---
+
+## 8. Key files to read first
+
+| File | Why |
+|------|-----|
+| `src/routes/index.tsx` | Alexia dashboard — alerts, search, KPIs |
+| `src/components/app-shell.tsx` | Sidebar shell + chat FAB |
+| `src/components/dashboard/app-sidebar.tsx` | Desktop nav |
+| `src/components/civis-chat.tsx` | Chat UX + persistence + tools + RAG CAEN |
+| `src/services/govApiMock.ts` | Workflow truth + `STEP_ENRICHMENTS` |
+| `src/services/geminiChat.ts` | AI contract + privacy prompt |
+| `src/routes/workflow.$id.tsx` | Step UI + completion |
+| `src/routes/workflow.$id.pfa.tsx` | PFA wizard |
+| `src/routes/workflow.$id.antecontract.tsx` | Antecontract form |
+| `src/components/workflow/step-action-button.tsx` | Per-step action dispatcher |
+| `src/store/vault.ts` | Privacy-critical data |
+| `src/services/docIntelligence/pipeline.ts` | Scan/upload brain |
+| `src/services/rag.ts` | Optional Supabase RAG + fallbacks |
+
+---
+
 ## 9. Environment variables
 
 | Variable | Required | Purpose |
 |----------|----------|---------|
-| `VITE_GEMINI_API_KEY` | No (chat disabled without) | Browser Gemini — **rotate if leaked** |
-| Supabase / Lovable / Maps vars in `.env` | **Unused** | Leftover from V2 copy — safe to remove from `.env` |
+| `VITE_GEMINI_API_KEY` | No (chat FAB disabled without) | Browser Gemini — **rotate if leaked** |
+| `VITE_SUPABASE_URL` | No | Optional RAG + OTP auth |
+| `VITE_SUPABASE_ANON_KEY` | No | Supabase anon client |
+| `VITE_SUPABASE_PUBLISHABLE_KEY` | No | Alias for anon key |
+| `VITE_EIDKIT_CLIENT_ID` | No | EidKit OIDC client — [dashboard.eidkit.ro](https://dashboard.eidkit.ro/) |
+| `VITE_EIDKIT_CLIENT_SECRET` | No | EidKit token exchange (dev `.env` only; use server proxy in production) |
 
-Production: never commit `.env`. Keep `.env.example` with empty placeholders only.
+**EidKit redirect URI** must match exactly: `{origin}/auth/eidkit/callback`
+
+Production: never commit `.env`. `.env.example` uses empty placeholders only.
 
 ---
 
 ## 10. Git / commits
 
 - Target repo has its own `.git`; source repos are separate.
-- **No commits were made by automation unless explicitly requested.**
-- Before first push: scrub secrets from `.env.example`, verify `.gitignore` covers `.env`.
+- Recent: `989231e` main page redesign · `f08c6b6` alexia UX + wizards + Supabase optional layer.
+- Verify `.gitignore` covers `.env` before push.
 
 ---
 
 ## 11. Verification snapshot (last run)
 
-- `npx tsc --noEmit` → **0 errors**
-- `npx eslint .` → **0 errors**, 6× `react-refresh/only-export-components` in shadcn ui files (acceptable)
+- `npm run typecheck` → **0 errors**
+- `npm run lint` → **0 errors**, 6× `react-refresh/only-export-components` in shadcn ui files (acceptable)
 - Dev server → HTTP 200 on `/`
 
 ---
 
 ## 12. One-paragraph summary for the next agent
 
-**Civis v4 is a V3 fork with substantial invisible merges:** real ANAF API, client OCR, CAEN search, PDF generators, live health probes, and V2 workflow content on two flows. The user correctly observes the **UI still looks like V3** — the next phase is explicitly **visual/UX hybridization**: port V2’s dense step cards, PFA wizard, and flow catalog content into all workflows; add motion and dashboard prominence; keep V3’s a11y shell and chat. Do not touch the three source directories. Guard local-only privacy. Fix `.env.example` secrets before any public commit.
+**Civis v4 is a V3 fork with visible Alexia dashboard UX and substantial V2 merges:** sidebar shell, enriched workflow steps (mode chips, accordions, actions), PFA wizard and antecontract routes, `vanzare-auto` workflow, optional Supabase RAG/auth with local fallbacks, plus the earlier invisible wins (ANAF, client OCR, PDF, CAEN). The app is **demo-ready** with a Gemini key. Top gaps: mount `ServiceHealthStrip` on home, add offline-AI banner, enrich ~11 generic workflows, fix stale README. Do not touch the three source prototype directories. Vault stays local-only; Supabase is optional enhancement only.

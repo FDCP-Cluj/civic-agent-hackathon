@@ -106,3 +106,14 @@ export function useIsDemoAccountActive(): boolean {
   const email = useAuth((s) => s.email);
   return (email ?? "").trim().toLowerCase() === DEMO_EMAIL;
 }
+
+/** Seeds vault with demo persona for CEI/EidKit demo when real IdP is not configured. */
+export function seedCeiDemoVault(): void {
+  const vault = useVault.getState();
+  vault.updateProfile(DEMO_PROFILE);
+  if (vault.documents.length === 0) {
+    for (const doc of buildDemoDocuments()) {
+      vault.addDocument(doc);
+    }
+  }
+}

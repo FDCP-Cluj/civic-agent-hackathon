@@ -17,10 +17,12 @@ type AuthState = {
   email: string | null;
   isAuthenticated: boolean;
   pending2FA: boolean;
-  authProvider: "mock" | "supabase";
+  authProvider: "mock" | "supabase" | "eidkit";
   supabaseAccessToken: string | null;
+  eidkitSub: string | null;
   login: (email: string) => void;
   verify2FA: (session?: SupabaseSession) => void;
+  completeEidKitLogin: (args: { sub: string; email: string }) => void;
   restoreSupabaseSession: () => boolean;
   logout: () => void;
 };
@@ -33,6 +35,7 @@ export const useAuth = create<AuthState>()(
       pending2FA: false,
       authProvider: "mock",
       supabaseAccessToken: null,
+      eidkitSub: null,
       login: (email) => set({ email, pending2FA: true, isAuthenticated: false }),
       verify2FA: (session) => {
         if (session) {
@@ -50,8 +53,18 @@ export const useAuth = create<AuthState>()(
           isAuthenticated: true,
           authProvider: "mock",
           supabaseAccessToken: null,
+          eidkitSub: null,
         });
       },
+      completeEidKitLogin: ({ sub, email }) =>
+        set({
+          email,
+          pending2FA: false,
+          isAuthenticated: true,
+          authProvider: "eidkit",
+          eidkitSub: sub,
+          supabaseAccessToken: null,
+        }),
       restoreSupabaseSession: () => {
         const session = readStoredSupabaseSession();
         if (!session?.access_token || !isAccessTokenFresh(session.access_token)) {
@@ -63,6 +76,7 @@ export const useAuth = create<AuthState>()(
           pending2FA: false,
           authProvider: "supabase",
           supabaseAccessToken: session.access_token,
+          eidkitSub: null,
         });
         return true;
       },
@@ -74,6 +88,7 @@ export const useAuth = create<AuthState>()(
           isAuthenticated: false,
           authProvider: "mock",
           supabaseAccessToken: null,
+          eidkitSub: null,
         });
       },
     }),
