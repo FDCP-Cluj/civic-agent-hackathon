@@ -135,7 +135,7 @@ export function CivicHero() {
     // 5. Fallback welcome
     return {
       kind: "welcome",
-      title: "Bine ai venit la Civis",
+      title: "Bine ai venit la ActeAI",
       subtitle:
         "Întreabă-mă orice despre birocrația din România — de la PFA până la pașaport, te ghidez pas cu pas.",
       icon: Sparkles,

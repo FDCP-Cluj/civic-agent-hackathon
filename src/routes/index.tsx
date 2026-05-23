@@ -252,7 +252,7 @@ function Dashboard() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Sparkles className="h-4 w-4 text-primary" />
-              Întreabă agentul Civis
+              Întreabă agentul ActeAI
             </CardTitle>
             <CardDescription>
               {aiEnabled ? "Asistent AI activ" : "Asistent AI indisponibil"} ·{" "}

@@ -60,7 +60,7 @@ function Vault() {
       <div className="flex items-center gap-2 rounded-xl bg-success/10 border border-success/20 px-3.5 py-2.5 mb-5 mt-5">
         <ShieldCheck className="size-4 text-success shrink-0" />
         <p className="text-sm">
-          <span className="font-medium text-success">Zero GDPR.</span> Civis nu trimite niciun
+          <span className="font-medium text-success">Zero GDPR.</span> ActeAI nu trimite niciun
           document către servere.
         </p>
       </div>

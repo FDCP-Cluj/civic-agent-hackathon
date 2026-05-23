@@ -6,10 +6,11 @@ import { cn } from "@/lib/utils";
 import { AccessibilityClassSync, AccessibilityMenu } from "@/components/accessibility-menu";
 import { isApiKeyConfigured } from "@/services/aiConfig";
 import { AppSidebar } from "@/components/dashboard/app-sidebar";
+import { Button } from "@/components/ui/button";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 
-const CivisChat = lazy(() =>
-  import("@/components/civis-chat").then((module) => ({ default: module.CivisChat })),
+const ActeAIChat = lazy(() =>
+  import("@/components/civis-chat").then((module) => ({ default: module.ActeAIChat })),
 );
 
 type AppShellProps = {
@@ -43,7 +44,7 @@ export function AppShell({ children, showOfficialFooter = false }: AppShellProps
 
       <SidebarProvider defaultOpen>
         <div className="flex min-h-screen bg-background">
-          <div className="hidden md:block">
+          <div className="hidden shrink-0 md:sticky md:top-0 md:block md:h-svh">
             <AppSidebar />
           </div>
 
@@ -54,28 +55,32 @@ export function AppShell({ children, showOfficialFooter = false }: AppShellProps
                 <div className="flex size-8 items-center justify-center rounded-xl bg-primary/10">
                   <ShieldCheck className="size-4 text-primary" />
                 </div>
-                <div className="text-sm font-semibold">Civis</div>
+                <div className="text-sm font-semibold">ActeAI</div>
               </Link>
               <div className="flex items-center gap-1.5">
-                <button
+                <Button
                   type="button"
+                  size="icon"
+                  variant="ghost"
                   onClick={() => setA11yOpen(true)}
                   aria-label="Setări de accesibilitate"
-                  className="inline-flex size-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-accent/50 hover:text-foreground"
+                  className="size-8 hover:bg-accent/50"
                 >
                   <Accessibility className="size-4" />
-                </button>
-                <button
+                </Button>
+                <Button
                   type="button"
+                  size="icon"
+                  variant="ghost"
                   onClick={() => {
                     logout();
                     navigate({ to: "/login" });
                   }}
                   aria-label="Deconectare"
-                  className="inline-flex size-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-accent/50 hover:text-foreground"
+                  className="size-8 hover:bg-accent/50"
                 >
                   <LogOut className="size-4" />
-                </button>
+                </Button>
               </div>
             </header>
 
@@ -104,30 +109,34 @@ export function AppShell({ children, showOfficialFooter = false }: AppShellProps
             </nav>
 
             {/* Desktop top bar */}
-            <div className="hidden items-center justify-between border-b border-border/80 px-6 py-3 md:flex">
+            <div className="hidden items-center justify-between border-b border-border/80 bg-sidebar px-6 py-3 md:flex">
               <div className="text-sm text-muted-foreground">
                 {email ? `Conectat ca ${email}` : "Cont conectat"}
               </div>
               <div className="flex items-center gap-2">
-                <button
+                <Button
                   type="button"
+                  variant="outline"
+                  size="sm"
                   onClick={() => setA11yOpen(true)}
                   aria-label="Setări de accesibilitate"
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-sm text-muted-foreground hover:bg-accent/50 hover:text-foreground"
+                  className="gap-1.5 hover:bg-accent/50"
                 >
                   <Accessibility className="size-3.5" /> Accesibilitate
-                </button>
-                <button
+                </Button>
+                <Button
                   type="button"
+                  variant="outline"
+                  size="sm"
                   onClick={() => {
                     logout();
                     navigate({ to: "/login" });
                   }}
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-sm text-muted-foreground hover:bg-accent/50 hover:text-foreground"
+                  className="gap-1.5 hover:bg-accent/50"
                 >
                   <LogOut className="size-3.5" />
                   Deconectare
-                </button>
+                </Button>
               </div>
             </div>
 
@@ -141,12 +150,12 @@ export function AppShell({ children, showOfficialFooter = false }: AppShellProps
               {showOfficialFooter && (
                 <div
                   role="contentinfo"
-                  aria-label="Informații pilot Civis"
+                  aria-label="Informații pilot ActeAI"
                   className="mt-6 text-center text-[10px] text-muted-foreground leading-relaxed"
                 >
                   <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-card/85 backdrop-blur border border-border/60">
                     <ShieldCheck className="size-3 text-success" aria-hidden />
-                    Pilot Civis · Inițiativă civică independentă · GDPR · Hostat în România · v0.4.0
+                    Pilot ActeAI · Inițiativă civică independentă · GDPR · Hostat în România · v0.4.0
                   </span>
                 </div>
               )}
@@ -159,14 +168,14 @@ export function AppShell({ children, showOfficialFooter = false }: AppShellProps
       {aiEnabled && !chatOpen && (
         <button
           onClick={() => openChat()}
-          aria-label="Întreabă agentul Civis"
+          aria-label="Întreabă agentul ActeAI"
           className="fixed bottom-4 right-4 z-40 flex size-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-none transition-transform hover:scale-105 active:scale-95"
         >
           <Sparkles className="size-6" />
         </button>
       )}
       <Suspense fallback={null}>
-        <CivisChat />
+        <ActeAIChat />
       </Suspense>
 
       {/* Global accessibility menu — opens from the header A button */}

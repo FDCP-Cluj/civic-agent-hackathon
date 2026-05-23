@@ -67,7 +67,7 @@ function AntecontractPage() {
     <AppShell>
       <PageHeader
         title="Antecontract asistat"
-        description="Completezi datele esențiale, iar Civis generează un draft PDF pentru revizuire la notar."
+        description="Completezi datele esențiale, iar ActeAI generează un draft PDF pentru revizuire la notar."
       >
         <Button asChild variant="outline" size="sm">
           <Link to="/workflow/$id" params={{ id: "property-sale" }}>

@@ -106,7 +106,7 @@ export const WORKFLOWS_LAST_REVIEWED = "2025-03-15";
 //
 // In production this strip would be backed by a real status monitor (uptime probes
 // against ANAF SPV, DRPCIV programare portal, ghiseul.ro, epasapoarte.ro, etc.).
-// Civis pilot ships this with mock health so reviewers can see the UX surface;
+// ActeAI pilot ships this with mock health so reviewers can see the UX surface;
 // the same shape is the contract the production monitor must produce.
 export type ServiceStatus = "operational" | "degraded" | "outage";
 

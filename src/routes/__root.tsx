@@ -55,7 +55,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1, maximum-scale=1" },
-      { title: "Civis — Agent civic AI pentru birocrația din România" },
+      { title: "ActeAI — Agent civic AI pentru birocrația din România" },
       {
         name: "description",
         content:

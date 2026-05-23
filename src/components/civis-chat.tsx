@@ -93,7 +93,7 @@ function loadPersistedMessages(): Message[] {
   }));
 }
 
-export function CivisChat() {
+export function ActeAIChat() {
   const navigate = useNavigate();
   const profile = useVault((s) => s.profile);
   const open = useChatUi((s) => s.open);
@@ -498,7 +498,7 @@ export function CivisChat() {
               <Sparkles className="size-4 text-primary-foreground" />
             </div>
             <div className="flex-1 min-w-0">
-              <DrawerTitle className="text-base">Agentul Civis</DrawerTitle>
+              <DrawerTitle className="text-base">Agentul ActeAI</DrawerTitle>
               <DrawerDescription className="text-xs">
                 Întreabă orice despre birocrația din România.
               </DrawerDescription>

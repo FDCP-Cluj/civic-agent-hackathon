@@ -10,7 +10,7 @@ export type TipizatulFormLink = {
   title: string;
 };
 
-/** Forms relevant to each Civis workflow id. */
+/** Forms relevant to each ActeAI workflow id. */
 export const WORKFLOW_TIPIZATUL_FORMS: Record<string, TipizatulFormLink[]> = {
   "pfa-registration": [
     {

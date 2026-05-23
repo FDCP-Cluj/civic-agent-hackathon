@@ -58,7 +58,7 @@ function Login() {
             <div className="mb-4 flex size-14 items-center justify-center rounded-2xl bg-primary/10">
               <ShieldCheck className="size-7 text-primary" />
             </div>
-            <h1 className="text-2xl font-semibold tracking-tight">Bine ai venit la Civis</h1>
+            <h1 className="text-2xl font-semibold tracking-tight">Bine ai venit la ActeAI</h1>
             <p className="text-sm text-muted-foreground mt-1.5 max-w-sm">
               Agentul tău AI pentru ANAF, DRPCIV, Poliție și instituțiile statului.
             </p>
@@ -208,7 +208,7 @@ function Login() {
               <div className="flex items-start gap-2 text-xs text-muted-foreground">
                 <ShieldCheck className="size-4 text-success shrink-0 mt-0.5" />
                 <span>
-                  Documentele tale rămân doar pe acest dispozitiv. Civis nu stochează acte personale
+                  Documentele tale rămân doar pe acest dispozitiv. ActeAI nu stochează acte personale
                   pe serverele sale.
                 </span>
               </div>
