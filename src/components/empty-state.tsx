@@ -36,7 +36,7 @@ export function EmptyState({
         <Icon className="size-7 text-primary relative" />
       </div>
       <h3 className="text-base font-semibold tracking-tight mb-1.5">{title}</h3>
-      <p className="text-sm text-muted-foreground max-w-xs mb-5 leading-relaxed">{description}</p>
+      <p className="mb-5 text-sm leading-relaxed text-muted-foreground">{description}</p>
       {action}
     </div>
   );
