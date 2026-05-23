@@ -1,4 +1,7 @@
+import { PFA_FIELD_SOURCES, isAutofillBlockedField } from "@/data/forms/pfa/pfa-field-sources";
+import { parseRomanianAddress, type StructuredAddress } from "@/lib/address";
 import type { VaultProfile } from "@/store/vault";
+import { splitRomanianFullName } from "@/store/vault";
 import type { PfaDossierState } from "@/store/pfaDossier";
 import type { FieldSourcePath, FormValues, PfaFormTemplate } from "./types";
 
@@ -9,93 +12,46 @@ export type FieldMapperResult = {
   filledCount: number;
 };
 
-function splitRomanianName(fullName: string): { lastName: string; firstName: string } {
-  const parts = fullName.trim().split(/\s+/).filter(Boolean);
-  if (parts.length === 0) return { lastName: "", firstName: "" };
-  if (parts.length === 1) return { lastName: parts[0], firstName: "" };
-  return { lastName: parts[0], firstName: parts.slice(1).join(" ") };
+function parseSediuAddress(dossier: PfaDossierState): StructuredAddress {
+  const raw = dossier.sediuProfesional?.trim() || "";
+  if (!raw) return parseRomanianAddress("");
+  return parseRomanianAddress(raw);
 }
 
-const HEURISTIC_RULES: Array<{
-  test: (label: string, name: string) => boolean;
-  resolve: (vault: VaultProfile, dossier: PfaDossierState) => string | undefined;
-  confidence: number;
-}> = [
-  {
-    test: (_l, n) => n === "subcnp" || n.endsWith("cnp"),
-    resolve: (v) => v.cnp || undefined,
-    confidence: 0.98,
-  },
-  {
-    test: (_l, n) =>
-      n === "subnume" || /^nume$/i.test(n) || (n.endsWith("nume") && !/prenume/i.test(n)),
-    resolve: (v) => splitRomanianName(v.fullName).lastName || undefined,
-    confidence: 0.88,
-  },
-  {
-    test: (_l, n) => n === "subprenume" || /prenume/i.test(n),
-    resolve: (v) => splitRomanianName(v.fullName).firstName || undefined,
-    confidence: 0.88,
-  },
-  {
-    test: (l, n) => /cnp/i.test(l) || /cnp/i.test(n),
-    resolve: (v) => v.cnp || undefined,
-    confidence: 0.95,
-  },
-  {
-    test: (l, n) =>
-      /nume.*prenume|numele.*titular|subsemnat/i.test(l) ||
-      (/nume/i.test(l) && /prenume/i.test(l)) ||
-      /nume_complet/i.test(n),
-    resolve: (v) => v.fullName || undefined,
-    confidence: 0.9,
-  },
-  {
-    test: (l, n) => /adres|domiciliu|sediu/i.test(l) || /address/i.test(n),
-    resolve: (v, d) => d.sediuProfesional || v.address || undefined,
-    confidence: 0.75,
-  },
-  {
-    test: (l, n) => /telefon|phone|mobil/i.test(l) || /tel/i.test(n),
-    resolve: (v) => v.phone || undefined,
-    confidence: 0.85,
-  },
-  {
-    test: (l, n) => /e-?mail|email/i.test(l),
-    resolve: (v) => v.email || undefined,
-    confidence: 0.85,
-  },
-  {
-    test: (l, n) => /data.*naster|nascut/i.test(l),
-    resolve: (v) => v.birthDate || undefined,
-    confidence: 0.8,
-  },
-  {
-    test: (l, n) => /caen|cod.*activitate/i.test(l),
-    resolve: (_, d) => d.codCaenPrincipal || undefined,
-    confidence: 0.8,
-  },
-  {
-    test: (l, n) => /denumire|firma|pfa/i.test(l) && !/rezerv/i.test(l),
-    resolve: (_, d) => d.denumirePfa || undefined,
-    confidence: 0.7,
-  },
-  {
-    test: (l, n) => /activitate|obiect/i.test(l),
-    resolve: (_, d) => d.activitateDescriere || undefined,
-    confidence: 0.65,
-  },
-];
-
-function resolveSource(
+function getByPath(
   path: FieldSourcePath,
   vault: VaultProfile,
   dossier: PfaDossierState,
 ): string | undefined {
+  const sediu = parseSediuAddress(dossier);
+
+  if (path.startsWith("vault.address.")) {
+    const key = path.replace("vault.address.", "") as keyof StructuredAddress;
+    const v = vault.addressParts[key];
+    return typeof v === "string" && v.trim() ? v.trim() : undefined;
+  }
+
+  if (path.startsWith("dossier.sediu.")) {
+    const key = path.replace("dossier.sediu.", "") as keyof StructuredAddress;
+    const v = sediu[key];
+    return typeof v === "string" && v.trim() ? v.trim() : undefined;
+  }
+
+  if (path === "vault.lastName") {
+    return vault.lastName.trim() || splitRomanianFullName(vault.fullName).lastName || undefined;
+  }
+  if (path === "vault.firstName") {
+    return vault.firstName.trim() || splitRomanianFullName(vault.fullName).firstName || undefined;
+  }
+
+  if (path === "dossier.denumirePfaAlt") {
+    return undefined;
+  }
+
   const [root, key] = path.split(".") as [string, string];
   if (root === "vault") {
     const val = vault[key as keyof VaultProfile];
-    return typeof val === "string" && val.trim() ? val.trim() : undefined;
+    if (typeof val === "string" && val.trim()) return val.trim();
   }
   if (root === "dossier") {
     const val = dossier[key as keyof PfaDossierState];
@@ -103,6 +59,16 @@ function resolveSource(
     if (Array.isArray(val) && val.length) return val.join(", ");
   }
   return undefined;
+}
+
+function fillCaenDigit(pdfFieldName: string, codCaen: string): string | undefined {
+  const codeMatch = /^clasa_caen\.(\d+)\.(\d+)$/.exec(pdfFieldName);
+  if (!codeMatch) return undefined;
+  const row = Number(codeMatch[1]);
+  const col = Number(codeMatch[2]);
+  if (row !== 0) return undefined;
+  const code = codCaen.replace(/\D/g, "");
+  return code[col] ?? undefined;
 }
 
 export function mapVaultToFormValues(
@@ -116,7 +82,13 @@ export function mapVaultToFormValues(
   let filled = 0;
   let confidenceSum = 0;
 
+  const bindings = {
+    ...PFA_FIELD_SOURCES[template.id],
+    ...template.fieldSources,
+  };
+
   const visible = template.fields.filter((f) => !f.hidden && f.type !== "unsupported");
+  const codCaen = dossier.codCaenPrincipal?.trim() ?? "";
 
   for (const field of visible) {
     if (
@@ -127,35 +99,29 @@ export function mapVaultToFormValues(
       continue;
     }
 
-    const explicit = template.fieldSources?.[field.pdfFieldName];
-    if (explicit) {
-      const v = resolveSource(explicit, vault, dossier);
+    if (isAutofillBlockedField(field.pdfFieldName)) {
+      continue;
+    }
+
+    const caenVal = fillCaenDigit(field.pdfFieldName, codCaen);
+    if (caenVal !== undefined) {
+      values[field.pdfFieldName] = caenVal;
+      filled += 1;
+      confidenceSum += 0.85;
+      continue;
+    }
+
+    const source = bindings[field.pdfFieldName];
+    if (source) {
+      const v = getByPath(source, vault, dossier);
       if (v) {
         values[field.pdfFieldName] = v;
         filled += 1;
         confidenceSum += 0.95;
         continue;
       }
-    }
-
-    const label = field.label.toLowerCase();
-    const name = field.pdfFieldName.toLowerCase();
-    let matched = false;
-
-    for (const rule of HEURISTIC_RULES) {
-      if (!rule.test(label, name)) continue;
-      const v = rule.resolve(vault, dossier);
-      if (!v) continue;
-      values[field.pdfFieldName] = v;
-      filled += 1;
-      confidenceSum += rule.confidence;
-      if (rule.confidence < 0.8) lowConfidenceFields.push(field.pdfFieldName);
-      matched = true;
-      break;
-    }
-
-    if (!matched && field.isRequired) {
-      lowConfidenceFields.push(field.pdfFieldName);
+      if (field.isRequired) lowConfidenceFields.push(field.pdfFieldName);
+      continue;
     }
   }
 

@@ -7,17 +7,34 @@
 // All data is fabricated; the CNP below validates against the official Romanian
 // CNP control-digit formula but does not correspond to any real person.
 
+import { parseRomanianAddress } from "@/lib/address";
 import { useAuth, useVault, type VaultDocument, type VaultProfile } from "@/store";
 
 export const DEMO_EMAIL = "test@gmail.com";
 
+const demoAddress = parseRomanianAddress("Calea Victoriei nr. 25, ap. 14, Sector 3, București");
+
 export const DEMO_PROFILE: VaultProfile = {
   fullName: "Andrei Popescu",
+  firstName: "Andrei",
+  lastName: "Popescu",
   cnp: "1850612431527", // M, 12.06.1985, sector 3 București — valid control digit
   address: "Calea Victoriei nr. 25, ap. 14, Sector 3, București",
+  addressParts: demoAddress,
   phone: "+40 723 456 789",
   email: DEMO_EMAIL,
   birthDate: "1985-06-12",
+  birthLocality: "București",
+  birthCounty: "Sector 3",
+  birthCountry: "România",
+  citizenship: "Română",
+  orctOffice: "București",
+  idCardType: "CI",
+  idCardSeries: "RX",
+  idCardNumber: "123456",
+  idCardIssuedBy: "SPCLEP Sector 3",
+  idCardIssueDate: "2020-01-15",
+  idCardExpiryDate: "2030-01-14",
 };
 
 /**

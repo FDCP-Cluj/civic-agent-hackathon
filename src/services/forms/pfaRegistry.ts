@@ -1,4 +1,5 @@
 import { applyLabelsToTemplateFields } from "@/data/forms/pfa/field-labels.ro";
+import { PFA_FIELD_SOURCES } from "@/data/forms/pfa/pfa-field-sources";
 import type { PfaDossierCardDef, PfaFormTemplate, SubmissionInfo } from "./types";
 
 import rezervareTemplate from "@/data/forms/pfa/rezervare-denumire-24940.template.json";
@@ -91,6 +92,7 @@ export function loadPfaTemplate(templateId: string): PfaFormTemplate | undefined
   return {
     ...raw,
     fields: applyLabelsToTemplateFields(templateId, raw.fields),
+    fieldSources: { ...PFA_FIELD_SOURCES[templateId], ...raw.fieldSources },
   };
 }
 

@@ -49,24 +49,32 @@ const DECLARATIE_EXACT: Record<string, FieldLabelMeta> = {
 
 /** Curated labels for rezervare denumire (top fields — rest use Text{N} heuristic). */
 const REZERVARE_EXACT: Record<string, FieldLabelMeta> = {
-  Text1: { label: "Județ ORCT", group: "Instituție", hint: "Ex: Cluj" },
-  Text2: { label: "Localitate ORCT", group: "Instituție" },
-  Text3: { label: "Nume solicitant", group: "Date solicitant" },
-  Text4: { label: "Prenume solicitant", group: "Date solicitant" },
-  Text5: { label: "CNP solicitant", group: "Date solicitant" },
-  Text6: { label: "Denumire propusă PFA", group: "Denumire", hint: "Numele complet + PFA" },
-  Text7: { label: "Denumire alternativă 1", group: "Denumire", collapsible: true },
-  Text8: { label: "Denumire alternativă 2", group: "Denumire", collapsible: true },
-  Text9: { label: "Stradă domiciliu", group: "Adresă solicitant" },
-  Text10: { label: "Număr domiciliu", group: "Adresă solicitant" },
-  Text11: { label: "Bloc", group: "Adresă solicitant" },
-  Text12: { label: "Scara", group: "Adresă solicitant" },
-  Text13: { label: "Etaj", group: "Adresă solicitant" },
-  Text14: { label: "Apartament", group: "Adresă solicitant" },
-  Text15: { label: "Localitate domiciliu", group: "Adresă solicitant" },
-  Text16: { label: "Județ domiciliu", group: "Adresă solicitant" },
+  Text1: { label: "Oficiu ORCT / Tribunal", group: "Instituție" },
+  Text2: { label: "Nume solicitant", group: "Date solicitant" },
+  Text3: { label: "Prenume solicitant", group: "Date solicitant" },
+  Text4: { label: "CNP / NIF", group: "Date solicitant", hint: "13 cifre" },
+  Text5: { label: "Localitate domiciliu", group: "Adresă domiciliu" },
+  Text6: { label: "Stradă domiciliu", group: "Adresă domiciliu" },
+  Text7: { label: "Bloc", group: "Adresă domiciliu" },
+  Text8: { label: "Scara", group: "Adresă domiciliu" },
+  Text9: { label: "Număr", group: "Adresă domiciliu" },
+  Text10: { label: "Etaj", group: "Adresă domiciliu" },
+  Text11: { label: "Apartament", group: "Adresă domiciliu" },
+  Text12: { label: "Județ / sector domiciliu", group: "Adresă domiciliu" },
+  Text13: { label: "Țară domiciliu", group: "Adresă domiciliu" },
+  Text14: { label: "Cetățenie", group: "Date personale" },
+  Text15: { label: "Localitate naștere", group: "Date personale" },
+  Text16: { label: "Județ / sector naștere", group: "Date personale" },
   Text17: { label: "Telefon", group: "Contact" },
   Text18: { label: "E-mail", group: "Contact" },
+  Text19: { label: "Tip act identitate", group: "Act identitate" },
+  Text20: { label: "Serie CI", group: "Act identitate" },
+  Text21: { label: "Număr CI", group: "Act identitate" },
+  Text22: { label: "Emis de", group: "Act identitate" },
+  Text23: { label: "Data emiterii CI", group: "Act identitate" },
+  Text24: { label: "Valabil până la", group: "Act identitate" },
+  Text68: { label: "Denumire firmă propusă", group: "Denumire rezervată" },
+  Text69: { label: "Denumire alternativă", group: "Denumire rezervată", collapsible: true },
 };
 
 const TEMPLATE_OVERRIDES: Record<string, Record<string, FieldLabelMeta>> = {
@@ -89,11 +97,11 @@ function matchCaenField(name: string): FieldLabelMeta | null {
   const desc = /^clasa_caen_desc\.(\d+)\.(\d+)$/.exec(name);
   if (desc) {
     const row = Number(desc[1]) + 1;
-    const col = Number(desc[2]) + 1;
     return {
-      label: `Descriere CAEN — activitate ${row}, cifra ${col}`,
+      label: `Descriere activitate CAEN ${row}`,
       group: row === 1 ? "Activitate CAEN principală" : "Activități CAEN secundare",
-      collapsible: row > 1,
+      collapsible: true,
+      hint: "Completează manual dacă e necesar",
     };
   }
   const sedCaen = /^sedii_sec_caen\.(\d+)\.(\d+)$/.exec(name);

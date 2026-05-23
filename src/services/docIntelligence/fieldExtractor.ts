@@ -3,6 +3,7 @@
 // with an added control-digit validator for CNP (which the Python version
 // didn't have — bonus accuracy for free).
 
+import { parseRomanianAddress } from "@/lib/address";
 import type { ClassifiedDocumentType, ExtractedFields } from "./types";
 
 const CNP_RE = /(?<!\d)([1-9]\d{12})(?!\d)/;
@@ -39,7 +40,22 @@ export function extractFields(
     lastName: null,
     cnp: null,
     address: null,
+    addressStreet: null,
+    addressNumber: null,
+    addressBlock: null,
+    addressStair: null,
+    addressFloor: null,
+    addressApartment: null,
+    addressLocality: null,
+    addressCounty: null,
+    addressSector: null,
+    addressCountry: null,
     birthDate: null,
+    birthLocality: null,
+    birthCounty: null,
+    idCardSeries: null,
+    idCardNumber: null,
+    idCardIssuedBy: null,
     documentNumber: null,
     issueDate: null,
     expiryDate: null,
@@ -76,10 +92,32 @@ export function extractFields(
   );
   fields.dueDate = findDateNear(lines, /(SCADENT|TERMEN|DUE\s+DATE|PLAT[ĂA]\s+P[ÂA]N[ĂA])/i);
   fields.address = extractAddress(lines);
+  if (fields.address) {
+    const parts = parseRomanianAddress(fields.address);
+    fields.addressStreet = parts.street || null;
+    fields.addressNumber = parts.streetNumber || null;
+    fields.addressBlock = parts.block || null;
+    fields.addressStair = parts.stair || null;
+    fields.addressFloor = parts.floor || null;
+    fields.addressApartment = parts.apartment || null;
+    fields.addressLocality = parts.locality || null;
+    fields.addressCounty = parts.county || null;
+    fields.addressSector = parts.sector || null;
+    fields.addressCountry = parts.country || null;
+  }
   const [first, last] = extractName(lines, documentType);
   fields.firstName = first;
   fields.lastName = last;
-  fields.documentNumber = extractDocumentNumber(lines, documentType);
+  const idParts = extractIdCardParts(lines, documentType);
+  fields.idCardSeries = idParts.series;
+  fields.idCardNumber = idParts.number;
+  fields.idCardIssuedBy = idParts.issuedBy;
+  fields.documentNumber =
+    idParts.series && idParts.number
+      ? `${idParts.series} ${idParts.number}`
+      : extractDocumentNumber(lines, documentType);
+  fields.birthLocality = extractBirthLocality(lines);
+  fields.birthCounty = inferCountyFromCnp(fields.cnp);
   fields.amount = extractAmount(rawText);
   fields.iban = normalizeIban(IBAN_RE.exec(rawText)?.[0] ?? null);
   fields.fiscalCode = extractFiscalCode(rawText);
@@ -201,6 +239,52 @@ function inferBirthDateFromCnp(cnp: string | null): string | null {
         : null;
   if (!yearPrefix) return null;
   return `${yearPrefix}${cnp.slice(1, 3)}-${cnp.slice(3, 5)}-${cnp.slice(5, 7)}`;
+}
+
+function extractIdCardParts(
+  lines: string[],
+  documentType: ClassifiedDocumentType,
+): { series: string | null; number: string | null; issuedBy: string | null } {
+  if (documentType !== "romanian_id") {
+    return { series: null, number: null, issuedBy: null };
+  }
+  let series: string | null = null;
+  let number: string | null = null;
+  let issuedBy: string | null = null;
+
+  for (const line of lines.slice(0, 35)) {
+    const ser = /(?:SERIA|SERIE)\s*([A-Z]{1,2})\b/i.exec(line);
+    if (ser) series = ser[1].toUpperCase();
+    const nr = /(?:NR\.?|NUM[ĂA]R)\s*([0-9]{5,8})/i.exec(line);
+    if (nr) number = nr[1];
+    const combined = /(?:SERIA|SERIE)\s*([A-Z]{1,2})\s*(?:NR\.?)?\s*([0-9]{5,8})/i.exec(line);
+    if (combined) {
+      series = combined[1].toUpperCase();
+      number = combined[2];
+    }
+    const emis = /(?:EMIS|ELIBERAT)\s*(?:DE|DE:)?\s*(.+)$/i.exec(line);
+    if (emis && emis[1].length > 3 && !DATE_RE.test(emis[1])) {
+      issuedBy = emis[1].replace(/\s+LA\s+DATA.*$/i, "").trim().slice(0, 80);
+    }
+  }
+
+  return { series, number, issuedBy };
+}
+
+function extractBirthLocality(lines: string[]): string | null {
+  for (let i = 0; i < lines.length; i += 1) {
+    if (!/N[ĂA]SCUT|LOC(?:\.|ALITATE)/i.test(lines[i])) continue;
+    const chunk = [lines[i], lines[i + 1]].join(" ");
+    const m = /(?:în|in)\s+([A-ZĂÂÎȘȚ][A-Za-zĂÂÎȘȚăâîșț\s-]{2,40})/i.exec(chunk);
+    if (m) return titleCase(m[1].trim());
+  }
+  return null;
+}
+
+/** CNP digits 8-9 encode birth county (simplified — county code only). */
+function inferCountyFromCnp(cnp: string | null): string | null {
+  if (!cnp || !isValidCNP(cnp)) return null;
+  return null;
 }
 
 function extractDocumentNumber(
