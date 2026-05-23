@@ -4,16 +4,16 @@ overview: Simplify the `/` dashboard visual language to better match `civic-agen
 todos:
   - id: home-audit
     content: Audit current `/` layout sections and identify noisy visual patterns to reduce.
-    status: pending
+    status: completed
   - id: home-hierarchy-pass
     content: Rework homepage hierarchy (header, status cards, quick actions) to alexia-like spacing and composition.
-    status: pending
+    status: completed
   - id: home-color-tone-pass
     content: Reduce saturated accents and busy gradients on `/` while keeping semantic statuses clear.
-    status: pending
+    status: completed
   - id: home-validation
     content: Validate behavior parity, route actions, and responsive layout after UI simplification.
-    status: pending
+    status: completed
 isProject: false
 ---
 

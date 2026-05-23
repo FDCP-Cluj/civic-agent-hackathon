@@ -5,6 +5,7 @@ import {
   ListChecks,
   ScanLine,
   Settings,
+  ScrollText,
   ShieldCheck,
   Sparkles,
 } from "lucide-react";
@@ -21,6 +22,7 @@ import {
 
 const NAV_ITEMS = [
   { to: "/", label: "Acasă", icon: Home },
+  { to: "/services", label: "Servicii", icon: ScrollText },
   { to: "/vault", label: "Seif", icon: FolderLock },
   { to: "/tasks", label: "Sarcini", icon: ListChecks },
   { to: "/scan", label: "Scanare", icon: ScanLine },

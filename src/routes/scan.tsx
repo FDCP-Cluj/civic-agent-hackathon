@@ -2,7 +2,6 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import {
   ArrowLeft,
-  ScanLine,
   Upload,
   Sparkles,
   CheckCircle2,
@@ -14,6 +13,7 @@ import { AppShell } from "@/components/app-shell";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { PageHeader } from "@/components/dashboard/page-header";
 import { govApi } from "@/services/govApiMock";
 import {
   CLASSIFIED_TYPE_LABELS_RO,
@@ -99,26 +99,20 @@ function Scan() {
 
   return (
     <AppShell>
-      <Link
-        to="/"
-        className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground mb-4"
+      <PageHeader
+        title="Explică un document"
+        description="Recunoaștere locală — niciun byte nu părăsește dispozitivul. Vezi tipul, datele și un rezumat pe înțelesul tău."
       >
-        <ArrowLeft className="size-4" /> Înapoi
-      </Link>
-
-      <div className="mb-5">
-        <div className="flex items-center gap-2 mb-1">
-          <ScanLine className="size-5 text-primary" />
-          <h1 className="text-xl font-semibold tracking-tight">Explică un document</h1>
-        </div>
-        <p className="text-sm text-muted-foreground">
-          Recunoaștere locală — niciun byte nu părăsește dispozitivul. Vezi tipul, datele și un
-          rezumat pe înțelesul tău.
-        </p>
-      </div>
+        <Button asChild variant="outline" size="sm">
+          <Link to="/">
+            <ArrowLeft className="size-4" />
+            Înapoi
+          </Link>
+        </Button>
+      </PageHeader>
 
       {phase === "idle" && (
-        <Card className="p-10 border-dashed text-center animate-[fade-in_0.3s_ease-out]">
+        <Card className="mt-4 border-border/80 p-10 text-center shadow-none">
           <div className="relative size-20 mx-auto mb-4">
             <div className="absolute inset-0 rounded-2xl bg-accent" />
             <FileText className="size-10 text-primary absolute inset-0 m-auto" />
@@ -159,11 +153,11 @@ function ScanningView({
   const label = stageLabel(stage);
   const pct = Math.max(5, Math.round(progress * 100));
   return (
-    <div className="space-y-4 animate-[fade-in_0.3s_ease-out]">
-      <Card className="p-5 overflow-hidden">
+    <div className="space-y-4">
+      <Card className="overflow-hidden border-border/80 p-5 shadow-none">
         <div className="text-xs text-muted-foreground mb-3 flex items-center justify-between">
           <span className="flex items-center gap-2">
-            <span className="size-1.5 rounded-full bg-primary animate-pulse" />
+            <span className="size-1.5 rounded-full bg-primary" />
             {label} · {fileName}
           </span>
           <span className="font-mono tabular-nums">{pct}%</span>
@@ -174,7 +168,7 @@ function ScanningView({
             style={{ width: `${pct}%` }}
           />
         </div>
-        <div className="relative mx-auto aspect-[4/5] w-full max-w-[260px] rounded-lg border border-border bg-gradient-to-b from-muted/40 to-muted/10 overflow-hidden">
+        <div className="relative mx-auto aspect-[4/5] w-full max-w-[260px] overflow-hidden rounded-lg border border-border bg-muted/30">
           <div className="p-4 space-y-2">
             <div className="h-3 w-1/2 rounded bg-foreground/10" />
             <div className="h-2 w-3/4 rounded bg-foreground/10" />
@@ -188,30 +182,16 @@ function ScanningView({
             <div className="h-2 w-3/5 rounded bg-foreground/10" />
             <div className="h-2 w-1/2 rounded bg-foreground/10" />
           </div>
-          <div className="pointer-events-none absolute inset-x-0 h-12 -mt-6 animate-[laser_2.2s_ease-in-out_infinite]">
-            <div className="h-full bg-gradient-to-b from-transparent via-primary/30 to-transparent" />
-            <div className="absolute inset-x-0 top-1/2 h-px bg-primary shadow-[0_0_16px_4px_oklch(0.55_0.18_258_/_0.7)]" />
-          </div>
-          <Corner pos="tl" />
-          <Corner pos="tr" />
-          <Corner pos="bl" />
-          <Corner pos="br" />
-          <style>{`
-            @keyframes laser {
-              0%   { top: 0%; }
-              50%  { top: 92%; }
-              100% { top: 0%; }
-            }
-          `}</style>
+          <div className="pointer-events-none absolute inset-x-0 top-1/2 h-px bg-primary/30" />
         </div>
-        <div className="mt-4 grid grid-cols-3 gap-2 text-[10px] uppercase tracking-wider text-muted-foreground">
+        <div className="mt-4 grid grid-cols-3 gap-2 text-xs uppercase tracking-wider text-muted-foreground">
           <Pill label="Calitate" active={progress >= 0.05} done={progress >= 0.25} />
           <Pill label="OCR" active={progress >= 0.25} done={progress >= 0.85} />
           <Pill label="Clasificare" active={progress >= 0.85} done={progress >= 1} />
         </div>
       </Card>
 
-      <Card className="p-5">
+      <Card className="border-border/80 p-5 shadow-none">
         <Skeleton className="h-4 w-24 mb-3" />
         <Skeleton className="h-5 w-2/3 mb-4" />
         <Skeleton className="h-3 w-full mb-2" />
@@ -237,16 +217,6 @@ function stageLabel(stage: string): string {
   }
 }
 
-function Corner({ pos }: { pos: "tl" | "tr" | "bl" | "br" }) {
-  const map = {
-    tl: "top-1.5 left-1.5 border-l-2 border-t-2 rounded-tl",
-    tr: "top-1.5 right-1.5 border-r-2 border-t-2 rounded-tr",
-    bl: "bottom-1.5 left-1.5 border-l-2 border-b-2 rounded-bl",
-    br: "bottom-1.5 right-1.5 border-r-2 border-b-2 rounded-br",
-  } as const;
-  return <div className={`absolute size-4 border-primary ${map[pos]}`} />;
-}
-
 function Pill({
   label,
   active = false,
@@ -266,7 +236,7 @@ function Pill({
       {(active || done) && (
         <span
           className={`inline-block size-1.5 rounded-full mr-1.5 ${
-            done ? "bg-success" : "bg-primary animate-pulse"
+            done ? "bg-success" : "bg-primary"
           }`}
         />
       )}
@@ -294,7 +264,7 @@ function ResultView({
       validation.extractedFields.birthDate);
 
   return (
-    <div className="space-y-4 animate-[fade-in_0.4s_ease-out]">
+    <div className="space-y-4">
       {/* Identification card backed by the real local classifier */}
       {validation ? (
         validation.success ? (
@@ -424,8 +394,8 @@ function ResultView({
           </div>
           <ul className="space-y-2">
             {friendly.signHere.map((s) => (
-              <li key={s} className="text-sm flex items-start gap-2">
-                <span className="size-1.5 rounded-full bg-warning mt-2 shrink-0" />
+              <li key={s} className="text-sm flex items-center gap-2.5">
+                <span className="size-1.5 rounded-full bg-warning shrink-0" />
                 {s}
               </li>
             ))}

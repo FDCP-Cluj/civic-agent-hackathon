@@ -13,6 +13,7 @@ import { Route as VerifyRouteImport } from './routes/verify'
 import { Route as VaultRouteImport } from './routes/vault'
 import { Route as TasksRouteImport } from './routes/tasks'
 import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as ServicesRouteImport } from './routes/services'
 import { Route as ScanRouteImport } from './routes/scan'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as IndexRouteImport } from './routes/index'
@@ -39,6 +40,11 @@ const TasksRoute = TasksRouteImport.update({
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ServicesRoute = ServicesRouteImport.update({
+  id: '/services',
+  path: '/services',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ScanRoute = ScanRouteImport.update({
@@ -81,6 +87,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/scan': typeof ScanRoute
+  '/services': typeof ServicesRoute
   '/settings': typeof SettingsRoute
   '/tasks': typeof TasksRoute
   '/vault': typeof VaultRoute
@@ -94,6 +101,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/scan': typeof ScanRoute
+  '/services': typeof ServicesRoute
   '/settings': typeof SettingsRoute
   '/tasks': typeof TasksRoute
   '/vault': typeof VaultRoute
@@ -108,6 +116,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/scan': typeof ScanRoute
+  '/services': typeof ServicesRoute
   '/settings': typeof SettingsRoute
   '/tasks': typeof TasksRoute
   '/vault': typeof VaultRoute
@@ -123,6 +132,7 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/scan'
+    | '/services'
     | '/settings'
     | '/tasks'
     | '/vault'
@@ -136,6 +146,7 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/scan'
+    | '/services'
     | '/settings'
     | '/tasks'
     | '/vault'
@@ -149,6 +160,7 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/scan'
+    | '/services'
     | '/settings'
     | '/tasks'
     | '/vault'
@@ -163,6 +175,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   LoginRoute: typeof LoginRoute
   ScanRoute: typeof ScanRoute
+  ServicesRoute: typeof ServicesRoute
   SettingsRoute: typeof SettingsRoute
   TasksRoute: typeof TasksRoute
   VaultRoute: typeof VaultRoute
@@ -199,6 +212,13 @@ declare module '@tanstack/react-router' {
       path: '/settings'
       fullPath: '/settings'
       preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/services': {
+      id: '/services'
+      path: '/services'
+      fullPath: '/services'
+      preLoaderRoute: typeof ServicesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/scan': {
@@ -271,6 +291,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   LoginRoute: LoginRoute,
   ScanRoute: ScanRoute,
+  ServicesRoute: ServicesRoute,
   SettingsRoute: SettingsRoute,
   TasksRoute: TasksRoute,
   VaultRoute: VaultRoute,

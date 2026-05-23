@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { PageHeader } from "@/components/dashboard/page-header";
 import { useVault } from "@/store";
 import { downloadPdf, generateAntecontractPdf } from "@/services/pdf/antecontract";
 import { toast } from "sonner";
@@ -64,22 +65,19 @@ function AntecontractPage() {
 
   return (
     <AppShell>
-      <Link
-        to="/workflow/$id"
-        params={{ id: "property-sale" }}
-        className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground mb-4"
+      <PageHeader
+        title="Antecontract asistat"
+        description="Completezi datele esențiale, iar Civis generează un draft PDF pentru revizuire la notar."
       >
-        <ArrowLeft className="size-4" /> Înapoi
-      </Link>
+        <Button asChild variant="outline" size="sm">
+          <Link to="/workflow/$id" params={{ id: "property-sale" }}>
+            <ArrowLeft className="size-4" />
+            Înapoi
+          </Link>
+        </Button>
+      </PageHeader>
 
-      <Card className="p-5 mb-4 bg-gradient-to-br from-card to-accent/30">
-        <h1 className="text-xl font-semibold">Antecontract asistat</h1>
-        <p className="text-sm text-muted-foreground mt-1.5">
-          Completezi datele esențiale, iar Civis generează un draft PDF pentru revizuire la notar.
-        </p>
-      </Card>
-
-      <Card className="p-4 space-y-3">
+      <Card className="mt-4 p-4 space-y-3">
         <div className="text-sm font-semibold">Date cumpărător</div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div className="space-y-1.5">

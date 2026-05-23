@@ -25,6 +25,7 @@ export function AppShell({ children, showOfficialFooter = false }: AppShellProps
   const [a11yOpen, setA11yOpen] = useState(false);
   const mobileNav = [
     { to: "/", label: "Acasă" },
+    { to: "/services", label: "Servicii" },
     { to: "/vault", label: "Seif" },
     { to: "/tasks", label: "Sarcini" },
     { to: "/scan", label: "Scanare" },
@@ -46,8 +47,8 @@ export function AppShell({ children, showOfficialFooter = false }: AppShellProps
             {/* Mobile header */}
             <header className="flex items-center justify-between border-b border-border/80 bg-card/60 px-4 py-3 backdrop-blur md:hidden">
               <Link to="/" className="inline-flex items-center gap-2">
-                <div className="size-8 rounded-xl bg-gradient-hero flex items-center justify-center shadow-soft">
-                  <ShieldCheck className="size-4 text-primary-foreground" />
+                <div className="flex size-8 items-center justify-center rounded-xl bg-primary/10">
+                  <ShieldCheck className="size-4 text-primary" />
                 </div>
                 <div className="text-sm font-semibold">Civis</div>
               </Link>
@@ -100,7 +101,7 @@ export function AppShell({ children, showOfficialFooter = false }: AppShellProps
 
             {/* Desktop top bar */}
             <div className="hidden items-center justify-between border-b border-border/80 px-6 py-3 md:flex">
-              <div className="text-xs text-muted-foreground">
+              <div className="text-sm text-muted-foreground">
                 {email ? `Conectat ca ${email}` : "Cont conectat"}
               </div>
               <div className="flex items-center gap-2">
@@ -108,7 +109,7 @@ export function AppShell({ children, showOfficialFooter = false }: AppShellProps
                   type="button"
                   onClick={() => setA11yOpen(true)}
                   aria-label="Setări de accesibilitate"
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-border px-2.5 py-1.5 text-xs text-muted-foreground hover:bg-accent/50 hover:text-foreground"
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-sm text-muted-foreground hover:bg-accent/50 hover:text-foreground"
                 >
                   <Accessibility className="size-3.5" /> Accesibilitate
                 </button>
@@ -118,7 +119,7 @@ export function AppShell({ children, showOfficialFooter = false }: AppShellProps
                     logout();
                     navigate({ to: "/login" });
                   }}
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-border px-2.5 py-1.5 text-xs text-muted-foreground hover:bg-accent/50 hover:text-foreground"
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-sm text-muted-foreground hover:bg-accent/50 hover:text-foreground"
                 >
                   <LogOut className="size-3.5" />
                   Deconectare
@@ -155,13 +156,9 @@ export function AppShell({ children, showOfficialFooter = false }: AppShellProps
         <button
           onClick={() => openChat()}
           aria-label="Întreabă agentul Civis"
-          className="group fixed bottom-4 right-4 z-40 size-14 rounded-full bg-gradient-hero text-primary-foreground shadow-card flex items-center justify-center hover:scale-105 active:scale-95 transition-transform animate-[fade-in_0.4s_ease-out]"
+          className="fixed bottom-4 right-4 z-40 flex size-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-none transition-transform hover:scale-105 active:scale-95"
         >
-          <span
-            className="absolute inset-0 rounded-full bg-primary/30 animate-ping opacity-40 group-hover:opacity-0 transition-opacity"
-            aria-hidden
-          />
-          <Sparkles className="size-6 relative" />
+          <Sparkles className="size-6" />
         </button>
       )}
       <CivisChat />
