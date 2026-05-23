@@ -23,6 +23,7 @@ import {
   type ClassifiedDocumentType,
   type DocumentValidationResult,
 } from "@/services/docIntelligence";
+import { buildVaultProfilePatch } from "@/lib/vaultProfilePatch";
 import { useVault, usePfaDossier } from "@/store";
 import { toast } from "sonner";
 import { useNavigate } from "@tanstack/react-router";
@@ -34,6 +35,21 @@ type EditableScanFields = {
   cnp: string;
   birthDate: string;
   address: string;
+  addressStreet: string;
+  addressNumber: string;
+  addressBlock: string;
+  addressStair: string;
+  addressFloor: string;
+  addressApartment: string;
+  addressLocality: string;
+  addressCounty: string;
+  addressSector: string;
+  addressCountry: string;
+  birthLocality: string;
+  birthCounty: string;
+  idCardSeries: string;
+  idCardNumber: string;
+  idCardIssuedBy: string;
   documentNumber: string;
   issueDate: string;
   expiryDate: string;
@@ -105,11 +121,7 @@ function Scan() {
   };
 
   const adoptToVault = (fields: EditableScanFields) => {
-    const patch: Parameters<typeof updateProfile>[0] = {};
-    if (fields.cnp.trim()) patch.cnp = fields.cnp.trim();
-    if (fields.fullName.trim()) patch.fullName = fields.fullName.trim();
-    if (fields.address.trim()) patch.address = fields.address.trim();
-    if (fields.birthDate.trim()) patch.birthDate = fields.birthDate.trim();
+    const patch = buildVaultProfilePatch(fields);
     if (Object.keys(patch).length === 0) return;
     updateProfile(patch);
     toast.success("Datele confirmate au fost adăugate în seif.");
@@ -122,10 +134,11 @@ function Scan() {
       toast.error("Completează cel puțin nume sau CNP înainte de dosar PFA.");
       return;
     }
+    const profile = useVault.getState().profile;
     syncFromProfile({
-      fullName: patch.fullName ?? "",
-      cnp: patch.cnp ?? "",
-      address: patch.address ?? "",
+      fullName: profile.fullName,
+      cnp: profile.cnp,
+      address: profile.address,
     });
     navigate({
       to: "/workflow/$id/pfa",
@@ -472,17 +485,70 @@ function ResultView({
               onChange={(birthDate) => setEditedFields((prev) => ({ ...prev, birthDate }))}
             />
             <EditableField
-              label="Adresă"
-              value={editedFields.address}
-              className="sm:col-span-2"
-              onChange={(address) => setEditedFields((prev) => ({ ...prev, address }))}
+              label="Stradă"
+              value={editedFields.addressStreet}
+              onChange={(addressStreet) => setEditedFields((prev) => ({ ...prev, addressStreet }))}
             />
             <EditableField
-              label="Număr document"
-              value={editedFields.documentNumber}
-              onChange={(documentNumber) =>
-                setEditedFields((prev) => ({ ...prev, documentNumber }))
+              label="Număr"
+              value={editedFields.addressNumber}
+              onChange={(addressNumber) => setEditedFields((prev) => ({ ...prev, addressNumber }))}
+            />
+            <EditableField
+              label="Bloc"
+              value={editedFields.addressBlock}
+              onChange={(addressBlock) => setEditedFields((prev) => ({ ...prev, addressBlock }))}
+            />
+            <EditableField
+              label="Scara"
+              value={editedFields.addressStair}
+              onChange={(addressStair) => setEditedFields((prev) => ({ ...prev, addressStair }))}
+            />
+            <EditableField
+              label="Etaj"
+              value={editedFields.addressFloor}
+              onChange={(addressFloor) => setEditedFields((prev) => ({ ...prev, addressFloor }))}
+            />
+            <EditableField
+              label="Apartament"
+              value={editedFields.addressApartment}
+              onChange={(addressApartment) =>
+                setEditedFields((prev) => ({ ...prev, addressApartment }))
               }
+            />
+            <EditableField
+              label="Localitate"
+              value={editedFields.addressLocality}
+              onChange={(addressLocality) =>
+                setEditedFields((prev) => ({ ...prev, addressLocality }))
+              }
+            />
+            <EditableField
+              label="Județ / sector"
+              value={editedFields.addressCounty || editedFields.addressSector}
+              onChange={(v) =>
+                setEditedFields((prev) => ({
+                  ...prev,
+                  addressCounty: v,
+                  addressSector: /^\d+$/.test(v.trim()) ? v.trim() : prev.addressSector,
+                }))
+              }
+            />
+            <EditableField
+              label="Serie CI"
+              value={editedFields.idCardSeries}
+              onChange={(idCardSeries) => setEditedFields((prev) => ({ ...prev, idCardSeries }))}
+            />
+            <EditableField
+              label="Număr CI"
+              value={editedFields.idCardNumber}
+              onChange={(idCardNumber) => setEditedFields((prev) => ({ ...prev, idCardNumber }))}
+            />
+            <EditableField
+              label="Emis de"
+              value={editedFields.idCardIssuedBy}
+              className="sm:col-span-2"
+              onChange={(idCardIssuedBy) => setEditedFields((prev) => ({ ...prev, idCardIssuedBy }))}
             />
             <EditableField
               label="Data emiterii"
@@ -616,6 +682,21 @@ function editableFieldsFromValidation(
     cnp: f?.cnp ?? "",
     birthDate: f?.birthDate ?? "",
     address: f?.address ?? "",
+    addressStreet: f?.addressStreet ?? "",
+    addressNumber: f?.addressNumber ?? "",
+    addressBlock: f?.addressBlock ?? "",
+    addressStair: f?.addressStair ?? "",
+    addressFloor: f?.addressFloor ?? "",
+    addressApartment: f?.addressApartment ?? "",
+    addressLocality: f?.addressLocality ?? "",
+    addressCounty: f?.addressCounty ?? "",
+    addressSector: f?.addressSector ?? "",
+    addressCountry: f?.addressCountry ?? "România",
+    birthLocality: f?.birthLocality ?? "",
+    birthCounty: f?.birthCounty ?? "",
+    idCardSeries: f?.idCardSeries ?? "",
+    idCardNumber: f?.idCardNumber ?? "",
+    idCardIssuedBy: f?.idCardIssuedBy ?? "",
     documentNumber: f?.documentNumber ?? "",
     issueDate: f?.issueDate ?? "",
     expiryDate: f?.expiryDate ?? "",

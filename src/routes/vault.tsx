@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
+import { formatStructuredAddress } from "@/lib/address";
 import { useProfileCompleteness, useTasks, useVault } from "@/store";
 import { VaultUploadCard } from "@/components/vault-upload-card";
 import {
@@ -22,22 +23,18 @@ import { PageHeader } from "@/components/dashboard/page-header";
 export const Route = createFileRoute("/vault")({ component: Vault });
 
 function Vault() {
-  const { profile, updateProfile } = useVault();
+  const { profile, updateProfile, updateAddressParts } = useVault();
   const docs = useVault((s) => s.documents);
   const tasks = useTasks((s) => s.tasks);
   const completeness = useProfileCompleteness();
   const completenessPct = Math.round(completeness * 100);
   const ragEnabled = isSupabaseConfigured();
-  const localitate = profile.address
-    ?.split(",")
-    .map((s) => s.trim())
-    .filter(Boolean)
-    .pop();
+  const formattedAddress = formatStructuredAddress(profile.addressParts);
 
   const checks: Record<string, FieldResult> = {
     fullName: validateFullName(profile.fullName),
     cnp: validateCnp(profile.cnp),
-    address: validateAddress(profile.address),
+    address: validateAddress(formattedAddress || profile.address),
     phone: validatePhone(profile.phone),
     email: validateEmail(profile.email),
     birthDate: validateBirthDate(profile.birthDate),
@@ -105,8 +102,10 @@ function Vault() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="truncate text-lg font-semibold">{localitate ?? "Nesetată"}</p>
-            <p className="text-xs text-muted-foreground">Extrasă din adresă</p>
+            <p className="truncate text-lg font-semibold">
+              {profile.addressParts.locality || "Nesetată"}
+            </p>
+            <p className="text-xs text-muted-foreground">Domiciliu</p>
           </CardContent>
         </Card>
       </section>
@@ -119,7 +118,11 @@ function Vault() {
           </span>
         </div>
         <Progress value={completenessPct} className="h-1.5 mb-4" />
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+
+        <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">
+          Identitate
+        </h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
           <Field
             label="Nume complet"
             value={profile.fullName}
@@ -134,11 +137,134 @@ function Vault() {
             mono
           />
           <Field
-            label="Adresă"
-            value={profile.address}
-            onChange={(v) => updateProfile({ address: v })}
-            check={checks.address}
+            label="Nume (familie)"
+            value={profile.lastName}
+            onChange={(v) => updateProfile({ lastName: v })}
+          />
+          <Field
+            label="Prenume"
+            value={profile.firstName}
+            onChange={(v) => updateProfile({ firstName: v })}
+          />
+          <Field
+            label="Data nașterii"
+            type="date"
+            value={profile.birthDate}
+            onChange={(v) => updateProfile({ birthDate: v })}
+            check={checks.birthDate}
+          />
+          <Field
+            label="Localitate naștere"
+            value={profile.birthLocality}
+            onChange={(v) => updateProfile({ birthLocality: v })}
+          />
+          <Field
+            label="Județ naștere"
+            value={profile.birthCounty}
+            onChange={(v) => updateProfile({ birthCounty: v })}
+          />
+          <Field
+            label="Cetățenie"
+            value={profile.citizenship}
+            onChange={(v) => updateProfile({ citizenship: v })}
+          />
+        </div>
+
+        <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">
+          Adresă domiciliu
+        </h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+          <Field
+            label="Stradă"
+            value={profile.addressParts.street}
+            onChange={(v) => updateAddressParts({ street: v })}
             className="sm:col-span-2"
+          />
+          <Field
+            label="Număr"
+            value={profile.addressParts.streetNumber}
+            onChange={(v) => updateAddressParts({ streetNumber: v })}
+          />
+          <Field
+            label="Bloc"
+            value={profile.addressParts.block}
+            onChange={(v) => updateAddressParts({ block: v })}
+          />
+          <Field
+            label="Scara"
+            value={profile.addressParts.stair}
+            onChange={(v) => updateAddressParts({ stair: v })}
+          />
+          <Field
+            label="Etaj"
+            value={profile.addressParts.floor}
+            onChange={(v) => updateAddressParts({ floor: v })}
+          />
+          <Field
+            label="Apartament"
+            value={profile.addressParts.apartment}
+            onChange={(v) => updateAddressParts({ apartment: v })}
+          />
+          <Field
+            label="Localitate"
+            value={profile.addressParts.locality}
+            onChange={(v) => updateAddressParts({ locality: v })}
+          />
+          <Field
+            label="Județ / sector"
+            value={profile.addressParts.county || profile.addressParts.sector}
+            onChange={(v) =>
+              updateAddressParts(
+                /^\d+$/.test(v.trim())
+                  ? { sector: v.trim(), county: "" }
+                  : { county: v, sector: "" },
+              )
+            }
+            check={checks.address}
+          />
+          <Field
+            label="Țară"
+            value={profile.addressParts.country}
+            onChange={(v) => updateAddressParts({ country: v })}
+          />
+        </div>
+
+        <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">
+          Act identitate & contact
+        </h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <Field
+            label="Tip act"
+            value={profile.idCardType}
+            onChange={(v) => updateProfile({ idCardType: v })}
+          />
+          <Field
+            label="Serie CI"
+            value={profile.idCardSeries}
+            onChange={(v) => updateProfile({ idCardSeries: v })}
+          />
+          <Field
+            label="Număr CI"
+            value={profile.idCardNumber}
+            onChange={(v) => updateProfile({ idCardNumber: v })}
+            mono
+          />
+          <Field
+            label="Emis de"
+            value={profile.idCardIssuedBy}
+            onChange={(v) => updateProfile({ idCardIssuedBy: v })}
+          />
+          <Field
+            label="Data emiterii CI"
+            type="date"
+            value={profile.idCardIssueDate}
+            onChange={(v) => updateProfile({ idCardIssueDate: v })}
+          />
+          <Field
+            label="Valabil până la"
+            type="date"
+            value={profile.idCardExpiryDate}
+            onChange={(v) => updateProfile({ idCardExpiryDate: v })}
           />
           <Field
             label="Telefon"
@@ -152,14 +278,14 @@ function Vault() {
             onChange={(v) => updateProfile({ email: v })}
             check={checks.email}
           />
-          <Field
-            label="Data nașterii"
-            type="date"
-            value={profile.birthDate}
-            onChange={(v) => updateProfile({ birthDate: v })}
-            check={checks.birthDate}
-          />
         </div>
+
+        {formattedAddress && (
+          <p className="mt-3 text-xs text-muted-foreground">
+            Rezumat adresă: {formattedAddress}
+          </p>
+        )}
+
         {allValid && (
           <div className="mt-3 flex items-center gap-1.5 text-sm text-success">
             <CheckCircle2 className="size-3.5" /> Profil complet și validat — autofill activat.
