@@ -1,13 +1,16 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { ShieldCheck, Sparkles, Accessibility, LogOut } from "lucide-react";
-import { useState } from "react";
+import { lazy, Suspense, useState } from "react";
 import { useAuth, useChatUi } from "@/store";
 import { cn } from "@/lib/utils";
-import { CivisChat } from "@/components/civis-chat";
 import { AccessibilityClassSync, AccessibilityMenu } from "@/components/accessibility-menu";
-import { isApiKeyConfigured } from "@/services/geminiChat";
+import { isApiKeyConfigured } from "@/services/aiConfig";
 import { AppSidebar } from "@/components/dashboard/app-sidebar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+
+const CivisChat = lazy(() =>
+  import("@/components/civis-chat").then((module) => ({ default: module.CivisChat })),
+);
 
 type AppShellProps = {
   children: React.ReactNode;
@@ -28,6 +31,7 @@ export function AppShell({ children, showOfficialFooter = false }: AppShellProps
     { to: "/vault", label: "Seif" },
     { to: "/tasks", label: "Sarcini" },
     { to: "/scan", label: "Scanare" },
+    { to: "/chat", label: "Chat" },
     { to: "/settings", label: "Setări" },
   ] as const;
 
@@ -164,7 +168,9 @@ export function AppShell({ children, showOfficialFooter = false }: AppShellProps
           <Sparkles className="size-6 relative" />
         </button>
       )}
-      <CivisChat />
+      <Suspense fallback={null}>
+        <CivisChat />
+      </Suspense>
 
       {/* Global accessibility menu — opens from the header A button */}
       <AccessibilityMenu open={a11yOpen} onOpenChange={setA11yOpen} />

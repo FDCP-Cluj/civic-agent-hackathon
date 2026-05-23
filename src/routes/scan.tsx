@@ -1,32 +1,47 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type InputHTMLAttributes } from "react";
 import {
   ArrowLeft,
   ScanLine,
   Upload,
   Sparkles,
   CheckCircle2,
-  PenLine,
   FileText,
   AlertTriangle,
 } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import { govApi } from "@/services/govApiMock";
 import {
   CLASSIFIED_TYPE_LABELS_RO,
   prefetchOcr,
   validateDocument,
+  type ClassifiedDocumentType,
   type DocumentValidationResult,
 } from "@/services/docIntelligence";
 import { useVault } from "@/store";
+import { toast } from "sonner";
 
-type FriendlyResult = Awaited<ReturnType<typeof govApi.explainDocument>>;
+type EditableScanFields = {
+  fullName: string;
+  cnp: string;
+  birthDate: string;
+  address: string;
+  documentNumber: string;
+  issueDate: string;
+  expiryDate: string;
+  amount: string;
+  dueDate: string;
+  iban: string;
+  fiscalCode: string;
+  vehiclePlate: string;
+};
+
 type ScanState = {
-  friendly: FriendlyResult;
   validation: DocumentValidationResult | null;
+  error?: string;
   preview: string | null;
 };
 
@@ -57,21 +72,16 @@ function Scan() {
 
     const preview = await fileToDataUrl(f).catch(() => null);
 
-    // Run the friendly copy summary and the real local pipeline in
-    // parallel — the friendly summary is instant (filename heuristic),
-    // OCR is slow.
-    const [friendly, validationOrError] = await Promise.all([
-      govApi.explainDocument(f.name),
-      validateDocument(f, {
-        onProgress: (s, p) => {
-          setStage(s);
-          setProgress(p);
-        },
-      }),
-    ]);
+    const validationOrError = await validateDocument(f, {
+      onProgress: (s, p) => {
+        setStage(s);
+        setProgress(p);
+      },
+    });
 
     const validation = "error" in validationOrError ? null : validationOrError;
-    setResult({ friendly, validation, preview });
+    const error = "error" in validationOrError ? validationOrError.error.message : undefined;
+    setResult({ validation, error, preview });
     setPhase("done");
   };
 
@@ -83,18 +93,15 @@ function Scan() {
     setStage("");
   };
 
-  const adoptToVault = () => {
-    if (!result?.validation?.extractedFields) return;
-    const f = result.validation.extractedFields;
+  const adoptToVault = (fields: EditableScanFields) => {
     const patch: Parameters<typeof updateProfile>[0] = {};
-    if (f.cnp) patch.cnp = f.cnp;
-    if (f.firstName || f.lastName) {
-      patch.fullName = [f.firstName, f.lastName].filter(Boolean).join(" ");
-    }
-    if (f.address) patch.address = f.address;
-    if (f.birthDate) patch.birthDate = f.birthDate;
+    if (fields.cnp.trim()) patch.cnp = fields.cnp.trim();
+    if (fields.fullName.trim()) patch.fullName = fields.fullName.trim();
+    if (fields.address.trim()) patch.address = fields.address.trim();
+    if (fields.birthDate.trim()) patch.birthDate = fields.birthDate.trim();
     if (Object.keys(patch).length === 0) return;
     updateProfile(patch);
+    toast.success("Datele confirmate au fost adăugate în seif.");
   };
 
   return (
@@ -282,16 +289,27 @@ function ResultView({
 }: {
   result: ScanState;
   onReset: () => void;
-  onAdopt: () => void;
+  onAdopt: (fields: EditableScanFields) => void;
 }) {
-  const { friendly, validation } = result;
-  const hasExtractedAny =
-    validation &&
-    (validation.extractedFields.cnp ||
-      validation.extractedFields.firstName ||
-      validation.extractedFields.lastName ||
-      validation.extractedFields.address ||
-      validation.extractedFields.birthDate);
+  const { validation } = result;
+  const [editedType, setEditedType] = useState<ClassifiedDocumentType>(
+    validation?.documentType ?? "unknown",
+  );
+  const [editedFields, setEditedFields] = useState<EditableScanFields>(() =>
+    editableFieldsFromValidation(validation),
+  );
+  const explanation = buildLocalExplanation(validation, editedType);
+  const hasProfileData = Boolean(
+    editedFields.cnp.trim() ||
+    editedFields.fullName.trim() ||
+    editedFields.address.trim() ||
+    editedFields.birthDate.trim(),
+  );
+
+  useEffect(() => {
+    setEditedType(validation?.documentType ?? "unknown");
+    setEditedFields(editableFieldsFromValidation(validation));
+  }, [validation]);
 
   return (
     <div className="space-y-4 animate-[fade-in_0.4s_ease-out]">
@@ -315,20 +333,29 @@ function ResultView({
           </Card>
         ) : (
           <Card className="p-5 border-warning/30 bg-warning/5">
-            <div className="flex items-center gap-2 mb-2">
-              <AlertTriangle className="size-4 text-warning" />
-              <span className="text-xs font-semibold uppercase tracking-wider text-warning">
-                Nu am putut confirma cu siguranță
-              </span>
-            </div>
-            <h2 className="text-base font-semibold">
-              {validation.documentType === "unknown"
-                ? "Document necunoscut"
-                : `Posibil: ${CLASSIFIED_TYPE_LABELS_RO[validation.documentType]}`}
-            </h2>
-            <div className="text-xs text-muted-foreground mt-1 mb-3">
-              Încredere: {Math.round(validation.confidence * 100)}% · Calitate:{" "}
-              {Math.round(validation.qualityScore * 100)}%
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-2">
+                  <AlertTriangle className="size-4 text-warning" />
+                  <span className="text-xs font-semibold uppercase tracking-wider text-warning">
+                    Refă fotografia înainte să folosești datele
+                  </span>
+                </div>
+                <h2 className="text-base font-semibold">
+                  {validation.documentType === "unknown"
+                    ? "Document necunoscut"
+                    : `Posibil: ${CLASSIFIED_TYPE_LABELS_RO[validation.documentType]}`}
+                </h2>
+                <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                  Civis a citit local documentul, dar calitatea sau încrederea nu sunt suficiente
+                  pentru autofill sigur.
+                </p>
+              </div>
+              <QualityMeter
+                quality={validation.qualityScore}
+                confidence={validation.confidence}
+                onReset={onReset}
+              />
             </div>
             <ul className="text-xs text-muted-foreground space-y-1">
               {validation.issues.map((iss) => (
@@ -347,89 +374,143 @@ function ResultView({
           </Card>
         )
       ) : (
-        <Card className="p-5">
-          <div className="flex items-center gap-2 mb-2">
-            <FileText className="size-4 text-muted-foreground" />
-            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Document
-            </span>
+        <Card className="p-5 border-warning/30 bg-warning/5">
+          <div className="flex items-start gap-3">
+            <AlertTriangle className="mt-0.5 size-4 shrink-0 text-warning" />
+            <div className="min-w-0 flex-1">
+              <div className="text-xs font-semibold uppercase tracking-wider text-warning">
+                Nu am putut valida local
+              </div>
+              <h2 className="mt-1 text-base font-semibold">Document neverificat</h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                {result.error ??
+                  "Imaginea nu a putut fi procesată complet. Încearcă o fotografie mai clară."}
+              </p>
+            </div>
           </div>
-          <h2 className="text-lg font-semibold">{friendly.docType}</h2>
+          <Button variant="outline" className="mt-4 w-full" onClick={onReset}>
+            Refă fotografia
+          </Button>
         </Card>
       )}
 
-      {/* Friendly summary (V3 govApiMock authored copy) */}
       <Card className="p-5">
         <div className="flex items-center gap-2 mb-3">
           <Sparkles className="size-4 text-primary" />
           <span className="text-sm font-semibold">În cuvinte simple</span>
         </div>
-        <p className="text-sm leading-relaxed">{friendly.summary}</p>
+        <p className="text-sm leading-relaxed">{explanation}</p>
       </Card>
 
-      {/* Real extracted fields (V1 heuristics) */}
-      {hasExtractedAny && validation && (
+      {validation && (
         <Card className="p-5">
-          <div className="flex items-center justify-between mb-3">
-            <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Date extrase local
+          <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                Corectează ce a citit OCR-ul
+              </div>
+              <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                Verifică manual datele înainte să le folosești pentru autofill.
+              </p>
             </div>
-            <Button size="sm" variant="outline" onClick={onAdopt}>
-              Adaugă în seif
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => onAdopt(editedFields)}
+              disabled={!hasProfileData}
+            >
+              Actualizează profilul
             </Button>
           </div>
-          <div className="space-y-2">
-            <FieldRow label="CNP" value={validation.extractedFields.cnp} mono />
-            <FieldRow
-              label="Nume"
-              value={
-                [validation.extractedFields.firstName, validation.extractedFields.lastName]
-                  .filter(Boolean)
-                  .join(" ") || null
+          <div className="grid gap-3 sm:grid-cols-2">
+            <label className="space-y-1.5 sm:col-span-2">
+              <span className="text-xs font-medium text-muted-foreground">Tip document</span>
+              <select
+                value={editedType}
+                onChange={(event) => setEditedType(event.target.value as ClassifiedDocumentType)}
+                className="h-10 w-full rounded-lg border border-input bg-background px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              >
+                {Object.entries(CLASSIFIED_TYPE_LABELS_RO).map(([value, label]) => (
+                  <option key={value} value={value}>
+                    {capitalize(label)}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <EditableField
+              label="Nume complet"
+              value={editedFields.fullName}
+              onChange={(fullName) => setEditedFields((prev) => ({ ...prev, fullName }))}
+            />
+            <EditableField
+              label="CNP"
+              value={editedFields.cnp}
+              mono
+              inputMode="numeric"
+              onChange={(cnp) => setEditedFields((prev) => ({ ...prev, cnp }))}
+            />
+            <EditableField
+              label="Data nașterii"
+              type="date"
+              value={editedFields.birthDate}
+              onChange={(birthDate) => setEditedFields((prev) => ({ ...prev, birthDate }))}
+            />
+            <EditableField
+              label="Adresă"
+              value={editedFields.address}
+              className="sm:col-span-2"
+              onChange={(address) => setEditedFields((prev) => ({ ...prev, address }))}
+            />
+            <EditableField
+              label="Număr document"
+              value={editedFields.documentNumber}
+              onChange={(documentNumber) =>
+                setEditedFields((prev) => ({ ...prev, documentNumber }))
               }
             />
-            <FieldRow label="Data nașterii" value={validation.extractedFields.birthDate} />
-            <FieldRow label="Adresă" value={validation.extractedFields.address} />
+            <EditableField
+              label="Data emiterii"
+              type="date"
+              value={editedFields.issueDate}
+              onChange={(issueDate) => setEditedFields((prev) => ({ ...prev, issueDate }))}
+            />
+            <EditableField
+              label="Valabil până la"
+              type="date"
+              value={editedFields.expiryDate}
+              onChange={(expiryDate) => setEditedFields((prev) => ({ ...prev, expiryDate }))}
+            />
+            <EditableField
+              label="Sumă"
+              value={editedFields.amount}
+              onChange={(amount) => setEditedFields((prev) => ({ ...prev, amount }))}
+            />
+            <EditableField
+              label="Termen scadent"
+              type="date"
+              value={editedFields.dueDate}
+              onChange={(dueDate) => setEditedFields((prev) => ({ ...prev, dueDate }))}
+            />
+            <EditableField
+              label="IBAN"
+              value={editedFields.iban}
+              mono
+              className="sm:col-span-2"
+              onChange={(iban) => setEditedFields((prev) => ({ ...prev, iban }))}
+            />
+            <EditableField
+              label="Cod fiscal"
+              value={editedFields.fiscalCode}
+              mono
+              onChange={(fiscalCode) => setEditedFields((prev) => ({ ...prev, fiscalCode }))}
+            />
+            <EditableField
+              label="Număr auto"
+              value={editedFields.vehiclePlate}
+              mono
+              onChange={(vehiclePlate) => setEditedFields((prev) => ({ ...prev, vehiclePlate }))}
+            />
           </div>
-        </Card>
-      )}
-
-      {/* Important static fields from friendly catalog */}
-      {friendly.keyFields.length > 0 && (
-        <Card className="p-5">
-          <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
-            Date importante
-          </div>
-          <div className="space-y-2">
-            {friendly.keyFields.map((f) => (
-              <div
-                key={f.label}
-                className="flex justify-between gap-3 py-2 border-b border-border last:border-0"
-              >
-                <span className="text-xs text-muted-foreground">{f.label}</span>
-                <span className="text-sm font-medium tabular-nums text-right break-all">
-                  {f.value}
-                </span>
-              </div>
-            ))}
-          </div>
-        </Card>
-      )}
-
-      {friendly.signHere.length > 0 && (
-        <Card className="p-5">
-          <div className="flex items-center gap-2 mb-3">
-            <PenLine className="size-4 text-warning" />
-            <span className="text-sm font-semibold">Unde trebuie să semnezi</span>
-          </div>
-          <ul className="space-y-2">
-            {friendly.signHere.map((s) => (
-              <li key={s} className="text-sm flex items-start gap-2">
-                <span className="size-1.5 rounded-full bg-warning mt-2 shrink-0" />
-                {s}
-              </li>
-            ))}
-          </ul>
         </Card>
       )}
 
@@ -440,17 +521,148 @@ function ResultView({
   );
 }
 
-function FieldRow({ label, value, mono }: { label: string; value: string | null; mono?: boolean }) {
+function EditableField({
+  label,
+  value,
+  onChange,
+  mono,
+  inputMode,
+  type = "text",
+  className,
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  mono?: boolean;
+  inputMode?: InputHTMLAttributes<HTMLInputElement>["inputMode"];
+  type?: string;
+  className?: string;
+}) {
   return (
-    <div className="flex justify-between gap-3 py-2 border-b border-border last:border-0">
-      <span className="text-xs text-muted-foreground">{label}</span>
-      <span
-        className={`text-sm text-right break-all ${
-          mono ? "font-mono tabular-nums" : "font-medium"
-        } ${value ? "" : "text-muted-foreground italic"}`}
-      >
-        {value ?? "—"}
-      </span>
+    <label className={`space-y-1.5 ${className ?? ""}`}>
+      <span className="text-xs font-medium text-muted-foreground">{label}</span>
+      <Input
+        type={type}
+        value={value}
+        inputMode={inputMode}
+        onChange={(event) => onChange(event.target.value)}
+        className={mono ? "font-mono tabular-nums" : ""}
+      />
+    </label>
+  );
+}
+
+function editableFieldsFromValidation(
+  validation: DocumentValidationResult | null,
+): EditableScanFields {
+  const f = validation?.extractedFields;
+  return {
+    fullName: [f?.firstName, f?.lastName].filter(Boolean).join(" "),
+    cnp: f?.cnp ?? "",
+    birthDate: f?.birthDate ?? "",
+    address: f?.address ?? "",
+    documentNumber: f?.documentNumber ?? "",
+    issueDate: f?.issueDate ?? "",
+    expiryDate: f?.expiryDate ?? "",
+    amount: f?.amount ?? "",
+    dueDate: f?.dueDate ?? "",
+    iban: f?.iban ?? "",
+    fiscalCode: f?.fiscalCode ?? "",
+    vehiclePlate: f?.vehiclePlate ?? "",
+  };
+}
+
+function buildLocalExplanation(
+  validation: DocumentValidationResult | null,
+  editedType: ClassifiedDocumentType,
+): string {
+  if (!validation) {
+    return "Nu am putut citi documentul suficient de sigur. Încearcă o fotografie mai clară sau completează manual datele relevante în seif.";
+  }
+
+  if (!validation.success) {
+    if (validation.documentType === "unknown") {
+      return "Nu am identificat sigur tipul documentului, deci nu voi inventa sume, termene sau semnături. Poți corecta manual tipul și câmpurile citite sau poți reface fotografia.";
+    }
+    return `Pare să fie ${CLASSIFIED_TYPE_LABELS_RO[validation.documentType]}, dar încrederea OCR sau calitatea imaginii nu este suficientă pentru autofill automat. Verifică manual fiecare câmp înainte să îl adaugi în seif.`;
+  }
+
+  switch (editedType) {
+    case "romanian_id":
+      return "Este o carte de identitate. Pot folosi local numele, CNP-ul, data nașterii și adresa pentru autofill, numai după ce confirmi câmpurile.";
+    case "passport":
+      return "Este un pașaport. Verifică manual numele și data nașterii înainte să folosești datele pentru completări.";
+    case "driver_license":
+      return "Este un permis de conducere. Verifică manual numărul documentului, categoriile și valabilitatea înainte să folosești informațiile.";
+    case "vehicle_registration":
+      return "Este un document auto. Verifică numărul de înmatriculare, seria și datele mașinii înainte să îl folosești în proceduri.";
+    case "birth_certificate":
+      return "Este un certificat de naștere. Datele citite pot ajuta la completarea unor formulare, dar verifică numele și data nașterii înainte de salvare.";
+    case "marriage_certificate":
+      return "Este un certificat de căsătorie. Verifică numele, data și numărul actului înainte de folosire.";
+    case "utility_bill":
+      return "Pare o factură de utilități. O poți păstra ca dovadă de adresă, dar nu folosesc automat sume sau termene citite prin OCR.";
+    case "tax_decision":
+      return "Pare o decizie de impunere. Verifică suma, termenul scadent, IBAN-ul și codul fiscal direct pe document înainte de plată.";
+    case "payment_notice":
+      return "Pare o înștiințare de plată. Verifică suma, termenul scadent și IBAN-ul înainte să plătești.";
+    case "student_card":
+      return "Pare o legitimație de student. O salvez ca document suport, dar nu o tratez ca act de identitate și nu modific profilul automat.";
+    case "criminal_record":
+      return "Pare un cazier judiciar. Verifică data emiterii și numele înainte să îl depui.";
+    case "medical_certificate":
+      return "Pare o adeverință medicală. Verifică data, emitentul și numele înainte să o folosești.";
+    case "cadastral_extract":
+      return "Pare un extras de carte funciară. Verifică numărul cadastral, proprietarul și data emiterii.";
+    case "property_deed":
+      return "Pare un act de proprietate. Verifică numărul documentului, părțile și adresa imobilului înainte de folosire.";
+    case "rental_contract":
+      return "Pare un contract de închiriere. Verifică părțile, adresa și perioada contractuală.";
+    case "employment_contract":
+      return "Pare un contract de muncă. Verifică angajatorul, salariatul, data și salariul înainte de folosire.";
+    case "diploma":
+      return "Pare o diplomă sau adeverință de studii. Verifică numele, instituția și numărul documentului.";
+    case "bank_statement":
+      return "Pare un extras de cont. Verifică IBAN-ul și titularul înainte să îl folosești ca dovadă.";
+    case "insurance_policy":
+      return "Pare o poliță de asigurare. Verifică perioada de valabilitate, asigurătorul și obiectul asigurat.";
+    case "invoice":
+      return "Pare o factură. Verifică furnizorul, suma, scadența și codul fiscal înainte să o folosești.";
+    default:
+      return "Documentul a fost citit local. Verifică manual tipul și câmpurile înainte să le folosești pentru autofill.";
+  }
+}
+
+function QualityMeter({
+  quality,
+  confidence,
+  onReset,
+}: {
+  quality: number;
+  confidence: number;
+  onReset: () => void;
+}) {
+  const qualityPct = Math.round(quality * 100);
+  const confidencePct = Math.round(confidence * 100);
+  return (
+    <div className="w-full rounded-lg border border-warning/30 bg-background/60 p-3 sm:w-52">
+      <div className="mb-2 flex items-center justify-between text-xs">
+        <span className="text-muted-foreground">Calitate imagine</span>
+        <span className="font-mono font-semibold tabular-nums">{qualityPct}%</span>
+      </div>
+      <div className="mb-3 h-1.5 overflow-hidden rounded-full bg-muted">
+        <div className="h-full bg-warning" style={{ width: `${qualityPct}%` }} />
+      </div>
+      <div className="mb-2 flex items-center justify-between text-xs">
+        <span className="text-muted-foreground">Încredere OCR</span>
+        <span className="font-mono font-semibold tabular-nums">{confidencePct}%</span>
+      </div>
+      <div className="mb-3 h-1.5 overflow-hidden rounded-full bg-muted">
+        <div className="h-full bg-primary" style={{ width: `${confidencePct}%` }} />
+      </div>
+      <Button size="sm" variant="outline" className="w-full" onClick={onReset}>
+        Refă fotografia
+      </Button>
     </div>
   );
 }

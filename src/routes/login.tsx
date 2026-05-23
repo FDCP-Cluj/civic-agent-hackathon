@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ShieldCheck, Mail, Lock, ArrowRight, Sparkles, Nfc } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,6 +22,15 @@ function Login() {
   const [mode, setMode] = useState<"login" | "signup">("login");
   const eidkitEnabled = isEidKitConfigured();
 
+  useEffect(() => {
+    document.documentElement.classList.add("login-overscroll-flag");
+    document.body.classList.add("login-overscroll-flag");
+    return () => {
+      document.documentElement.classList.remove("login-overscroll-flag");
+      document.body.classList.remove("login-overscroll-flag");
+    };
+  }, []);
+
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) return;
@@ -42,7 +51,7 @@ function Login() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <div className="h-1.5 bg-tricolor" />
+      <div className="relative h-1.5 bg-tricolor before:absolute before:inset-x-0 before:bottom-full before:h-[100vh] before:bg-tricolor" />
       <div className="flex-1 flex items-center justify-center px-4 py-10">
         <div className="w-full max-w-md">
           <div className="flex flex-col items-center text-center mb-8">

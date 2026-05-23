@@ -41,14 +41,13 @@ const EXPECTED_TYPE_FOR_SLOT: Record<VaultDocument["type"], ClassifiedDocumentTy
   id_card: "romanian_id",
   passport: "passport",
   birth_cert: "birth_certificate",
-  driver_license: null,
-  car_papers: null,
+  driver_license: "driver_license",
+  car_papers: "vehicle_registration",
   other: null,
 };
 
 export function VaultUploadCard() {
-  const { documents, addDocument, removeDocument, updateDocument, updateProfile, profile } =
-    useVault();
+  const { documents, addDocument, removeDocument, updateDocument } = useVault();
   const [pickType, setPickType] = useState<VaultDocument["type"]>("id_card");
   const [pickExpiry, setPickExpiry] = useState<string>("");
   const [validating, setValidating] = useState(false);
@@ -95,20 +94,7 @@ export function VaultUploadCard() {
             };
           }
 
-          // If the pipeline extracted a CNP and the vault profile doesn't
-          // have one yet, offer to adopt it. Same for name + birthDate.
-          const f = r.extractedFields;
-          const patch: Parameters<typeof updateProfile>[0] = {};
-          if (f.cnp && !profile.cnp) patch.cnp = f.cnp;
-          if ((f.firstName || f.lastName) && !profile.fullName) {
-            patch.fullName = [f.firstName, f.lastName].filter(Boolean).join(" ");
-          }
-          if (f.birthDate && !profile.birthDate) patch.birthDate = f.birthDate;
-          if (f.address && !profile.address) patch.address = f.address;
-          if (Object.keys(patch).length > 0) {
-            updateProfile(patch);
-            validationToast.description = `${validationToast.description ?? ""} · ${Object.keys(patch).length} câmp(uri) prefilate în profil`;
-          }
+          validationToast.description = `${validationToast.description ?? ""} · nu am modificat profilul fără confirmarea ta`;
         }
       } finally {
         setValidating(false);
@@ -154,7 +140,7 @@ export function VaultUploadCard() {
         <EmptyState
           icon={Upload}
           title="Seiful tău este gol"
-          description="Adaugă primul tău document — îl stocăm criptat doar pe acest dispozitiv, niciodată pe servere."
+          description="Adaugă primul tău document — îl stocăm doar pe acest dispozitiv, niciodată pe servere."
           action={
             <Button onClick={() => triggerUpload("id_card")}>
               <Plus className="size-4" /> Adaugă primul document
@@ -314,6 +300,8 @@ function issueLabel(iss: string): string {
       return "Nu am detectat text.";
     case "expected_type_mismatch":
       return "Tipul documentului nu corespunde slotului selectat.";
+    case "unknown_type":
+      return "Tipul documentului nu este recunoscut.";
     default:
       return iss;
   }

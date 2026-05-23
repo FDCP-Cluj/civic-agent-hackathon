@@ -5,8 +5,24 @@
 export type ClassifiedDocumentType =
   | "romanian_id"
   | "passport"
+  | "driver_license"
+  | "vehicle_registration"
   | "utility_bill"
+  | "tax_decision"
+  | "payment_notice"
   | "birth_certificate"
+  | "marriage_certificate"
+  | "student_card"
+  | "criminal_record"
+  | "medical_certificate"
+  | "property_deed"
+  | "cadastral_extract"
+  | "rental_contract"
+  | "employment_contract"
+  | "diploma"
+  | "bank_statement"
+  | "insurance_policy"
+  | "invoice"
   | "unknown";
 
 export type ClassificationResult = {
@@ -21,6 +37,14 @@ export type ExtractedFields = {
   cnp: string | null;
   address: string | null;
   birthDate: string | null;
+  documentNumber: string | null;
+  issueDate: string | null;
+  expiryDate: string | null;
+  amount: string | null;
+  dueDate: string | null;
+  iban: string | null;
+  fiscalCode: string | null;
+  vehiclePlate: string | null;
 };
 
 export type ImageQualityResult = {

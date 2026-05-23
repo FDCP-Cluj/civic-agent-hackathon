@@ -79,6 +79,13 @@ export type DataSource = {
   verifiedAt: string;
 };
 
+export type OfficialReference = {
+  title: string;
+  authority: Institution;
+  url: string;
+  note: string;
+};
+
 export type Workflow = {
   id: string;
   title: string;
@@ -88,6 +95,8 @@ export type Workflow = {
   steps: WorkflowStep[];
   /** Optional but recommended: where this data came from, for transparency. */
   dataSource?: DataSource;
+  /** Extra official references for fees, deadlines, and edge-case rules. */
+  references?: OfficialReference[];
 };
 
 /** All workflow data was last reviewed against the official sources on this date. */
@@ -191,6 +200,89 @@ const WORKFLOW_SOURCES: Record<string, { authority: Institution; url: string }> 
     authority: "DRPCIV",
     url: "https://www.drpciv.ro/web/ghidul-cetateanului/inmatricularea-vehiculelor",
   },
+};
+
+const WORKFLOW_REFERENCES: Record<string, OfficialReference[]> = {
+  "foreign-license-exchange": [
+    {
+      title: "DRPCIV — permise de conducere",
+      authority: "DRPCIV",
+      url: "https://www.drpciv.ro/web/ghidul-cetateanului/permise-de-conducere",
+      note: "Verifică lista actualizată de state acceptate, documentele suplimentare pentru permise non-UE și taxa permisului.",
+    },
+    {
+      title: "Programări DGPCI/DRPCIV",
+      authority: "DRPCIV",
+      url: "https://www.drpciv.ro/",
+      note: "Programarea la ghișeu și plata online pot fi făcute înainte de depunerea dosarului.",
+    },
+  ],
+  "police-clearance": [
+    {
+      title: "HUB MAI — cazier judiciar online",
+      authority: "MAI",
+      url: "https://hub.mai.gov.ro/",
+      note: "Persoanele fizice pot obține cazierul online după validarea identității.",
+    },
+    {
+      title: "Ghișeul.ro",
+      authority: "Gov.ro",
+      url: "https://www.ghiseul.ro/",
+      note: "Alternativă pentru autentificare și cerere online, în funcție de contul utilizatorului.",
+    },
+  ],
+  "birth-certificate": [
+    {
+      title: "DEPABD — stare civilă / naștere",
+      authority: "DEPABD",
+      url: "https://depabd.mai.gov.ro/stare_civila.html",
+      note: "Sursa centrală pentru actele de stare civilă; primăria locală poate avea programări și formulare proprii.",
+    },
+  ],
+  "civil-marriage": [
+    {
+      title: "DEPABD — stare civilă / căsătorie",
+      authority: "DEPABD",
+      url: "https://depabd.mai.gov.ro/stare_civila.html",
+      note: "Confirmă documentele cerute și intervalul legal de afișare cu serviciul local de stare civilă.",
+    },
+  ],
+  "child-state-allowance": [
+    {
+      title: "Ministerul Muncii — beneficii familiale",
+      authority: "AJPIS",
+      url: "https://beneficiifamiliale.mmuncii.ro/calculator-alocatie-stat-pentru-copii",
+      note: "Cuantumul final și eligibilitatea sunt confirmate de AJPIS/APISMB după verificarea cererii.",
+    },
+  ],
+  "building-permit": [
+    {
+      title: "Legea nr. 50/1991 — autorizarea lucrărilor de construcții",
+      authority: "Gov.ro",
+      url: "https://legislatie.just.ro/Public/DetaliiDocument/55794",
+      note: "Baza legală pentru certificatul de urbanism, autorizația de construire, avize și termene.",
+    },
+    {
+      title: "MDLPA — urbanism și amenajarea teritoriului",
+      authority: "Primarie",
+      url: "https://www.mdlpa.ro/pages/dezvoltareurbanasiamenajarea",
+      note: "Context instituțional pentru reglementări urbanistice; taxele locale se confirmă la primărie.",
+    },
+  ],
+  "cadastral-registration": [
+    {
+      title: "ANCPI",
+      authority: "ANCPI",
+      url: "https://www.ancpi.ro/",
+      note: "Portalul național pentru cadastru, carte funciară, MyEterra și informații despre servicii.",
+    },
+    {
+      title: "ANCPI ePay",
+      authority: "ANCPI",
+      url: "https://epay.ancpi.ro/epay/",
+      note: "Plată și solicitare servicii precum extrasele de carte funciară.",
+    },
+  ],
 };
 
 const RAW_WORKFLOWS: Workflow[] = [
@@ -598,9 +690,7 @@ const RAW_WORKFLOWS: Workflow[] = [
         mapsUrl: "https://www.google.com/maps/search/serviciul+evidenta+persoanelor",
         estimatedMinutes: 45,
         fee: "12 RON (7 RON CI + 5 RON viză domiciliu)",
-        actions: [
-          { kind: "tipizatul", procedureId: "26022", label: "Formular CI — Tipizatul" },
-        ],
+        actions: [{ kind: "tipizatul", procedureId: "26022", label: "Formular CI — Tipizatul" }],
       },
       {
         order: 4,
@@ -1469,6 +1559,312 @@ const STEP_ENRICHMENTS: Record<string, Record<number, StepEnrichment>> = {
     3: { mode: "in_person" },
     4: { mode: "hybrid" },
   },
+  "foreign-license-exchange": {
+    1: {
+      mode: "in_person",
+      info: [
+        "Fișa medicală trebuie emisă de o unitate autorizată pentru examinarea conducătorilor auto.",
+        "Dacă permisul străin are categorii profesionale, verifică înainte dacă sunt necesare acte suplimentare.",
+      ],
+      actions: [
+        {
+          kind: "find_institution",
+          institutionType: "cabinet medical autorizat auto",
+          label: "Găsește clinică auto",
+        },
+      ],
+    },
+    2: {
+      mode: "in_person",
+      info: [
+        "Pentru permise UE/SEE, traducerea poate să nu fie cerută în toate cazurile; confirmă la serviciul județean.",
+        "Pentru permise non-UE, traducerea autorizată și documentul de autenticitate pot fi decisive.",
+      ],
+      actions: [
+        {
+          kind: "find_institution",
+          institutionType: "traducător autorizat notar",
+          label: "Găsește traducător",
+        },
+      ],
+    },
+    3: {
+      mode: "hybrid",
+      info: [
+        "Taxa permisului este separată de costurile medicale/traducere și se poate plăti înainte de programare.",
+        "Pentru unele state non-UE poate fi cerut examen sau document recent de la autoritatea emitentă.",
+      ],
+      actions: [
+        { kind: "open_url", url: "https://www.drpciv.ro/", label: "DRPCIV — programări" },
+        {
+          kind: "explain_step",
+          topic:
+            "preschimbare permis străin în România, documente suplimentare pentru UE și non-UE",
+          label: "Explică diferențele UE/non-UE",
+        },
+      ],
+    },
+    4: {
+      mode: "in_person",
+      info: [
+        "Păstrează dovada depunerii dosarului până ridici permisul românesc.",
+        "Permisul străin este de regulă reținut sau returnat autorității emitente, după caz.",
+      ],
+    },
+  },
+  "police-clearance": {
+    1: {
+      mode: "online",
+      info: [
+        "Cazierul online este disponibil pentru persoane fizice, de cetățenie română, după validarea identității.",
+        "Dacă nu ai cont Ghișeul.ro, HUB MAI poate cere validare o singură dată la ghișeu.",
+      ],
+      actions: [
+        { kind: "open_url", url: "https://hub.mai.gov.ro/", label: "HUB MAI — cazier online" },
+        { kind: "open_url", url: "https://www.ghiseul.ro/", label: "Ghișeul.ro" },
+      ],
+    },
+    2: {
+      mode: "online",
+      info: [
+        "Certificatul electronic este semnat digital și poate fi descărcat din platformă.",
+        "Pentru instituții publice, verifică dacă mai este necesar să îl soliciți tu sau îl pot obține interinstituțional.",
+      ],
+      actions: [
+        {
+          kind: "explain_step",
+          topic: "obținere cazier judiciar online prin HUB MAI sau Ghișeul.ro",
+          label: "Explică varianta online",
+        },
+      ],
+    },
+    3: {
+      mode: "in_person",
+      info: [
+        "La ghișeu, pentru persoane fizice, de obicei este suficient actul de identitate; formularele se primesc acolo.",
+        "Programul și punctele de lucru diferă pe județe, deci verifică IPJ-ul local.",
+      ],
+      actions: [
+        {
+          kind: "find_institution",
+          institutionType: "cazier judiciar poliție",
+          label: "Găsește ghișeu cazier",
+        },
+      ],
+    },
+  },
+  "birth-certificate": {
+    1: {
+      mode: "in_person",
+      info: [
+        "Certificatul medical constatator al nașterii este documentul-cheie primit de la maternitate.",
+        "Dacă părinții nu sunt căsătoriți, întreabă Starea Civilă despre recunoașterea paternității înainte de depunere.",
+      ],
+    },
+    2: {
+      mode: "in_person",
+      info: [
+        "Depunerea se face la Starea Civilă din localitatea nașterii copilului.",
+        "Nu amâna termenul legal; după termen pot apărea pași suplimentari.",
+      ],
+      actions: [
+        {
+          kind: "find_institution",
+          institutionType: "starea civilă primărie",
+          label: "Găsește Starea Civilă",
+        },
+      ],
+    },
+    3: {
+      mode: "in_person",
+      info: ["Verifică pe loc numele, CNP-ul și datele părinților înainte să pleci de la ghișeu."],
+    },
+  },
+  "civil-marriage": {
+    1: {
+      mode: "hybrid",
+      info: [
+        "Programările și taxele pentru sala festivă sunt locale; primăriile pot avea calendare online separate.",
+        "Căsătoria se declară la Starea Civilă unde cel puțin unul dintre viitori soți are domiciliul sau reședința.",
+      ],
+      actions: [
+        {
+          kind: "find_institution",
+          institutionType: "starea civilă primărie",
+          label: "Găsește Starea Civilă",
+        },
+      ],
+    },
+    2: {
+      mode: "in_person",
+      info: [
+        "Certificatul medical prenupțial are valabilitate scurtă; programează analizele aproape de depunerea declarației.",
+      ],
+    },
+    3: {
+      mode: "in_person",
+      info: [
+        "Declarația se depune personal de ambii viitori soți.",
+        "Pentru persoane divorțate sau văduve, actele doveditoare trebuie prezentate în original.",
+      ],
+      actions: [
+        {
+          kind: "explain_step",
+          topic: "depunere declarație de căsătorie, termen afișare și acte pentru recăsătoriți",
+          label: "Explică actele speciale",
+        },
+      ],
+    },
+    4: {
+      mode: "in_person",
+      info: [
+        "Martorii trebuie să aibă actele de identitate valabile.",
+        "Certificatul de căsătorie se verifică pe loc, mai ales dacă unul dintre soți își schimbă numele.",
+      ],
+    },
+  },
+  "child-state-allowance": {
+    1: {
+      mode: "in_person",
+      info: [
+        "Dosarul se poate pregăti imediat ce ai certificatul de naștere al copilului.",
+        "IBAN-ul trebuie să fie pe numele părintelui care solicită plata.",
+      ],
+    },
+    2: {
+      mode: "hybrid",
+      info: [
+        "Depunerea se face prin primărie sau AJPIS/APISMB, în funcție de localitate.",
+        "Unele județe acceptă transmitere online; verifică site-ul AJPIS local.",
+      ],
+      actions: [
+        {
+          kind: "find_institution",
+          institutionType: "AJPIS alocație copii",
+          label: "Găsește AJPIS",
+        },
+      ],
+    },
+    3: {
+      mode: "online",
+      info: [
+        "Prima plată poate include sume restante, în funcție de data nașterii și data depunerii.",
+        "Cuantumurile se actualizează periodic; verifică Ministerul Muncii/AJPIS înainte de depunere.",
+      ],
+      actions: [
+        {
+          kind: "open_url",
+          url: "https://beneficiifamiliale.mmuncii.ro/calculator-alocatie-stat-pentru-copii",
+          label: "Ministerul Muncii — calculator",
+        },
+      ],
+    },
+  },
+  "building-permit": {
+    1: {
+      mode: "hybrid",
+      info: [
+        "Certificatul de urbanism nu îți dă dreptul să construiești; doar spune ce ai voie și ce avize trebuie luate.",
+        "Extrasul de carte funciară trebuie să fie recent; multe primării cer maximum 30 de zile.",
+      ],
+      actions: [
+        {
+          kind: "find_institution",
+          institutionType: "primărie urbanism",
+          label: "Găsește Urbanism",
+        },
+      ],
+    },
+    2: {
+      mode: "hybrid",
+      info: [
+        "Lista exactă de avize este cea din certificatul de urbanism, nu una generică.",
+        "Instituțiile avizatoare pot avea propriile taxe și termene; salvează dovada fiecărei depuneri.",
+      ],
+    },
+    3: {
+      mode: "in_person",
+      info: [
+        "DTAC trebuie semnat de specialiști cu drept de semnătură; nu este o simplă schiță.",
+        "Orice modificare majoră după avize poate cere reluarea unor pași.",
+      ],
+      actions: [
+        {
+          kind: "find_institution",
+          institutionType: "arhitect OAR",
+          label: "Găsește arhitect OAR",
+        },
+      ],
+    },
+    4: {
+      mode: "in_person",
+      info: [
+        "Taxa de autorizare depinde de valoarea declarată/autorizată a lucrărilor și de regulile locale.",
+        "Autorizația se emite doar pe documentație completă.",
+      ],
+      actions: [
+        {
+          kind: "explain_step",
+          topic:
+            "autorizație de construire, taxă autorizare, documentație completă și termene Legea 50/1991",
+          label: "Explică taxa și termenul",
+        },
+      ],
+    },
+    5: {
+      mode: "hybrid",
+      info: [
+        "Anunțul de începere a lucrărilor către ISC se face înainte de șantier, nu după.",
+        "Păstrează autorizația, proiectul vizat spre neschimbare și dovezile de notificare pe șantier.",
+      ],
+    },
+  },
+  "cadastral-registration": {
+    1: {
+      mode: "in_person",
+      info: [
+        "Lucrează doar cu persoane autorizate ANCPI; documentația depusă de altcineva poate fi respinsă.",
+        "Cere estimare separată pentru măsurători, documentație și taxe OCPI.",
+      ],
+      actions: [
+        {
+          kind: "find_institution",
+          institutionType: "topograf autorizat ANCPI",
+          label: "Găsește topograf",
+        },
+      ],
+    },
+    2: {
+      mode: "online",
+      info: [
+        "Topograful depune de obicei documentația la OCPI și urmărește eventualele completări.",
+        "Termenele diferă în funcție de tipul lucrării și de regimul normal/urgență.",
+      ],
+    },
+    3: {
+      mode: "hybrid",
+      info: [
+        "Pentru intabularea dreptului de proprietate, tariful pentru persoane fizice este procentual, cu minim stabilit de ANCPI.",
+        "La tranzacții, notarul poate gestiona cererea de intabulare în numele părților.",
+      ],
+      actions: [
+        { kind: "open_url", url: "https://epay.ancpi.ro/epay/", label: "ANCPI ePay — servicii" },
+        {
+          kind: "explain_step",
+          topic: "intabulare drept de proprietate persoane fizice ANCPI tarife minime",
+          label: "Explică tarifele",
+        },
+      ],
+    },
+    4: {
+      mode: "online",
+      info: [
+        "Extrasul de carte funciară pentru informare poate fi obținut online prin ANCPI/ePay/MyEterra, în funcție de serviciu.",
+        "Pentru vânzare la notar, de regulă se cere extras de autentificare, nu extras informativ simplu.",
+      ],
+      actions: [{ kind: "open_url", url: "https://epay.ancpi.ro/epay/", label: "ANCPI ePay" }],
+    },
+  },
   "anaf-declaration": {
     1: {
       mode: "online",
@@ -1523,12 +1919,14 @@ function enrichWorkflow(workflow: Workflow): Workflow {
 const WORKFLOWS: Workflow[] = RAW_WORKFLOWS.map((raw) => {
   const w = enrichWorkflow(raw);
   const src = WORKFLOW_SOURCES[w.id];
+  const references = WORKFLOW_REFERENCES[w.id];
   return src
     ? {
         ...w,
         dataSource: { authority: src.authority, url: src.url, verifiedAt: WORKFLOWS_LAST_REVIEWED },
+        references,
       }
-    : w;
+    : { ...w, references };
 });
 
 // ---------- Civic calendar data (real upcoming Romanian deadlines) ----------
@@ -1699,8 +2097,7 @@ export const govApi = {
     if (/(anaf|venit|declarat|fiscal|impozit|declarație unic|declaratie unica|spv)/.test(q))
       return find("anaf-declaration");
 
-    // Soft default: car registration is the highest-traffic workflow.
-    return WORKFLOWS[0];
+    return undefined;
   },
   /** Mock document explainer — fake OCR + plain-language summary */
   async explainDocument(_fileName: string): Promise<{

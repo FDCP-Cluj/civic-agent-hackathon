@@ -5,8 +5,9 @@
 // This is a draft template intended for the user to review with a notary
 // before signing. We print a clear "DRAFT" notice in the header.
 
-import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
+import { PDFDocument, rgb } from "pdf-lib";
 import type { VaultProfile } from "@/store";
+import { embedRomanianFonts } from "@/services/pdf/fonts";
 
 export type AntecontractInput = {
   vanzator: Partial<VaultProfile> & { fullName?: string };
@@ -27,26 +28,14 @@ export async function generateAntecontractPdf(input: AntecontractInput): Promise
   const page = pdf.addPage([595, 842]); // A4 portrait, points
   const width = page.getWidth();
   const height = page.getHeight();
-  const font = await pdf.embedFont(StandardFonts.Helvetica);
-  const bold = await pdf.embedFont(StandardFonts.HelveticaBold);
-
-  // Sanitize for WinAnsi: pdf-lib's standard fonts don't support Romanian
-  // diacritics. Strip them to ASCII so the PDF renders cleanly without
-  // tofu boxes. Real signing requires a notary anyway — they'll re-issue
-  // the final contract with full diacritics.
-  const ascii = (s: string) =>
-    s
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .replace(/ș|ş/gi, (m) => (m === m.toUpperCase() ? "S" : "s"))
-      .replace(/ț|ţ/gi, (m) => (m === m.toUpperCase() ? "T" : "t"));
+  const { regular: font, bold } = await embedRomanianFonts(pdf);
 
   const margin = 50;
   let y = height - margin;
   const lineHeight = 14;
 
   const text = (s: string, opts: { bold?: boolean; size?: number; indent?: number } = {}) => {
-    page.drawText(ascii(s), {
+    page.drawText(s, {
       x: margin + (opts.indent ?? 0),
       y,
       size: opts.size ?? 11,
@@ -73,53 +62,53 @@ export async function generateAntecontractPdf(input: AntecontractInput): Promise
   });
   y -= 40;
 
-  text("ANTECONTRACT DE VANZARE-CUMPARARE", { bold: true, size: 16 });
+  text("ANTECONTRACT DE VÂNZARE-CUMPĂRARE", { bold: true, size: 16 });
   text(`Generat de Civis · ${new Date().toLocaleDateString("ro-RO")}`, { size: 9 });
   y -= 6;
 
-  text("PARTI:", { bold: true });
-  text("VANZATOR:");
+  text("PĂRȚI:", { bold: true });
+  text("VÂNZĂTOR:");
   text(
-    `${input.vanzator.fullName ?? "[Nume vanzator]"}, CNP ${input.vanzator.cnp ?? "[CNP]"}, domiciliat in ${input.vanzator.address ?? "[adresa]"}.`,
+    `${input.vanzator.fullName ?? "[Nume vânzător]"}, CNP ${input.vanzator.cnp ?? "[CNP]"}, domiciliat în ${input.vanzator.address ?? "[adresă]"}.`,
     { indent: 12 },
   );
-  text("CUMPARATOR:");
+  text("CUMPĂRĂTOR:");
   text(
-    `${input.cumparator.fullName ?? "[Nume cumparator]"}, CNP ${input.cumparator.cnp ?? "[CNP]"}, domiciliat in ${input.cumparator.address ?? "[adresa]"}.`,
+    `${input.cumparator.fullName ?? "[Nume cumpărător]"}, CNP ${input.cumparator.cnp ?? "[CNP]"}, domiciliat în ${input.cumparator.address ?? "[adresă]"}.`,
     { indent: 12 },
   );
   y -= 6;
 
   text("OBIECTUL CONTRACTULUI:", { bold: true });
-  text(`Imobil ${input.imobil.tip ?? ""} situat in ${input.imobil.adresa}.`);
-  if (input.imobil.nrCadastral) text(`Numar cadastral: ${input.imobil.nrCadastral}.`);
-  if (input.imobil.suprafata) text(`Suprafata: ${input.imobil.suprafata}.`);
+  text(`Imobil ${input.imobil.tip ?? ""} situat în ${input.imobil.adresa}.`);
+  if (input.imobil.nrCadastral) text(`Număr cadastral: ${input.imobil.nrCadastral}.`);
+  if (input.imobil.suprafata) text(`Suprafață: ${input.imobil.suprafata}.`);
   y -= 6;
 
-  text("PRET SI MODALITATE DE PLATA:", { bold: true });
-  text(`Pretul vanzarii: ${input.pret}.`);
-  if (input.arvuna) text(`Arvuna achitata la semnarea prezentului antecontract: ${input.arvuna}.`);
+  text("PREȚ ȘI MODALITATE DE PLATĂ:", { bold: true });
+  text(`Prețul vânzării: ${input.pret}.`);
+  if (input.arvuna) text(`Arvuna achitată la semnarea prezentului antecontract: ${input.arvuna}.`);
   y -= 6;
 
   text("TERMEN:", { bold: true });
   text(
-    `Partile se obliga sa autentifice contractul de vanzare-cumpărare la notar pana la data de ${
+    `Părțile se obligă să autentifice contractul de vânzare-cumpărare la notar până la data de ${
       input.termenAutentificare ?? "[data]"
     }.`,
   );
   y -= 6;
 
   text("CLAUZE STANDARD:", { bold: true });
-  text("1. Vanzatorul declara ca imobilul nu este grevat de sarcini, ipoteci sau interdictii.");
-  text("2. In caz de neexecutare imputabila cumparatorului, acesta pierde arvuna.");
-  text("3. In caz de neexecutare imputabila vanzatorului, acesta restituie arvuna in dublu.");
-  text("4. Antecontractul poate fi notat in Cartea Funciara la cererea oricarei parti.");
+  text("1. Vânzătorul declară că imobilul nu este grevat de sarcini, ipoteci sau interdicții.");
+  text("2. În caz de neexecutare imputabilă cumpărătorului, acesta pierde arvuna.");
+  text("3. În caz de neexecutare imputabilă vânzătorului, acesta restituie arvuna în dublu.");
+  text("4. Antecontractul poate fi notat în Cartea Funciară la cererea oricărei părți.");
   y -= 16;
 
-  text("SEMNATURI:", { bold: true });
+  text("SEMNĂTURI:", { bold: true });
   y -= 14;
-  page.drawText("Vanzator: ____________________", { x: margin, y, size: 11, font });
-  page.drawText("Cumparator: ____________________", { x: margin + 280, y, size: 11, font });
+  page.drawText("Vânzător: ____________________", { x: margin, y, size: 11, font });
+  page.drawText("Cumpărător: ____________________", { x: margin + 280, y, size: 11, font });
   y -= 30;
   page.drawText(`Data: ${new Date().toLocaleDateString("ro-RO")}`, {
     x: margin,

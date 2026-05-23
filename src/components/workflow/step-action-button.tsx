@@ -43,8 +43,6 @@ import { findInstitution, localityFromAddress } from "@/services/findInstitution
 import { useChatUi, useVault } from "@/store";
 import type { StepAction } from "@/services/govApiMock";
 import { toast } from "sonner";
-import { downloadPdf, generateAntecontractPdf } from "@/services/pdf/antecontract";
-import { generateDeclaratiePfaPdf } from "@/services/pdf/declaratiePfa";
 import { explainStepWithRag } from "@/services/rag";
 import { tipizatulBrowseUrl, tipizatulProcedureUrl } from "@/services/tipizatul";
 
@@ -305,6 +303,8 @@ export function StepActionButton({ action, workflowId, stepKey, stepTitle, stepI
           onClick={async () => {
             try {
               if (action.template === "antecontract") {
+                const { downloadPdf, generateAntecontractPdf } =
+                  await import("@/services/pdf/antecontract");
                 const bytes = await generateAntecontractPdf({
                   vanzator: profile,
                   cumparator: {},
@@ -318,6 +318,10 @@ export function StepActionButton({ action, workflowId, stepKey, stepTitle, stepI
                 return;
               }
               if (action.template === "declaratie_pfa") {
+                const [{ generateDeclaratiePfaPdf }, { downloadPdf }] = await Promise.all([
+                  import("@/services/pdf/declaratiePfa"),
+                  import("@/services/pdf/antecontract"),
+                ]);
                 const bytes = await generateDeclaratiePfaPdf({
                   profile,
                   descriereActivitate: undefined,
@@ -345,7 +349,9 @@ export function StepActionButton({ action, workflowId, stepKey, stepTitle, stepI
     case "tipizatul":
       return (
         <ActionLink
-          href={action.procedureId ? tipizatulProcedureUrl(action.procedureId) : tipizatulBrowseUrl()}
+          href={
+            action.procedureId ? tipizatulProcedureUrl(action.procedureId) : tipizatulBrowseUrl()
+          }
           icon={FileText}
         >
           {action.label}

@@ -3,6 +3,7 @@ import {
   Home,
   FolderLock,
   ListChecks,
+  MessageCircle,
   ScanLine,
   Settings,
   ShieldCheck,
@@ -24,6 +25,7 @@ const NAV_ITEMS = [
   { to: "/vault", label: "Seif", icon: FolderLock },
   { to: "/tasks", label: "Sarcini", icon: ListChecks },
   { to: "/scan", label: "Scanare", icon: ScanLine },
+  { to: "/chat", label: "Chat", icon: MessageCircle },
   { to: "/settings", label: "Setări", icon: Settings },
 ] as const;
 

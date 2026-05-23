@@ -17,14 +17,9 @@ import {
 } from "@google/genai";
 import type { Workflow } from "./govApiMock";
 import type { VaultProfile } from "@/store";
+import { getGeminiApiKey, isApiKeyConfigured } from "@/services/aiConfig";
 
 const MODEL = "gemini-2.5-flash";
-
-const API_KEY = import.meta.env.VITE_GEMINI_API_KEY as string | undefined;
-
-export function isApiKeyConfigured(): boolean {
-  return typeof API_KEY === "string" && API_KEY.trim().length > 0;
-}
 
 // ---------- Tool declarations (function calling) ----------
 
@@ -107,7 +102,12 @@ function buildTools(workflows: Workflow[]): FunctionDeclaration[] {
 
 function buildSystemInstruction(profile: VaultProfile, workflows: Workflow[]): string {
   const knownName = profile.fullName?.trim();
-  const knownAddress = profile.address?.trim();
+  const knownFirstName = knownName?.split(/\s+/)[0];
+  const knownLocality = profile.address
+    ?.split(",")
+    .map((s) => s.trim())
+    .filter(Boolean)
+    .pop();
   const cnpHint = profile.cnp ? `${profile.cnp.slice(0, 3)}*** (mascat)` : "necompletat";
 
   const catalog = workflows
@@ -123,16 +123,14 @@ PERSONA:
 - Nu inventezi instituții, taxe sau termene. Dacă nu ești sigur, recunoști.
 
 CONTEXT DESPRE UTILIZATOR (din seiful local, nu de la server):
-- Nume: ${knownName || "(necompletat — nu cere CNP-ul în chat)"}
+- Prenume: ${knownFirstName || "(necompletat — nu cere CNP-ul în chat)"}
 - CNP: ${cnpHint}
-- Adresă: ${knownAddress || "(necompletată)"}
-- Email: ${profile.email || "(necompletat)"}
-- Telefon: ${profile.phone || "(necompletat)"}
+- Localitate: ${knownLocality || "(necompletată)"}
 
 REGULI DE CONFIDENȚIALITATE (CRITIC):
 - NU cere niciodată utilizatorului să trimită copii ale actelor în chat.
 - NU cere CNP-ul complet în chat. Datele personale rămân pe dispozitivul lui.
-- Dacă utilizatorul completează datele în seiful local, le poți folosi pentru a personaliza răspunsul ("Pentru tine, ${knownName || "[nume]"}, pașii sunt...").
+- Dacă utilizatorul completează datele în seiful local, le poți folosi pentru a personaliza răspunsul fără a repeta date sensibile ("Pentru tine, ${knownFirstName || "[prenume]"}, pașii sunt...").
 
 RUTARE CĂTRE GHIDURI (FOARTE IMPORTANT):
 Ai acces la un catalog de ghiduri pas-cu-pas deja construite. Când întrebarea utilizatorului corespunde unuia dintre aceste ghiduri, OBLIGATORIU:
@@ -209,14 +207,16 @@ export function createChatSession(
 
   const { withGoogleSearch = true } = options;
 
-  const ai = new GoogleGenAI({ apiKey: API_KEY! });
+  const ai = new GoogleGenAI({ apiKey: getGeminiApiKey()! });
 
   const tools: Array<{
-    googleSearch?: Record<string, never>;
+    googleSearch?: { searchTypes?: { webSearch?: Record<string, never> } };
     functionDeclarations?: FunctionDeclaration[];
   }> = [];
   if (withGoogleSearch) {
-    tools.push({ googleSearch: {} });
+    // The JS SDK uses camelCase, then serializes this as the API's
+    // `google_search` tool with web search enabled.
+    tools.push({ googleSearch: { searchTypes: { webSearch: {} } } });
   }
   tools.push({ functionDeclarations: buildTools(workflows) });
 
@@ -388,5 +388,57 @@ export function extractWorkflowIdFromText(text: string, knownIds: string[]): str
   for (const id of knownIds) {
     if (lowered.includes(id)) return id;
   }
+
+  const keywordFallbacks: Array<{ id: string; patterns: RegExp[] }> = [
+    {
+      id: "id-change-relocation",
+      patterns: [
+        /\b(buletin|carte de identitate|act de identitate|ci)\b/i,
+        /(pierdut|furat|expirat|schimb|nou|domicili|mutat|adresa)/i,
+      ],
+    },
+    {
+      id: "police-clearance",
+      patterns: [/\b(cazier|clearance|antecedente|poli[tț]ie)\b/i],
+    },
+    {
+      id: "foreign-license-exchange",
+      patterns: [/(preschimb|schimb).*(permis).*str[ăa]in/i, /foreign.*license/i],
+    },
+    {
+      id: "birth-certificate",
+      patterns: [/(certificat.*na[sș]tere|nou.?n[ăa]scut|maternitate|birth certificate)/i],
+    },
+    {
+      id: "civil-marriage",
+      patterns: [/(c[ăa]s[ăa]tor|nunt[ăa]|mire|mireas[ăa]|marriage)/i],
+    },
+    {
+      id: "child-state-allowance",
+      patterns: [/(aloca[tț]ie|bani.*copil|copil.*bani|child.*allowance)/i],
+    },
+    {
+      id: "building-permit",
+      patterns: [/(autoriza[tț]ie.*constru|construire|construit.*cas[ăa]|building.*permit)/i],
+    },
+    {
+      id: "cadastral-registration",
+      patterns: [/(intabulare|cadastr|carte.*funciar|ancpi|ocpi)/i],
+    },
+    {
+      id: "pfa-registration",
+      patterns: [/(\bpfa\b|persoan[ăa].*fizic[ăa].*autoriz|onrc|caen)/i],
+    },
+    {
+      id: "anaf-declaration",
+      patterns: [/(anaf|declara[tț]ie unic[ăa]|impozit|spv|fiscal)/i],
+    },
+  ];
+
+  for (const fallback of keywordFallbacks) {
+    if (!knownIds.includes(fallback.id)) continue;
+    if (fallback.patterns.every((pattern) => pattern.test(text))) return fallback.id;
+  }
+
   return null;
 }

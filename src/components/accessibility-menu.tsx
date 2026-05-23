@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Accessibility, Eye, Contrast, Type, Volume2, Languages } from "lucide-react";
+import { Accessibility, Eye, Contrast, Type, Volume2 } from "lucide-react";
 
 import {
   Sheet,
@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/sheet";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
-import { useAccessibility, useSettings, type AppLanguage } from "@/store";
+import { useAccessibility, useSettings } from "@/store";
 import { useReadAloud } from "@/hooks/use-read-aloud";
 
 type Props = {
@@ -20,12 +20,6 @@ type Props = {
 
 const DYSLEXIC_FONT_HREF =
   "https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap";
-
-const LANGUAGES: { id: AppLanguage; label: string; native: string }[] = [
-  { id: "ro", label: "Română", native: "RO" },
-  { id: "en", label: "English", native: "EN" },
-  { id: "hu", label: "Magyar", native: "HU" },
-];
 
 /**
  * Ensures the Atkinson Hyperlegible stylesheet is loaded exactly once when the
@@ -69,16 +63,8 @@ export function AccessibilityClassSync() {
 
 export function AccessibilityMenu({ open, onOpenChange }: Props) {
   const { seniorMode, toggleSenior } = useSettings();
-  const {
-    highContrast,
-    setHighContrast,
-    dyslexicFont,
-    setDyslexicFont,
-    readAloud,
-    setReadAloud,
-    language,
-    setLanguage,
-  } = useAccessibility();
+  const { highContrast, setHighContrast, dyslexicFont, setDyslexicFont, readAloud, setReadAloud } =
+    useAccessibility();
 
   const hasSpeech = typeof window !== "undefined" && "speechSynthesis" in window;
 
@@ -133,42 +119,6 @@ export function AccessibilityMenu({ open, onOpenChange }: Props) {
             disabled={!hasSpeech}
             onChange={setReadAloud}
           />
-        </div>
-
-        <div className="pt-4 border-t border-border">
-          <div className="flex items-center gap-2 mb-2.5">
-            <Languages className="size-4 text-muted-foreground" aria-hidden />
-            <span className="text-sm font-medium">Limba</span>
-            <span className="ml-auto text-[10px] uppercase tracking-wider text-muted-foreground">
-              Beta
-            </span>
-          </div>
-          <div
-            className="grid grid-cols-3 gap-2 p-1 bg-muted rounded-lg"
-            role="radiogroup"
-            aria-label="Selectează limba"
-          >
-            {LANGUAGES.map((l) => (
-              <button
-                key={l.id}
-                role="radio"
-                aria-checked={language === l.id}
-                onClick={() => setLanguage(l.id)}
-                className={cn(
-                  "py-2 rounded-md text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-                  language === l.id
-                    ? "bg-card text-foreground shadow-soft"
-                    : "text-muted-foreground hover:text-foreground",
-                )}
-              >
-                <div className="font-semibold">{l.native}</div>
-                <div className="text-[10px] opacity-70">{l.label}</div>
-              </button>
-            ))}
-          </div>
-          <p className="mt-2 text-[11px] text-muted-foreground leading-relaxed">
-            Interfața completă în EN/HU va fi disponibilă în următoarea versiune pilot.
-          </p>
         </div>
 
         <div className="mt-5 pt-4 border-t border-border text-[11px] text-muted-foreground leading-relaxed">

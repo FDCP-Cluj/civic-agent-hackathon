@@ -49,7 +49,15 @@
   --shadow-card: 0 1px 3px oklch(0 0 0 / 0.05), 0 8px 24px oklch(0.4 0.1 250 / 0.08);
 
   --gradient-hero: linear-gradient(135deg, oklch(0.42 0.18 258) 0%, oklch(0.55 0.15 240) 100%);
-  --gradient-tricolor: linear-gradient(90deg, var(--ro-blue) 0%, var(--ro-blue) 33%, var(--ro-yellow) 33%, var(--ro-yellow) 66%, var(--ro-red) 66%, var(--ro-red) 100%);
+  --gradient-tricolor: linear-gradient(
+    90deg,
+    var(--ro-blue) 0%,
+    var(--ro-blue) 33%,
+    var(--ro-yellow) 33%,
+    var(--ro-yellow) 66%,
+    var(--ro-red) 66%,
+    var(--ro-red) 100%
+  );
 }
 
 :root {
@@ -180,7 +188,11 @@
 /* Dyslexic Font — Atkinson Hyperlegible (https://brailleinstitute.org/freefont)
    Font file injected lazily by the AccessibilityMenu when this toggle is on. */
 .dyslexic-font {
-  font-family: "Atkinson Hyperlegible", system-ui, -apple-system, sans-serif;
+  font-family:
+    "Atkinson Hyperlegible",
+    system-ui,
+    -apple-system,
+    sans-serif;
   letter-spacing: 0.01em;
   line-height: 1.6;
 }
@@ -224,16 +236,31 @@
   * {
     border-color: var(--color-border);
   }
-  html, body {
+  html,
+  body {
     background-color: var(--color-background);
     color: var(--color-foreground);
     -webkit-font-smoothing: antialiased;
   }
+  html.login-overscroll-flag,
+  body.login-overscroll-flag {
+    background-color: var(--ro-blue);
+    background-image: var(--gradient-tricolor);
+    background-attachment: fixed;
+  }
 }
 
 @layer utilities {
-  .bg-gradient-hero { background-image: var(--gradient-hero); }
-  .bg-tricolor { background-image: var(--gradient-tricolor); }
-  .shadow-soft { box-shadow: var(--shadow-soft); }
-  .shadow-card { box-shadow: var(--shadow-card); }
+  .bg-gradient-hero {
+    background-image: var(--gradient-hero);
+  }
+  .bg-tricolor {
+    background-image: var(--gradient-tricolor);
+  }
+  .shadow-soft {
+    box-shadow: var(--shadow-soft);
+  }
+  .shadow-card {
+    box-shadow: var(--shadow-card);
+  }
 }
