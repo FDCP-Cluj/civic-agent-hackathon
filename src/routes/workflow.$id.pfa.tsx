@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { PageHeader } from "@/components/dashboard/page-header";
 import { useVault } from "@/store";
 import { generateDeclaratiePfaPdf } from "@/services/pdf/declaratiePfa";
 import { downloadPdf } from "@/services/pdf/antecontract";
@@ -79,25 +80,19 @@ function PfaWizardPage() {
 
   return (
     <AppShell>
-      <Link
-        to="/workflow/$id"
-        params={{ id: "pfa-registration" }}
-        className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground mb-4"
+      <PageHeader
+        title="Înființare PFA — ghid asistat"
+        description="Flux bazat pe varianta detaliată din `civic-agent-buian`, adaptat în UI-ul curent."
       >
-        <ArrowLeft className="size-4" /> Înapoi
-      </Link>
+        <Button asChild variant="outline" size="sm">
+          <Link to="/workflow/$id" params={{ id: "pfa-registration" }}>
+            <ArrowLeft className="size-4" />
+            Înapoi
+          </Link>
+        </Button>
+      </PageHeader>
 
-      <Card className="p-5 mb-4 bg-gradient-to-br from-card to-accent/40">
-        <div className="text-sm uppercase tracking-wider text-primary font-semibold mb-2">
-          Wizard PFA (feature-rich)
-        </div>
-        <h1 className="text-xl font-semibold">Înființare PFA — ghid asistat</h1>
-        <p className="text-sm text-muted-foreground mt-1.5">
-          Flux bazat pe varianta detaliată din `civic-agent-buian`, adaptat în UI-ul curent.
-        </p>
-      </Card>
-
-      <Card className="p-4 mb-4">
+      <Card className="mb-4 mt-4 p-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div className="space-y-1.5 sm:col-span-2">
             <Label>Descrie activitatea ta</Label>

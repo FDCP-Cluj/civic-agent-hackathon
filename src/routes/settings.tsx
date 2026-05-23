@@ -16,7 +16,7 @@ function Settings() {
   return (
     <AppShell>
       <PageHeader title="Setări" description={email ?? "Cont conectat"}>
-        <div className="inline-flex items-center gap-2 text-xs text-muted-foreground">
+        <div className="inline-flex items-center gap-2 text-sm text-muted-foreground">
           <SettingsIcon className="size-4 text-primary" />
           Preferințe
         </div>
@@ -33,7 +33,7 @@ function Settings() {
           </div>
           <div className="flex-1">
             <div className="text-sm font-medium">Confidențialitate</div>
-            <p className="text-xs text-muted-foreground mt-1">
+            <p className="mt-1 text-sm text-muted-foreground">
               Documentele tale sunt stocate doar local. Civis nu are acces la actele tale.
             </p>
           </div>
@@ -52,7 +52,7 @@ function Settings() {
                 Deschide
               </Button>
             </div>
-            <p className="text-xs text-muted-foreground mt-1">
+            <p className="mt-1 text-sm text-muted-foreground">
               Scanează un document oficial și primește un rezumat în cuvinte simple.
             </p>
           </div>

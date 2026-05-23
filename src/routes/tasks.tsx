@@ -63,12 +63,11 @@ function Tasks() {
           />
         ) : (
           <div className="space-y-3">
-            {tasks.map((t, i) => (
+            {tasks.map((t) => (
               <TaskCard
                 key={t.id}
                 task={t}
                 workflow={workflows[t.workflowId]}
-                animationDelay={`${i * 60}ms`}
                 onRemove={() => remove(t.id)}
                 onToggleStep={(stepOrder) => toggleStep(t.id, stepOrder)}
               />
@@ -83,13 +82,11 @@ function Tasks() {
 function TaskCard({
   task,
   workflow,
-  animationDelay,
   onRemove,
   onToggleStep,
 }: {
   task: ActiveTask;
   workflow: Workflow | undefined;
-  animationDelay: string;
   onRemove: () => void;
   onToggleStep: (stepOrder: number) => void;
 }) {
@@ -98,10 +95,7 @@ function TaskCard({
 
   return (
     <Card
-      className={`p-4 animate-[fade-in_0.3s_ease-out] ${
-        done ? "border-success/30 bg-success/5" : ""
-      }`}
-      style={{ animationDelay, animationFillMode: "both" }}
+      className={`p-4 ${done ? "border-success/30 bg-success/5" : ""}`}
     >
       <div className="flex items-start justify-between gap-3 mb-3">
         <div className="min-w-0 flex-1">

@@ -1,11 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AlertCircle, CheckCircle2, FolderLock, ShieldCheck } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
-import { useProfileCompleteness, useVault } from "@/store";
+import { useProfileCompleteness, useTasks, useVault } from "@/store";
 import { VaultUploadCard } from "@/components/vault-upload-card";
 import {
   validateAddress,
@@ -24,9 +24,15 @@ export const Route = createFileRoute("/vault")({ component: Vault });
 function Vault() {
   const { profile, updateProfile } = useVault();
   const docs = useVault((s) => s.documents);
+  const tasks = useTasks((s) => s.tasks);
   const completeness = useProfileCompleteness();
   const completenessPct = Math.round(completeness * 100);
   const ragEnabled = isSupabaseConfigured();
+  const localitate = profile.address
+    ?.split(",")
+    .map((s) => s.trim())
+    .filter(Boolean)
+    .pop();
 
   const checks: Record<string, FieldResult> = {
     fullName: validateFullName(profile.fullName),
@@ -47,7 +53,7 @@ function Vault() {
       >
         <div className="inline-flex items-center gap-2 text-sm text-muted-foreground">
           <FolderLock className="size-4 text-primary" />
-          Vault local
+          Vault local · {ragEnabled ? "RAG activ" : "fallback local"}
         </div>
       </PageHeader>
 
@@ -59,20 +65,44 @@ function Vault() {
         </p>
       </div>
 
-      <div className="grid grid-cols-3 gap-2 mb-5">
-        <Card className="p-3 text-center">
-          <div className="text-xs uppercase tracking-wider text-muted-foreground">Profil</div>
-          <div className="text-lg font-semibold">{completenessPct}%</div>
+      <section className="mb-5 mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4" aria-label="Statistici seif">
+        <Card className="border-border/80 shadow-none">
+          <CardHeader className="pb-1.5">
+            <CardTitle className="text-base font-medium text-muted-foreground">Sarcini active</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-3xl font-semibold tracking-tight">{tasks.length}</p>
+            <p className="text-xs text-muted-foreground">Proceduri în desfășurare</p>
+          </CardContent>
         </Card>
-        <Card className="p-3 text-center">
-          <div className="text-xs uppercase tracking-wider text-muted-foreground">Documente</div>
-          <div className="text-lg font-semibold">{docs.length}</div>
+        <Card className="border-border/80 shadow-none">
+          <CardHeader className="pb-1.5">
+            <CardTitle className="text-base font-medium text-muted-foreground">Documente</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-3xl font-semibold tracking-tight">{docs.length}</p>
+            <p className="text-xs text-muted-foreground">Fișiere în seif</p>
+          </CardContent>
         </Card>
-        <Card className="p-3 text-center">
-          <div className="text-xs uppercase tracking-wider text-muted-foreground">RAG</div>
-          <div className="text-sm font-semibold">{ragEnabled ? "activ" : "fallback local"}</div>
+        <Card className="border-border/80 shadow-none">
+          <CardHeader className="pb-1.5">
+            <CardTitle className="text-base font-medium text-muted-foreground">Profil</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-3xl font-semibold tracking-tight">{profile.fullName ? "OK" : "—"}</p>
+            <p className="text-xs text-muted-foreground">{completenessPct}% complet</p>
+          </CardContent>
         </Card>
-      </div>
+        <Card className="border-border/80 shadow-none">
+          <CardHeader className="pb-1.5">
+            <CardTitle className="text-base font-medium text-muted-foreground">Localitate</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="truncate text-lg font-semibold">{localitate ?? "Nesetată"}</p>
+            <p className="text-xs text-muted-foreground">Extrasă din adresă</p>
+          </CardContent>
+        </Card>
+      </section>
 
       <Card className="p-5 mb-5">
         <div className="flex items-center justify-between mb-1.5">
@@ -124,7 +154,7 @@ function Vault() {
           />
         </div>
         {allValid && (
-          <div className="mt-3 flex items-center gap-1.5 text-sm text-success animate-[fade-in_0.3s_ease-out]">
+          <div className="mt-3 flex items-center gap-1.5 text-sm text-success">
             <CheckCircle2 className="size-3.5" /> Profil complet și validat — autofill activat.
           </div>
         )}
