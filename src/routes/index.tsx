@@ -404,7 +404,6 @@ function Dashboard() {
           </CardContent>
         </Card>
       </div>
-
     </AppShell>
   );
 }

@@ -65,10 +65,15 @@ function Vault() {
         </p>
       </div>
 
-      <section className="mb-5 mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4" aria-label="Statistici seif">
+      <section
+        className="mb-5 mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4"
+        aria-label="Statistici seif"
+      >
         <Card className="border-border/80 shadow-none">
           <CardHeader className="pb-1.5">
-            <CardTitle className="text-base font-medium text-muted-foreground">Sarcini active</CardTitle>
+            <CardTitle className="text-base font-medium text-muted-foreground">
+              Sarcini active
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-3xl font-semibold tracking-tight">{tasks.length}</p>
@@ -95,7 +100,9 @@ function Vault() {
         </Card>
         <Card className="border-border/80 shadow-none">
           <CardHeader className="pb-1.5">
-            <CardTitle className="text-base font-medium text-muted-foreground">Localitate</CardTitle>
+            <CardTitle className="text-base font-medium text-muted-foreground">
+              Localitate
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <p className="truncate text-lg font-semibold">{localitate ?? "Nesetată"}</p>
