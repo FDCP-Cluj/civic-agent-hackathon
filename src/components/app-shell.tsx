@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { AccessibilityClassSync, AccessibilityMenu } from "@/components/accessibility-menu";
 import { isApiKeyConfigured } from "@/services/aiConfig";
 import { AppSidebar } from "@/components/dashboard/app-sidebar";
+import { Button } from "@/components/ui/button";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 
 const ActeAIChat = lazy(() =>
@@ -57,25 +58,29 @@ export function AppShell({ children, showOfficialFooter = false }: AppShellProps
                 <div className="text-sm font-semibold">ActeAI</div>
               </Link>
               <div className="flex items-center gap-1.5">
-                <button
+                <Button
                   type="button"
+                  size="icon"
+                  variant="ghost"
                   onClick={() => setA11yOpen(true)}
                   aria-label="Setări de accesibilitate"
-                  className="inline-flex size-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-accent/50 hover:text-foreground"
+                  className="size-8 hover:bg-accent/50"
                 >
                   <Accessibility className="size-4" />
-                </button>
-                <button
+                </Button>
+                <Button
                   type="button"
+                  size="icon"
+                  variant="ghost"
                   onClick={() => {
                     logout();
                     navigate({ to: "/login" });
                   }}
                   aria-label="Deconectare"
-                  className="inline-flex size-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-accent/50 hover:text-foreground"
+                  className="size-8 hover:bg-accent/50"
                 >
                   <LogOut className="size-4" />
-                </button>
+                </Button>
               </div>
             </header>
 
@@ -104,30 +109,34 @@ export function AppShell({ children, showOfficialFooter = false }: AppShellProps
             </nav>
 
             {/* Desktop top bar */}
-            <div className="hidden items-center justify-between border-b border-border/80 px-6 py-3 md:flex">
+            <div className="hidden items-center justify-between border-b border-border/80 bg-sidebar px-6 py-3 md:flex">
               <div className="text-sm text-muted-foreground">
                 {email ? `Conectat ca ${email}` : "Cont conectat"}
               </div>
               <div className="flex items-center gap-2">
-                <button
+                <Button
                   type="button"
+                  variant="outline"
+                  size="sm"
                   onClick={() => setA11yOpen(true)}
                   aria-label="Setări de accesibilitate"
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-sm text-muted-foreground hover:bg-accent/50 hover:text-foreground"
+                  className="gap-1.5 hover:bg-accent/50"
                 >
                   <Accessibility className="size-3.5" /> Accesibilitate
-                </button>
-                <button
+                </Button>
+                <Button
                   type="button"
+                  variant="outline"
+                  size="sm"
                   onClick={() => {
                     logout();
                     navigate({ to: "/login" });
                   }}
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-sm text-muted-foreground hover:bg-accent/50 hover:text-foreground"
+                  className="gap-1.5 hover:bg-accent/50"
                 >
                   <LogOut className="size-3.5" />
                   Deconectare
-                </button>
+                </Button>
               </div>
             </div>
 
