@@ -37,22 +37,26 @@ import { useChatUi, useVault } from "@/store";
 import {
   createChatSession,
   extractWorkflowIdFromText,
-  isApiKeyConfigured,
   streamChatMessage,
   type ChatSession,
   type GroundingSource,
 } from "@/services/geminiChat";
+import { isApiKeyConfigured } from "@/services/aiConfig";
 import { govApi, type Workflow } from "@/services/govApiMock";
+import {
+  CHAT_HISTORY_EVENT,
+  clearChatHistory,
+  getChatHistoryEventSource,
+  loadChatHistory,
+  notifyChatHistoryChanged,
+  saveChatHistory,
+  type ChatWorkflowCta,
+  type PersistedChatMessage,
+} from "@/services/chatHistory";
 import { useSpeechRecognition } from "@/hooks/use-speech-recognition";
 import { lookupCompanyByCui, type AnafLookupResult } from "@/services/anaf";
 import { findCaen } from "@/services/caen";
 import { suggestCaenWithRag, type RagCaenSuggestion } from "@/services/rag";
-
-type WorkflowCta = {
-  id: string;
-  title: string;
-  reason?: string;
-};
 
 type AnafCard = {
   cui: string;
@@ -70,42 +74,23 @@ type Message = {
   id: string;
   role: "user" | "assistant";
   text: string;
+  createdAt?: string;
   streaming?: boolean;
-  workflowCta?: WorkflowCta;
+  workflowCta?: ChatWorkflowCta;
   sources?: GroundingSource[];
   anaf?: AnafCard;
   caen?: CaenCard;
 };
 
-/** Only persists the conversational substance — never the live tool cards. */
-type PersistedMessage = {
-  id: string;
-  role: "user" | "assistant";
-  text: string;
-  workflowCta?: WorkflowCta;
-  sources?: GroundingSource[];
-};
-
-const CHAT_STORAGE_KEY = "civis-chat-history";
-const MAX_PERSISTED_MESSAGES = 60;
-
 function loadPersistedMessages(): Message[] {
-  if (typeof localStorage === "undefined") return [];
-  try {
-    const raw = localStorage.getItem(CHAT_STORAGE_KEY);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw) as unknown;
-    if (!Array.isArray(parsed)) return [];
-    return (parsed as PersistedMessage[]).slice(-MAX_PERSISTED_MESSAGES).map((p) => ({
-      id: p.id ?? crypto.randomUUID(),
-      role: p.role === "user" ? "user" : "assistant",
-      text: String(p.text ?? ""),
-      workflowCta: p.workflowCta,
-      sources: p.sources,
-    }));
-  } catch {
-    return [];
-  }
+  return loadChatHistory().map((p) => ({
+    id: p.id,
+    role: p.role,
+    text: p.text,
+    createdAt: p.createdAt,
+    workflowCta: p.workflowCta,
+    sources: p.sources,
+  }));
 }
 
 export function CivisChat() {
@@ -138,24 +123,41 @@ export function CivisChat() {
       const slim = messages
         .filter((m) => !m.streaming)
         .map(
-          (m): PersistedMessage => ({
+          (m): PersistedChatMessage => ({
             id: m.id,
             role: m.role,
             text: m.text,
+            createdAt: m.createdAt,
             workflowCta: m.workflowCta,
             sources: m.sources,
           }),
         );
-      localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(slim));
+      saveChatHistory(slim);
+      notifyChatHistoryChanged("drawer");
     } catch {
       // Quota or privacy-mode failure — silent.
     }
   }, [messages]);
 
+  useEffect(() => {
+    const onHistoryChanged = (event: Event) => {
+      if (getChatHistoryEventSource(event) === "drawer") return;
+      const next = loadPersistedMessages();
+      setMessages(next);
+      if (next.length === 0) {
+        sessionRef.current = null;
+        sessionKeyRef.current = "";
+      }
+    };
+    window.addEventListener(CHAT_HISTORY_EVENT, onHistoryChanged);
+    return () => window.removeEventListener(CHAT_HISTORY_EVENT, onHistoryChanged);
+  }, []);
+
   const clearChat = () => {
     setMessages([]);
     try {
-      localStorage.removeItem(CHAT_STORAGE_KEY);
+      clearChatHistory();
+      notifyChatHistoryChanged("drawer");
     } catch {
       // ignore
     }
@@ -248,13 +250,29 @@ export function CivisChat() {
         id: crypto.randomUUID(),
         role: "user",
         text: trimmed,
+        createdAt: new Date().toISOString(),
       };
       const assistantId = crypto.randomUUID();
+      const predictedWorkflowId = extractWorkflowIdFromText(
+        trimmed,
+        workflows.map((w) => w.id),
+      );
+      const predictedWorkflow = predictedWorkflowId
+        ? workflows.find((w) => w.id === predictedWorkflowId)
+        : null;
       const assistantMsg: Message = {
         id: assistantId,
         role: "assistant",
         text: "",
+        createdAt: new Date().toISOString(),
         streaming: true,
+        workflowCta: predictedWorkflow
+          ? {
+              id: predictedWorkflow.id,
+              title: predictedWorkflow.title,
+              reason: "Am găsit ghidul potrivit pentru situația ta.",
+            }
+          : undefined,
       };
       setMessages((m) => [...m, userMsg, assistantMsg]);
       setInput("");
@@ -391,9 +409,7 @@ export function CivisChat() {
           // Reset assistant bubble text and retry the same user message.
           setMessages((m) =>
             m.map((mm) =>
-              mm.id === assistantId
-                ? { ...mm, text: "", streaming: true, sources: undefined, workflowCta: undefined }
-                : mm,
+              mm.id === assistantId ? { ...mm, text: "", streaming: true, sources: undefined } : mm,
             ),
           );
           toast.info("Căutarea web e dezactivată pe această cheie API. Continui fără surse live.");
@@ -962,7 +978,7 @@ function ApiKeyMissingState() {
       <h3 className="text-base font-semibold mb-1.5">Cheie API Gemini lipsă</h3>
       <p className="text-sm text-muted-foreground max-w-xs leading-relaxed mb-4">
         Adaugă <code className="text-xs bg-muted px-1.5 py-0.5 rounded">VITE_GEMINI_API_KEY</code>{" "}
-        în fișierul <code className="text-xs bg-muted px-1.5 py-0.5 rounded">.env.local</code> și
+        în fișierul <code className="text-xs bg-muted px-1.5 py-0.5 rounded">.env</code> și
         repornește serverul de dezvoltare.
       </p>
       <a

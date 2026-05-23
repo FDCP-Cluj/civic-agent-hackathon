@@ -1,7 +1,7 @@
 // Real Romanian government API — ANAF VAT registry / "Persoane impozabile".
 //
 // Endpoint:
-//   POST https://webservicesp.anaf.ro/PlatitorTvaRest/api/v9/ws/tva
+//   POST https://webservicesp.anaf.ro/api/PlatitorTvaRest/v9/tva
 //   Content-Type: application/json
 //   Body: [{ "cui": <number>, "data": "YYYY-MM-DD" }]
 //
@@ -14,7 +14,7 @@
 // works directly from the browser. If a network policy ever blocks it, we
 // fall back to the public corsproxy.io relay (best-effort, no key, free).
 
-const ANAF_TVA_URL = "https://webservicesp.anaf.ro/PlatitorTvaRest/api/v9/ws/tva";
+const ANAF_TVA_URL = "https://webservicesp.anaf.ro/api/PlatitorTvaRest/v9/tva";
 const CORS_FALLBACK = "https://corsproxy.io/?";
 
 export type AnafCompany = {
@@ -51,7 +51,7 @@ function todayIso(): string {
 }
 
 type AnafResponse = {
-  cod: number;
+  cod?: number;
   message?: string;
   found?: Array<Record<string, unknown>>;
   notFound?: number[];
@@ -102,7 +102,7 @@ export async function lookupCompanyByCui(cui: string): Promise<AnafLookupResult>
     }
   }
 
-  if (json.cod !== 200) {
+  if (typeof json.cod === "number" && json.cod !== 200) {
     return {
       ok: false,
       reason: "network",

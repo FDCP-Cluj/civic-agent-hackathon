@@ -57,7 +57,9 @@ function ServicesPage() {
     return workflows.filter((w) => {
       if (filter !== "all" && w.category !== filter) return false;
       if (!q) return true;
-      return w.title.toLowerCase().includes(q) || w.summary.toLowerCase().includes(q) || w.id.includes(q);
+      return (
+        w.title.toLowerCase().includes(q) || w.summary.toLowerCase().includes(q) || w.id.includes(q)
+      );
     });
   }, [workflows, filter, query]);
 
@@ -128,7 +130,9 @@ function ServicesPage() {
 
       <div className="mt-6 space-y-5">
         {filtered.length === 0 ? (
-          <div className="py-10 text-center text-sm text-muted-foreground">Niciun rezultat pentru „{query}”.</div>
+          <div className="py-10 text-center text-sm text-muted-foreground">
+            Niciun rezultat pentru „{query}”.
+          </div>
         ) : null}
         {grouped.map((group) => {
           const meta = CATEGORY_META[group.category];
@@ -198,7 +202,9 @@ function WorkflowRow({ workflow, onClick }: { workflow: Workflow; onClick: () =>
         </div>
         <div className="min-w-0 flex-1">
           <div className="mb-0.5 text-sm font-semibold tracking-tight">{workflow.title}</div>
-          <p className="mb-2 line-clamp-2 text-xs leading-relaxed text-muted-foreground">{workflow.summary}</p>
+          <p className="mb-2 line-clamp-2 text-xs leading-relaxed text-muted-foreground">
+            {workflow.summary}
+          </p>
           <div className="flex items-center gap-3 text-xs text-muted-foreground">
             <span className="inline-flex items-center gap-1">
               <Clock className="size-3" /> {timeLabel}

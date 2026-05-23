@@ -69,7 +69,7 @@ export function ServiceHealthStrip() {
         <h3 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
           Starea serviciilor publice
         </h3>
-        <span className="text-[10px] text-muted-foreground/70">· verificare live</span>
+        <span className="text-[10px] text-muted-foreground/70">· ping portal best-effort</span>
         <button
           type="button"
           onClick={refresh}
@@ -127,9 +127,11 @@ function ServiceChip({ health }: { health: ServiceHealth }) {
             {meta.label}
           </span>
         </div>
-        {health.note && (
-          <p className="text-xs text-muted-foreground leading-relaxed mb-3">{health.note}</p>
-        )}
+        <p className="text-xs text-muted-foreground leading-relaxed mb-3">
+          {health.note ? `${health.note} ` : ""}
+          Acesta este un ping tehnic best-effort al portalului, nu un monitor oficial al aplicației
+          interne.
+        </p>
         <div className="flex items-center justify-between gap-2 text-[11px] text-muted-foreground border-t border-border pt-2">
           <span className="font-mono">verificat {formatRelative(health.lastChecked)}</span>
           <a

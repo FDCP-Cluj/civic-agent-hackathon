@@ -15,8 +15,7 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
   }, [restoreSupabaseSession]);
   if (!hydrated) return null;
 
-  const isAuthRoute =
-    path === "/login" || path === "/verify" || path.startsWith("/auth/eidkit");
+  const isAuthRoute = path === "/login" || path === "/verify" || path.startsWith("/auth/eidkit");
   if (isAuthRoute) return <>{children}</>;
   if (pending2FA) return <Navigate to="/verify" />;
   if (!isAuthenticated) return <Navigate to="/login" />;

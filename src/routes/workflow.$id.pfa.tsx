@@ -8,8 +8,6 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/dashboard/page-header";
 import { useVault } from "@/store";
-import { generateDeclaratiePfaPdf } from "@/services/pdf/declaratiePfa";
-import { downloadPdf } from "@/services/pdf/antecontract";
 import { suggestCaenWithRag } from "@/services/rag";
 import { toast } from "sonner";
 
@@ -67,6 +65,10 @@ function PfaWizardPage() {
   };
 
   const handleGeneratePdf = async () => {
+    const [{ generateDeclaratiePfaPdf }, { downloadPdf }] = await Promise.all([
+      import("@/services/pdf/declaratiePfa"),
+      import("@/services/pdf/antecontract"),
+    ]);
     const bytes = await generateDeclaratiePfaPdf({
       profile,
       codCaen: caenCode || undefined,

@@ -8,7 +8,6 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/dashboard/page-header";
 import { useVault } from "@/store";
-import { downloadPdf, generateAntecontractPdf } from "@/services/pdf/antecontract";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/workflow/$id/antecontract")({
@@ -48,6 +47,7 @@ function AntecontractPage() {
       toast.error("Completează minim adresa imobilului și prețul.");
       return;
     }
+    const { downloadPdf, generateAntecontractPdf } = await import("@/services/pdf/antecontract");
     const bytes = await generateAntecontractPdf({
       vanzator: { ...profile, fullName: profile.fullName || undefined },
       cumparator: { fullName: buyerName || undefined, address: buyerAddress || undefined },

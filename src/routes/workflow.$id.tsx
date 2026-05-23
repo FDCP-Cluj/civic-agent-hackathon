@@ -37,7 +37,7 @@ export const Route = createFileRoute("/workflow/$id")({ component: WorkflowPage 
 
 function WorkflowPage() {
   const { id } = Route.useParams();
-  const [wf, setWf] = useState<Workflow | null>(null);
+  const [wf, setWf] = useState<Workflow | null | undefined>(undefined);
   const tasks = useTasks((s) => s.tasks);
   const startTask = useTasks((s) => s.startTask);
   const toggleStep = useTasks((s) => s.toggleStep);
@@ -48,10 +48,34 @@ function WorkflowPage() {
     govApi.getWorkflow(id).then((w) => setWf(w ?? null));
   }, [id]);
 
-  if (!wf) {
+  if (wf === undefined) {
     return (
       <AppShell>
         <div className="py-20 text-center text-sm text-muted-foreground">Se încarcă…</div>
+      </AppShell>
+    );
+  }
+
+  if (wf === null) {
+    return (
+      <AppShell>
+        <Card className="mx-auto max-w-lg p-6 text-center">
+          <div className="mx-auto mb-3 flex size-11 items-center justify-center rounded-xl bg-muted">
+            <Info className="size-5 text-muted-foreground" />
+          </div>
+          <h1 className="text-lg font-semibold">Procedura nu există</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Nu am găsit un ghid pentru codul „{id}”. Alege o procedură din catalogul disponibil.
+          </p>
+          <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-center">
+            <Button asChild>
+              <Link to="/">Înapoi la dashboard</Link>
+            </Button>
+            <Button asChild variant="outline">
+              <Link to="/tasks">Vezi sarcinile active</Link>
+            </Button>
+          </div>
+        </Card>
       </AppShell>
     );
   }
@@ -199,6 +223,32 @@ function WorkflowPage() {
           </div>
         )}
       </Card>
+
+      {wf.references && wf.references.length > 0 && (
+        <Card className="mb-5 border-border/80 p-4 shadow-none">
+          <div className="mb-3 flex items-center gap-2">
+            <ShieldCheck className="size-4 text-success" aria-hidden />
+            <h2 className="text-sm font-semibold">Surse oficiale pentru taxe și termene</h2>
+          </div>
+          <div className="grid gap-2 sm:grid-cols-2">
+            {wf.references.map((ref) => (
+              <a
+                key={ref.url}
+                href={ref.url}
+                target="_blank"
+                rel="noreferrer"
+                className="rounded-lg border border-border/70 bg-background/50 p-3 text-sm hover:bg-accent/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <span className="font-medium">{ref.title}</span>
+                  <ExternalLink className="size-3.5 shrink-0 text-primary" aria-hidden />
+                </div>
+                <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{ref.note}</p>
+              </a>
+            ))}
+          </div>
+        </Card>
+      )}
 
       <TipizatulFormsCard workflowId={wf.id} />
 

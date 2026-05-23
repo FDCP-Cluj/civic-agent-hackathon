@@ -22,7 +22,7 @@ export type EidKitJwtPayload = {
 export function isEidKitConfigured(): boolean {
   return Boolean(
     import.meta.env.VITE_EIDKIT_CLIENT_ID?.trim() &&
-      import.meta.env.VITE_EIDKIT_CLIENT_SECRET?.trim(),
+    import.meta.env.VITE_EIDKIT_CLIENT_SECRET?.trim(),
   );
 }
 
@@ -84,7 +84,8 @@ export async function exchangeEidKitCode(code: string): Promise<string> {
   if (!res.ok) {
     const text = await res.text().catch(() => "");
     throw new Error(
-      text || `Schimbul de token EidKit a eșuat (${res.status}). Verifică redirect URI în dashboard.eidkit.ro.`,
+      text ||
+        `Schimbul de token EidKit a eșuat (${res.status}). Verifică redirect URI în dashboard.eidkit.ro.`,
     );
   }
 

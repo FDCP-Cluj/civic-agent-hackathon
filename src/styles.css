@@ -302,6 +302,12 @@
     font-size: 0.95rem;
     color: color-mix(in oklch, var(--color-foreground) 65%, transparent);
   }
+  html.login-overscroll-flag,
+  body.login-overscroll-flag {
+    background-color: var(--ro-blue);
+    background-image: var(--gradient-tricolor);
+    background-attachment: fixed;
+  }
 }
 
 @layer utilities {

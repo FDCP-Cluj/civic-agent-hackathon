@@ -29,11 +29,12 @@ import {
   useVault,
 } from "@/store";
 import { govApi } from "@/services/govApiMock";
-import { isApiKeyConfigured } from "@/services/geminiChat";
+import { isApiKeyConfigured } from "@/services/aiConfig";
 import { isSupabaseConfigured } from "@/services/supabaseClient";
 import { useSpeechRecognition } from "@/hooks/use-speech-recognition";
 import { toast } from "sonner";
 import { HomeWelcomeHeader } from "@/components/dashboard/home-welcome-header";
+import { ServiceHealthStrip } from "@/components/service-health-strip";
 
 export const Route = createFileRoute("/")({ component: Dashboard });
 
@@ -166,6 +167,7 @@ function Dashboard() {
     const wf = await govApi.resolveQuery(q);
     setThinking(false);
     if (wf) navigate({ to: "/workflow/$id", params: { id: wf.id } });
+    else toast.info("Nu am găsit o procedură potrivită. Încearcă o descriere mai concretă.");
   };
 
   const { isSupported: micSupported, start: micStart } = useSpeechRecognition({
@@ -223,6 +225,24 @@ function Dashboard() {
                 )}
               </div>
             ))}
+          </CardContent>
+        </Card>
+      ) : null}
+
+      <ServiceHealthStrip />
+
+      {!aiEnabled ? (
+        <Card className="mt-4 border-warning/30 bg-warning/5 shadow-none">
+          <CardContent className="flex flex-col gap-2 py-3 text-sm sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="font-medium text-warning">Asistentul AI este dezactivat.</p>
+              <p className="text-xs text-muted-foreground">
+                Căutarea locală și toate ghidurile pas-cu-pas funcționează în continuare.
+              </p>
+            </div>
+            <Button asChild size="sm" variant="outline">
+              <Link to="/services">Vezi toate procedurile</Link>
+            </Button>
           </CardContent>
         </Card>
       ) : null}
@@ -384,7 +404,6 @@ function Dashboard() {
           </CardContent>
         </Card>
       </div>
-
     </AppShell>
   );
 }
