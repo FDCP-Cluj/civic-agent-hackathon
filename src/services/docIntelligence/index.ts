@@ -13,6 +13,10 @@ export { validateExpectedType } from "./expectedType";
 export { analyzeImageQuality } from "./imageQuality";
 export { runOcr, prefetchOcr, disposeOcr } from "./ocr";
 export { CLASSIFIED_TYPE_LABELS_RO } from "./config";
+export { prepareScanMedia, inferFileMime } from "./scanMedia";
+export { buildScanExplanation, keyFieldsFromExtracted } from "./scanSummary";
+export { extractRomanianIdAll } from "./romanianIdFields";
+export type { ScanKeyField } from "./scanSummary";
 export type {
   ClassifiedDocumentType,
   ClassificationResult,

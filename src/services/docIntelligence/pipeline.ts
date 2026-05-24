@@ -2,21 +2,15 @@
 // quality → OCR → classify → extract → expected-type. All in-browser; the
 // file's bytes never leave the device.
 //
-// Mirrors the V1 pipeline.py flow, minus the PDF branch (PDF support can
-// be re-added later by rendering page 1 to a canvas before passing it in).
+// PDF: first page is rasterized in scanMedia.ts, then processed like a photo.
 
 import { classifyDocument } from "./classifier";
-import {
-  ALLOWED_IMAGE_MIME,
-  ALLOWED_PDF_MIME,
-  MAX_UPLOAD_BYTES,
-  MIN_CONFIDENCE_FOR_AUTO_ACCEPT,
-  MIN_QUALITY_SCORE,
-} from "./config";
+import { MAX_UPLOAD_BYTES, MIN_CONFIDENCE_FOR_AUTO_ACCEPT, MIN_QUALITY_SCORE } from "./config";
 import { validateExpectedType } from "./expectedType";
 import { extractFields } from "./fieldExtractor";
 import { analyzeImageQuality } from "./imageQuality";
 import { runOcr, type OcrProgress } from "./ocr";
+import { inferFileMime, prepareScanMedia } from "./scanMedia";
 import type { ClassifiedDocumentType, DocumentValidationResult, ValidationIssue } from "./types";
 
 export type PipelineOptions = {
@@ -45,51 +39,77 @@ export async function validateDocument(
     };
   }
 
-  const mime = "type" in file ? file.type : "";
-  if (mime && !ALLOWED_IMAGE_MIME.has(mime) && !ALLOWED_PDF_MIME.has(mime)) {
+  const mime = "type" in file && file instanceof File ? inferFileMime(file) : "";
+  if (!mime && file instanceof File) {
     return {
       error: {
         code: "unsupported_type",
-        message: `Tipul de fișier ${mime || "necunoscut"} nu este acceptat. Folosiți JPG, PNG sau PDF.`,
-      },
-    };
-  }
-  if (ALLOWED_PDF_MIME.has(mime)) {
-    // PDF pipeline not yet wired client-side; surface a friendly error so
-    // the UI can fall back to "save without validation".
-    return {
-      error: {
-        code: "unsupported_type",
-        message:
-          "PDF-urile nu sunt încă validate local. Atașează o fotografie pentru a rula verificarea.",
+        message: "Nu am recunoscut tipul fișierului. Folosește JPG, PNG, WebP sau PDF.",
       },
     };
   }
 
-  onProgress?.("quality", 0.05);
+  onProgress?.("prepare", 0.02);
+
+  let ocrBlob: Blob;
+  let previewUrl = "";
+  let sourceLabel = "";
+  let sourceKind: "image" | "pdf" = "image";
+  try {
+    if (!(file instanceof File)) {
+      return {
+        error: {
+          code: "unsupported_type",
+          message: "Încarcă un fișier din dispozitiv (JPG, PNG sau PDF).",
+        },
+      };
+    }
+    const prepared = await prepareScanMedia(file);
+    ocrBlob = prepared.ocrBlob;
+    previewUrl = prepared.previewUrl;
+    sourceLabel = prepared.sourceLabel;
+    sourceKind = prepared.sourceKind;
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Nu am putut pregăti fișierul.";
+    return {
+      error: {
+        code: err instanceof Error && message.includes("HEIC") ? "unsupported_type" : "decode_failed",
+        message,
+      },
+    };
+  }
+
+  onProgress?.("quality", 0.08);
 
   // 2. image quality
   let qualityScore = 0.5;
   const qualityIssues: string[] = [];
   try {
-    const q = await analyzeImageQuality(file);
+    const q = await analyzeImageQuality(ocrBlob);
     qualityScore = q.score;
     qualityIssues.push(...q.issues);
   } catch {
     return {
       error: {
         code: "decode_failed",
-        message: "Nu am putut decoda imaginea. Încearcă din nou cu un alt format.",
+        message: "Nu am putut decoda imaginea. Încearcă JPG/PNG sau un PDF cu prima pagină lizibilă.",
       },
     };
   }
 
-  onProgress?.("ocr", 0.25);
+  onProgress?.("ocr", 0.2);
 
   // 3. OCR
-  const rawText = await runOcr(file, (_status, p) => {
-    onProgress?.("ocr", 0.25 + 0.55 * p);
-  });
+  let rawText = "";
+  let ocrFailedMessage: string | undefined;
+  try {
+    rawText = await runOcr(ocrBlob, (_status, p) => {
+      onProgress?.("ocr", 0.2 + 0.6 * p);
+    });
+  } catch (err) {
+    ocrFailedMessage = err instanceof Error ? err.message : "OCR eșuat";
+    rawText = "";
+  }
 
   onProgress?.("classify", 0.85);
 
@@ -130,6 +150,9 @@ export async function validateDocument(
     extractedFields: fields,
     rawText,
     qualityScore,
-    rejectionReason: expectedMessage,
+    rejectionReason: expectedMessage ?? ocrFailedMessage ?? null,
+    previewUrl,
+    sourceLabel,
+    sourceKind,
   };
 }

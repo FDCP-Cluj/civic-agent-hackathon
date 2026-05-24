@@ -14,6 +14,7 @@ import {
   MessageSquare,
   Nfc,
   RefreshCw,
+  ScanLine,
   ShieldCheck,
   Trash2,
   Type,
@@ -100,6 +101,7 @@ function Settings() {
         <AccessibilitySection />
         <LanguageSection />
         <LocalDataSection />
+        <ScanSection />
         <ChatHistorySection />
         <PrivacySection />
         <AboutSection />
@@ -581,7 +583,33 @@ function Stat({ label, value }: { label: string; value: string }) {
   );
 }
 
-/* ---------- 5. Istoric chat ---------- */
+/* ---------- 5. Scanare document ---------- */
+
+function ScanSection() {
+  return (
+    <Section
+      icon={ScanLine}
+      title="Scanare document"
+      description="OCR local — extrage date din CI sau alte acte direct în seif."
+    >
+      <Card className="p-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <p className="text-sm text-muted-foreground">
+            Încarcă CI sau alt act — OCR local extrage nume, CNP și adresă în seif.
+          </p>
+          <Button asChild size="sm" variant="outline">
+            <Link to="/scan">
+              <ScanLine className="size-3.5" />
+              Deschide
+            </Link>
+          </Button>
+        </div>
+      </Card>
+    </Section>
+  );
+}
+
+/* ---------- 6. Istoric chat ---------- */
 
 function ChatHistorySection() {
   const startNewSession = useChatUi((s) => s.startNewSession);
