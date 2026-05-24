@@ -21,8 +21,8 @@ import {
   FileDown,
   HelpCircle,
   MapPin,
+  MessageCircle,
   Phone,
-  Sparkles,
   Star,
   FileText,
 } from "lucide-react";
@@ -282,7 +282,7 @@ export function StepActionButton({ action, workflowId, stepKey, stepTitle, stepI
       return (
         <>
           <Button size="sm" variant="default" onClick={() => setCaenOpen(true)}>
-            <Sparkles className="size-3.5" /> {action.label ?? "Sugerează CAEN cu AI"}
+            <MessageCircle className="size-3.5" /> {action.label ?? "Sugerează CAEN cu AI"}
           </Button>
           <CaenSuggestDialog
             open={caenOpen}
@@ -308,18 +308,24 @@ export function StepActionButton({ action, workflowId, stepKey, stepTitle, stepI
           size="sm"
           variant="outline"
           onClick={async () => {
-            const rag = await explainStepWithRag(action.topic, stepInfo);
-            const ragBlock =
-              rag.bullets.length > 0
-                ? `\n\nContext RAG (${rag.source}):\n${rag.bullets.map((b) => `- ${b}`).join("\n")}`
-                : "";
-            const refs =
-              rag.citations.length > 0
-                ? `\n\nSurse candidate:\n${rag.citations
-                    .map((c) => `- ${c.title} (${c.url ?? c.source})`)
-                    .join("\n")}`
-                : "";
-            openChat(`Explică-mi pasul: ${stepTitle}. Context: ${action.topic}.${ragBlock}${refs}`);
+            const basePrompt = `Explică-mi pasul: ${stepTitle}. Context: ${action.topic}.`;
+            try {
+              const rag = await explainStepWithRag(action.topic, stepInfo);
+              const ragBlock =
+                rag.bullets.length > 0
+                  ? `\n\nContext suplimentar (${rag.source}):\n${rag.bullets.map((b) => `- ${b}`).join("\n")}`
+                  : "";
+              const refs =
+                rag.citations.length > 0
+                  ? `\n\nSurse candidate:\n${rag.citations
+                      .map((c) => `- ${c.title} (${c.url ?? c.source})`)
+                      .join("\n")}`
+                  : "";
+              openChat(`${basePrompt}${ragBlock}${refs}`);
+            } catch (err) {
+              console.warn("[workflow] explain_step fallback without RAG", err);
+              openChat(basePrompt);
+            }
           }}
         >
           <HelpCircle className="size-3.5" /> {action.label ?? "Explică pas cu pas"}

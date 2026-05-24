@@ -7,7 +7,7 @@ import {
   IdCard,
   Receipt,
   FileText,
-  Sparkles,
+  MessageCircle,
   ArrowRight,
   Clock,
   ScanLine,
@@ -30,7 +30,6 @@ import {
 } from "@/store";
 import { govApi } from "@/services/govApiMock";
 import { isApiKeyConfigured } from "@/services/aiConfig";
-import { isSupabaseConfigured } from "@/services/supabaseClient";
 import { useSpeechRecognition } from "@/hooks/use-speech-recognition";
 import { toast } from "sonner";
 import { HomeWelcomeHeader } from "@/components/dashboard/home-welcome-header";
@@ -86,7 +85,6 @@ function Dashboard() {
   const [thinking, setThinking] = useState(false);
 
   const aiEnabled = isApiKeyConfigured();
-  const ragEnabled = isSupabaseConfigured();
   const greet = profile.fullName
     ? profile.fullName.split(" ")[0]
     : (email?.split("@")[0] ?? "prieten");
@@ -248,12 +246,11 @@ function Dashboard() {
         <Card className="shadow-none">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Sparkles className="h-4 w-4 text-primary" />
+              <MessageCircle className="h-4 w-4 text-primary" />
               Întreabă agentul ActeAI
             </CardTitle>
             <CardDescription>
-              {aiEnabled ? "Asistent AI activ" : "Asistent AI indisponibil"} ·{" "}
-              {ragEnabled ? "RAG activ" : "fallback local"}
+              {aiEnabled ? "Asistent AI activ" : "Asistent AI indisponibil"}
             </CardDescription>
           </CardHeader>
           <CardContent>

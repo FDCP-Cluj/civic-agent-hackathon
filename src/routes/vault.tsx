@@ -17,7 +17,6 @@ import {
   validatePhone,
   type FieldResult,
 } from "@/lib/profileValidation";
-import { isSupabaseConfigured } from "@/services/supabaseClient";
 import { PageHeader } from "@/components/dashboard/page-header";
 
 export const Route = createFileRoute("/vault")({ component: Vault });
@@ -28,7 +27,6 @@ function Vault() {
   const tasks = useTasks((s) => s.tasks);
   const completeness = useProfileCompleteness();
   const completenessPct = Math.round(completeness * 100);
-  const ragEnabled = isSupabaseConfigured();
   const formattedAddress = formatStructuredAddress(profile.addressParts);
 
   const checks: Record<string, FieldResult> = {
@@ -50,7 +48,7 @@ function Vault() {
       >
         <div className="inline-flex items-center gap-2 text-sm text-muted-foreground">
           <FolderLock className="size-4 text-primary" />
-          Vault local · {ragEnabled ? "RAG activ" : "fallback local"}
+          Vault local
         </div>
       </PageHeader>
 

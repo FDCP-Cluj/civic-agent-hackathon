@@ -1,10 +1,9 @@
-import { useEffect, useMemo, useState } from "react";
-import { Loader2, Sparkles } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Loader2, MessageCircle } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
 import { suggestCaenWithRag, type RagCaenSuggestion } from "@/services/rag";
 import { toast } from "sonner";
 
@@ -35,12 +34,6 @@ export function CaenSuggestDialog({ open, onOpenChange, initialActivity, onSelec
   }, [open, initialActivity]);
 
   const hasMatches = (data?.matches.length ?? 0) > 0;
-  const sourceLabel = useMemo(() => {
-    if (!data) return null;
-    if (data.source === "supabase_vector_ai") return "Vector RAG + AI";
-    if (data.source === "supabase_rag") return "RAG (Supabase)";
-    return "Fallback local";
-  }, [data]);
 
   async function runSuggestion() {
     if (!activity.trim()) {
@@ -92,14 +85,13 @@ export function CaenSuggestDialog({ open, onOpenChange, initialActivity, onSelec
 
           <div className="flex items-center gap-2">
             <Button onClick={runSuggestion} disabled={loading}>
-              {loading ? <Loader2 className="size-4 animate-spin" /> : <Sparkles className="size-4" />}
+              {loading ? (
+                <Loader2 className="size-4 animate-spin" />
+              ) : (
+                <MessageCircle className="size-4" />
+              )}
               Sugerează CAEN
             </Button>
-            {sourceLabel ? (
-              <Badge variant="secondary" className="text-xs">
-                Sursă: {sourceLabel}
-              </Badge>
-            ) : null}
           </div>
 
           {errorMessage ? (
