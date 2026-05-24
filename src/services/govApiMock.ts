@@ -102,24 +102,6 @@ export type Workflow = {
 /** All workflow data was last reviewed against the official sources on this date. */
 export const WORKFLOWS_LAST_REVIEWED = "2025-03-15";
 
-// ---------- Service health (mock pilot data) ----------
-//
-// In production this strip would be backed by a real status monitor (uptime probes
-// against ANAF SPV, DRPCIV programare portal, ghiseul.ro, epasapoarte.ro, etc.).
-// ActeAI pilot ships this with mock health so reviewers can see the UX surface;
-// the same shape is the contract the production monitor must produce.
-export type ServiceStatus = "operational" | "degraded" | "outage";
-
-export type ServiceHealth = {
-  service: string;
-  status: ServiceStatus;
-  note?: string;
-  /** ISO timestamp. */
-  lastChecked: string;
-  /** Public landing page citizens can use to confirm for themselves. */
-  url: string;
-};
-
 // ---------- Civic calendar (real ANAF / ministerial deadlines) ----------
 // Sourced from anaf.ro publicat fiscal calendar and gov.ro public notices.
 // Dates are intentionally static for the pilot; production should pull from a
@@ -1972,37 +1954,6 @@ const CIVIC_CALENDAR: CivicCalendarEntry[] = [
   },
 ];
 
-// ---------- Service health (mock pilot, real shape) ----------
-function nowIso(): string {
-  return new Date().toISOString();
-}
-const SERVICE_HEALTH_TEMPLATES: Omit<ServiceHealth, "lastChecked">[] = [
-  {
-    service: "ANAF SPV",
-    status: "operational",
-    note: "Toate serviciile răspund normal.",
-    url: "https://www.anaf.ro/anaf/internet/ANAF/servicii_online/",
-  },
-  {
-    service: "DRPCIV București",
-    status: "degraded",
-    note: "Cozi prelungite la programări. Recomandăm depunere online unde e posibil.",
-    url: "https://www.drpciv.ro",
-  },
-  {
-    service: "Ghișeul.ro",
-    status: "operational",
-    note: "Plățile electronice funcționează normal.",
-    url: "https://www.ghiseul.ro",
-  },
-  {
-    service: "ePașapoarte",
-    status: "operational",
-    note: "Programări disponibile în toate județele.",
-    url: "https://www.epasapoarte.ro",
-  },
-];
-
 // ---------- Public API ----------
 
 export const govApi = {
@@ -2013,10 +1964,6 @@ export const govApi = {
   async getWorkflow(id: string): Promise<Workflow | undefined> {
     await delay(200);
     return WORKFLOWS.find((w) => w.id === id);
-  },
-  async getServiceHealth(): Promise<ServiceHealth[]> {
-    await delay(300);
-    return SERVICE_HEALTH_TEMPLATES.map((t) => ({ ...t, lastChecked: nowIso() }));
   },
   /** Returns the next `count` upcoming civic deadlines (today inclusive). */
   async getUpcomingDeadlines(count = 3): Promise<CivicCalendarEntry[]> {
