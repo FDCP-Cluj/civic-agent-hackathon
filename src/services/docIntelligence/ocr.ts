@@ -7,10 +7,20 @@ import { createWorker, type Worker } from "tesseract.js";
 const LANGS = "ron+eng";
 
 let workerPromise: Promise<Worker> | null = null;
+let ocrProgressSink: OcrProgress | undefined;
 
 async function getWorker(): Promise<Worker> {
   if (!workerPromise) {
-    workerPromise = createWorker(LANGS);
+    workerPromise = createWorker(LANGS, 1, {
+      logger: (message) => {
+        if (message.status === "recognizing text" && typeof message.progress === "number") {
+          ocrProgressSink?.("recognizing", message.progress);
+        }
+      },
+    }).catch((err) => {
+      workerPromise = null;
+      throw err;
+    });
   }
   return workerPromise;
 }
@@ -26,22 +36,36 @@ export function prefetchOcr(): void {
 export type OcrProgress = (status: string, progress: number) => void;
 
 export async function runOcr(src: Blob | string, onProgress?: OcrProgress): Promise<string> {
-  const worker = await getWorker();
-  if (onProgress) {
-    // Tesseract v5's worker emits progress via the logger param at create
-    // time; for simplicity we just report the start/end here.
-    onProgress("ocr_start", 0);
-  }
+  ocrProgressSink = onProgress;
+  onProgress?.("loading", 0);
+
+  let worker: Worker;
   try {
-    const { data } = await worker.recognize(src);
-    onProgress?.("ocr_done", 1);
+    worker = await getWorker();
+  } catch (err) {
+    console.warn("OCR worker init failed:", err);
+    ocrProgressSink = undefined;
+    throw new Error(
+      "Motorul OCR nu s-a încărcat. Verifică conexiunea la internet (prima rulare descarcă limba română) și reîncarcă pagina.",
+    );
+  }
+
+  const image: Blob | string =
+    src instanceof Blob ? URL.createObjectURL(src) : src;
+
+  try {
+    onProgress?.("recognizing", 0.05);
+    const { data } = await worker.recognize(image);
+    onProgress?.("recognizing", 1);
     return (data.text ?? "").trim();
   } catch (err) {
-    // Tesseract failures shouldn't crash the page — return empty text and
-    // let downstream code surface a generic "couldn't read" message.
     console.warn("OCR failure:", err);
-    onProgress?.("ocr_error", 1);
-    return "";
+    throw new Error("Nu am putut citi textul din imagine. Încearcă o fotografie mai clară.");
+  } finally {
+    if (src instanceof Blob && typeof image === "string") {
+      URL.revokeObjectURL(image);
+    }
+    ocrProgressSink = undefined;
   }
 }
 

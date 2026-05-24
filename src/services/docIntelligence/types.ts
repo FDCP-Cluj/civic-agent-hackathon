@@ -92,4 +92,8 @@ export type DocumentValidationResult = {
   rawText: string;
   qualityScore: number;
   rejectionReason: string | null;
+  /** Data URL for UI preview (rasterized PDF page or original image). */
+  previewUrl: string;
+  sourceLabel: string;
+  sourceKind: "image" | "pdf";
 };

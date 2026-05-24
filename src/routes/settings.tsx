@@ -47,13 +47,13 @@ function Settings() {
           </div>
           <div className="flex-1">
             <div className="flex items-center justify-between gap-3">
-              <div className="text-sm font-medium">Explică document</div>
+              <div className="text-sm font-medium">Scanare document</div>
               <Button size="sm" variant="outline" onClick={() => navigate({ to: "/scan" })}>
                 Deschide
               </Button>
             </div>
             <p className="mt-1 text-sm text-muted-foreground">
-              Scanează un document oficial și primește un rezumat în cuvinte simple.
+              Încarcă CI sau alt act — OCR local extrage nume, CNP și adresă în seif.
             </p>
           </div>
         </div>

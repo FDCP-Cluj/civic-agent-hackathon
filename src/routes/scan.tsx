@@ -3,11 +3,11 @@ import { useEffect, useRef, useState, type InputHTMLAttributes } from "react";
 import {
   ArrowLeft,
   Upload,
-  Sparkles,
+  Camera,
   CheckCircle2,
   FileText,
   AlertTriangle,
-  PenLine,
+  ScanLine,
 } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
 import { Button } from "@/components/ui/button";
@@ -15,9 +15,10 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PageHeader } from "@/components/dashboard/page-header";
-import { govApi } from "@/services/govApiMock";
 import {
   CLASSIFIED_TYPE_LABELS_RO,
+  buildScanExplanation,
+  keyFieldsFromExtracted,
   prefetchOcr,
   validateDocument,
   type ClassifiedDocumentType,
@@ -27,8 +28,6 @@ import { buildVaultProfilePatch } from "@/lib/vaultProfilePatch";
 import { useVault, usePfaDossier } from "@/store";
 import { toast } from "sonner";
 import { useNavigate } from "@tanstack/react-router";
-
-type FriendlyResult = Awaited<ReturnType<typeof govApi.explainDocument>>;
 
 type EditableScanFields = {
   fullName: string;
@@ -61,10 +60,10 @@ type EditableScanFields = {
 };
 
 type ScanState = {
-  friendly: FriendlyResult;
   validation: DocumentValidationResult | null;
   error?: string;
   preview: string | null;
+  fileLabel: string;
 };
 
 export const Route = createFileRoute("/scan")({ component: Scan });
@@ -94,21 +93,21 @@ function Scan() {
     setProgress(0);
     setStage("starting");
 
-    const preview = await fileToDataUrl(f).catch(() => null);
-
-    const [friendly, validationOrError] = await Promise.all([
-      govApi.explainDocument(f.name),
-      validateDocument(f, {
-        onProgress: (s, p) => {
-          setStage(s);
-          setProgress(p);
-        },
-      }),
-    ]);
+    const validationOrError = await validateDocument(f, {
+      onProgress: (s, p) => {
+        setStage(s);
+        setProgress(p);
+      },
+    });
 
     const validation = "error" in validationOrError ? null : validationOrError;
     const error = "error" in validationOrError ? validationOrError.error.message : undefined;
-    setResult({ friendly, validation, error, preview });
+    setResult({
+      validation,
+      error,
+      preview: validation?.previewUrl ?? null,
+      fileLabel: validation?.sourceLabel ?? f.name,
+    });
     setPhase("done");
   };
 
@@ -150,8 +149,8 @@ function Scan() {
   return (
     <AppShell>
       <PageHeader
-        title="Explică un document"
-        description="Recunoaștere locală — niciun byte nu părăsește dispozitivul. Vezi tipul, datele și un rezumat pe înțelesul tău."
+        title="Scanare document"
+        description="Încarcă o poză sau un PDF (prima pagină). OCR-ul rulează local în browser — datele nu sunt trimise pe server."
       >
         <Button asChild variant="outline" size="sm">
           <Link to="/">
@@ -167,14 +166,37 @@ function Scan() {
             <div className="absolute inset-0 rounded-2xl bg-accent" />
             <FileText className="size-10 text-primary absolute inset-0 m-auto" />
           </div>
-          <p className="mb-6 text-sm text-muted-foreground">
-            Atașează o poză. Vom rula OCR + clasificare 100% local pentru a-ți spune ce tip de
-            document este și ce conține.
+          <p className="mb-2 text-sm text-muted-foreground max-w-md mx-auto">
+            Ideal pentru <strong className="font-medium text-foreground">carte de identitate</strong>
+            : extragem nume, CNP, adresă și le punem în seif pentru autofill la formularele PFA.
           </p>
-          <input ref={fileRef} type="file" accept="image/*" onChange={onFile} className="hidden" />
-          <Button onClick={() => fileRef.current?.click()}>
-            <Upload className="size-4" /> Alege fișier
-          </Button>
+          <p className="mb-6 text-xs text-muted-foreground max-w-md mx-auto">
+            Formate: JPG, PNG, WebP sau PDF. Prima rulare poate dura câteva secunde (descarcă
+            limba română pentru OCR).
+          </p>
+          <input
+            ref={fileRef}
+            type="file"
+            accept="image/jpeg,image/png,image/webp,application/pdf,.pdf"
+            capture="environment"
+            onChange={onFile}
+            className="hidden"
+          />
+          <div className="flex flex-col gap-2 sm:flex-row sm:justify-center">
+            <Button onClick={() => fileRef.current?.click()}>
+              <Upload className="size-4" /> Alege fișier sau PDF
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => {
+                if (!fileRef.current) return;
+                fileRef.current.setAttribute("capture", "environment");
+                fileRef.current.click();
+              }}
+            >
+              <Camera className="size-4" /> Fă o poză
+            </Button>
+          </div>
         </Card>
       )}
 
@@ -259,12 +281,16 @@ function ScanningView({
 
 function stageLabel(stage: string): string {
   switch (stage) {
+    case "prepare":
+      return "Pregătesc fișierul (PDF → imagine)";
     case "quality":
       return "Verific calitatea imaginii";
     case "ocr":
+    case "recognizing":
+    case "loading":
       return "Citesc textul (OCR local)";
     case "classify":
-      return "Identific tipul";
+      return "Identific tipul și extrag câmpurile";
     case "done":
       return "Gata";
     default:
@@ -318,7 +344,9 @@ function ResultView({
   const [editedFields, setEditedFields] = useState<EditableScanFields>(() =>
     editableFieldsFromValidation(validation),
   );
-  const explanation = buildLocalExplanation(validation, editedType);
+  const [showRawOcr, setShowRawOcr] = useState(false);
+  const explanation = buildScanExplanation(validation, editedType, result.error);
+  const keyFields = keyFieldsFromExtracted(validation?.extractedFields);
   const hasProfileData = Boolean(
     editedFields.cnp.trim() ||
     editedFields.fullName.trim() ||
@@ -333,6 +361,20 @@ function ResultView({
 
   return (
     <div className="space-y-4">
+      {result.preview && (
+        <Card className="overflow-hidden border-border/80 p-0 shadow-none">
+          <img
+            src={result.preview}
+            alt="Previzualizare document scanat"
+            className="max-h-64 w-full object-contain bg-muted/40"
+          />
+          <p className="px-3 py-2 text-xs text-muted-foreground border-t border-border">
+            {result.fileLabel}
+            {validation?.sourceKind === "pdf" ? " · analizată prima pagină" : ""}
+          </p>
+        </Card>
+      )}
+
       {/* Identification card backed by the real local classifier */}
       {validation ? (
         validation.success ? (
@@ -416,41 +458,77 @@ function ResultView({
 
       <Card className="p-5">
         <div className="flex items-center gap-2 mb-3">
-          <Sparkles className="size-4 text-primary" />
-          <span className="text-sm font-semibold">În cuvinte simple</span>
+          <ScanLine className="size-4 text-primary" />
+          <span className="text-sm font-semibold">Rezultat scanare</span>
         </div>
         <p className="text-sm leading-relaxed">{explanation}</p>
+        {validation?.rawText?.trim() ? (
+          <div className="mt-3">
+            <button
+              type="button"
+              className="text-xs font-medium text-primary underline-offset-2 hover:underline"
+              onClick={() => setShowRawOcr((v) => !v)}
+            >
+              {showRawOcr ? "Ascunde textul OCR" : "Arată textul citit de OCR"}
+            </button>
+            {showRawOcr && (
+              <pre className="mt-2 max-h-40 overflow-auto rounded-lg border border-border bg-muted/30 p-3 text-[11px] leading-relaxed whitespace-pre-wrap">
+                {validation.rawText}
+              </pre>
+            )}
+          </div>
+        ) : null}
       </Card>
 
-      {validation && (
+      {keyFields.length > 0 && (
         <Card className="p-5">
-          <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Corectează ce a citit OCR-ul
-              </div>
-              <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                Verifică manual datele înainte să le folosești pentru autofill.
-              </p>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => onAdopt(editedFields)}
-                disabled={!hasProfileData}
-              >
-                Actualizează profilul
-              </Button>
-              <Button
-                size="sm"
-                onClick={() => onAdoptForPfa(editedFields)}
-                disabled={!hasProfileData}
-              >
-                Folosește pentru dosar PFA
-              </Button>
-            </div>
+          <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
+            Date detectate automat
           </div>
+          <div className="space-y-2">
+            {keyFields.map((f) => (
+              <div
+                key={f.label}
+                className="flex justify-between gap-3 py-2 border-b border-border last:border-0"
+              >
+                <span className="text-xs text-muted-foreground">{f.label}</span>
+                <span className="text-sm font-medium tabular-nums text-right break-all">
+                  {f.value}
+                </span>
+              </div>
+            ))}
+          </div>
+        </Card>
+      )}
+
+      <Card className="p-5">
+        <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              {validation ? "Corectează ce a citit OCR-ul" : "Completează manual"}
+            </div>
+            <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+              Verifică fiecare câmp înainte să salvezi în seif sau dosarul PFA.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => onAdopt(editedFields)}
+              disabled={!hasProfileData}
+            >
+              Salvează în seif
+            </Button>
+            <Button
+              size="sm"
+              onClick={() => onAdoptForPfa(editedFields)}
+              disabled={!hasProfileData}
+            >
+              Seif + dosar PFA
+            </Button>
+          </div>
+        </div>
           <div className="grid gap-3 sm:grid-cols-2">
             <label className="space-y-1.5 sm:col-span-2">
               <span className="text-xs font-medium text-muted-foreground">Tip document</span>
@@ -594,46 +672,6 @@ function ResultView({
             />
           </div>
         </Card>
-      )}
-
-      {/* Important static fields from friendly catalog */}
-      {result.friendly.keyFields.length > 0 && (
-        <Card className="p-5">
-          <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
-            Date importante
-          </div>
-          <div className="space-y-2">
-            {result.friendly.keyFields.map((f) => (
-              <div
-                key={f.label}
-                className="flex justify-between gap-3 py-2 border-b border-border last:border-0"
-              >
-                <span className="text-xs text-muted-foreground">{f.label}</span>
-                <span className="text-sm font-medium tabular-nums text-right break-all">
-                  {f.value}
-                </span>
-              </div>
-            ))}
-          </div>
-        </Card>
-      )}
-
-      {result.friendly.signHere.length > 0 && (
-        <Card className="p-5">
-          <div className="flex items-center gap-2 mb-3">
-            <PenLine className="size-4 text-warning" />
-            <span className="text-sm font-semibold">Unde trebuie să semnezi</span>
-          </div>
-          <ul className="space-y-2">
-            {result.friendly.signHere.map((s) => (
-              <li key={s} className="text-sm flex items-center gap-2.5">
-                <span className="size-1.5 rounded-full bg-warning shrink-0" />
-                {s}
-              </li>
-            ))}
-          </ul>
-        </Card>
-      )}
 
       <Button variant="outline" className="w-full" onClick={onReset}>
         Scanează alt document
@@ -708,67 +746,6 @@ function editableFieldsFromValidation(
   };
 }
 
-function buildLocalExplanation(
-  validation: DocumentValidationResult | null,
-  editedType: ClassifiedDocumentType,
-): string {
-  if (!validation) {
-    return "Nu am putut citi documentul suficient de sigur. Încearcă o fotografie mai clară sau completează manual datele relevante în seif.";
-  }
-
-  if (!validation.success) {
-    if (validation.documentType === "unknown") {
-      return "Nu am identificat sigur tipul documentului, deci nu voi inventa sume, termene sau semnături. Poți corecta manual tipul și câmpurile citite sau poți reface fotografia.";
-    }
-    return `Pare să fie ${CLASSIFIED_TYPE_LABELS_RO[validation.documentType]}, dar încrederea OCR sau calitatea imaginii nu este suficientă pentru autofill automat. Verifică manual fiecare câmp înainte să îl adaugi în seif.`;
-  }
-
-  switch (editedType) {
-    case "romanian_id":
-      return "Este o carte de identitate. Pot folosi local numele, CNP-ul, data nașterii și adresa pentru autofill, numai după ce confirmi câmpurile.";
-    case "passport":
-      return "Este un pașaport. Verifică manual numele și data nașterii înainte să folosești datele pentru completări.";
-    case "driver_license":
-      return "Este un permis de conducere. Verifică manual numărul documentului, categoriile și valabilitatea înainte să folosești informațiile.";
-    case "vehicle_registration":
-      return "Este un document auto. Verifică numărul de înmatriculare, seria și datele mașinii înainte să îl folosești în proceduri.";
-    case "birth_certificate":
-      return "Este un certificat de naștere. Datele citite pot ajuta la completarea unor formulare, dar verifică numele și data nașterii înainte de salvare.";
-    case "marriage_certificate":
-      return "Este un certificat de căsătorie. Verifică numele, data și numărul actului înainte de folosire.";
-    case "utility_bill":
-      return "Pare o factură de utilități. O poți păstra ca dovadă de adresă, dar nu folosesc automat sume sau termene citite prin OCR.";
-    case "tax_decision":
-      return "Pare o decizie de impunere. Verifică suma, termenul scadent, IBAN-ul și codul fiscal direct pe document înainte de plată.";
-    case "payment_notice":
-      return "Pare o înștiințare de plată. Verifică suma, termenul scadent și IBAN-ul înainte să plătești.";
-    case "student_card":
-      return "Pare o legitimație de student. O salvez ca document suport, dar nu o tratez ca act de identitate și nu modific profilul automat.";
-    case "criminal_record":
-      return "Pare un cazier judiciar. Verifică data emiterii și numele înainte să îl depui.";
-    case "medical_certificate":
-      return "Pare o adeverință medicală. Verifică data, emitentul și numele înainte să o folosești.";
-    case "cadastral_extract":
-      return "Pare un extras de carte funciară. Verifică numărul cadastral, proprietarul și data emiterii.";
-    case "property_deed":
-      return "Pare un act de proprietate. Verifică numărul documentului, părțile și adresa imobilului înainte de folosire.";
-    case "rental_contract":
-      return "Pare un contract de închiriere. Verifică părțile, adresa și perioada contractuală.";
-    case "employment_contract":
-      return "Pare un contract de muncă. Verifică angajatorul, salariatul, data și salariul înainte de folosire.";
-    case "diploma":
-      return "Pare o diplomă sau adeverință de studii. Verifică numele, instituția și numărul documentului.";
-    case "bank_statement":
-      return "Pare un extras de cont. Verifică IBAN-ul și titularul înainte să îl folosești ca dovadă.";
-    case "insurance_policy":
-      return "Pare o poliță de asigurare. Verifică perioada de valabilitate, asigurătorul și obiectul asigurat.";
-    case "invoice":
-      return "Pare o factură. Verifică furnizorul, suma, scadența și codul fiscal înainte să o folosești.";
-    default:
-      return "Documentul a fost citit local. Verifică manual tipul și câmpurile înainte să le folosești pentru autofill.";
-  }
-}
-
 function QualityMeter({
   quality,
   confidence,
@@ -830,11 +807,3 @@ function capitalize(s: string): string {
   return s.charAt(0).toLocaleUpperCase("ro-RO") + s.slice(1);
 }
 
-async function fileToDataUrl(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(String(reader.result ?? ""));
-    reader.onerror = () => reject(reader.error);
-    reader.readAsDataURL(file);
-  });
-}

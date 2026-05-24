@@ -3,8 +3,12 @@
 // with an added control-digit validator for CNP (which the Python version
 // didn't have — bonus accuracy for free).
 
-import { parseRomanianAddress } from "@/lib/address";
+import { formatStructuredAddress, parseRomanianAddress } from "@/lib/address";
 import type { ClassifiedDocumentType, ExtractedFields } from "./types";
+import {
+  extractRomanianIdAll,
+  formatRomanianIdAddressLine,
+} from "./romanianIdFields";
 
 const CNP_RE = /(?<!\d)([1-9]\d{12})(?!\d)/;
 const DATE_RE = /\b(\d{2})[./-](\d{2})[./-](\d{4})\b/;
@@ -85,37 +89,47 @@ export function extractFields(
       inferBirthDateFromCnp(fields.cnp) ??
       firstDate(rawText);
   }
-  fields.issueDate = findDateNear(lines, /(EMIS|ELIBERAT|DATA\s+EMITERII|ISSUED|ÎNTOCMIT)/i);
-  fields.expiryDate = findDateNear(
-    lines,
-    /(VALABIL|EXPIR[ĂA]|EXPIRY|VALID\s+UNTIL|P[ÂA]N[ĂA]\s+LA)/i,
-  );
   fields.dueDate = findDateNear(lines, /(SCADENT|TERMEN|DUE\s+DATE|PLAT[ĂA]\s+P[ÂA]N[ĂA])/i);
-  fields.address = extractAddress(lines);
-  if (fields.address) {
-    const parts = parseRomanianAddress(fields.address);
-    fields.addressStreet = parts.street || null;
-    fields.addressNumber = parts.streetNumber || null;
-    fields.addressBlock = parts.block || null;
-    fields.addressStair = parts.stair || null;
-    fields.addressFloor = parts.floor || null;
-    fields.addressApartment = parts.apartment || null;
-    fields.addressLocality = parts.locality || null;
-    fields.addressCounty = parts.county || null;
-    fields.addressSector = parts.sector || null;
-    fields.addressCountry = parts.country || null;
+
+  if (documentType === "romanian_id") {
+    const id = extractRomanianIdAll(rawText);
+    fields.firstName = id.firstName;
+    fields.lastName = id.lastName;
+    fields.idCardSeries = id.idCardSeries;
+    fields.idCardNumber = id.idCardNumber;
+    fields.idCardIssuedBy = id.idCardIssuedBy;
+    fields.issueDate = id.issueDate;
+    fields.expiryDate = id.expiryDate;
+    if (id.address) applyStructuredAddress(fields, id.address);
+    if (!fields.address) {
+      const legacyLine = extractAddress(lines);
+      if (legacyLine) applyStructuredAddress(fields, parseRomanianAddress(legacyLine));
+    }
+    fields.documentNumber =
+      id.idCardSeries && id.idCardNumber
+        ? `${id.idCardSeries} ${id.idCardNumber}`
+        : extractDocumentNumber(lines, documentType);
+  } else {
+    fields.issueDate = findDateNear(lines, /(EMIS|ELIBERAT|DATA\s+EMITERII|ISSUED|ÎNTOCMIT)/i);
+    fields.expiryDate = findDateNear(
+      lines,
+      /(VALABIL|EXPIR[ĂA]|EXPIRY|VALID\s+UNTIL|P[ÂA]N[ĂA]\s+LA)/i,
+    );
+    const legacy = extractAddress(lines);
+    fields.address = legacy;
+    if (legacy) applyStructuredAddress(fields, parseRomanianAddress(legacy));
+    const [first, last] = extractName(lines, documentType);
+    fields.firstName = first;
+    fields.lastName = last;
+    const idParts = extractIdCardParts(lines, documentType);
+    fields.idCardSeries = idParts.series;
+    fields.idCardNumber = idParts.number;
+    fields.idCardIssuedBy = idParts.issuedBy;
+    fields.documentNumber =
+      idParts.series && idParts.number
+        ? `${idParts.series} ${idParts.number}`
+        : extractDocumentNumber(lines, documentType);
   }
-  const [first, last] = extractName(lines, documentType);
-  fields.firstName = first;
-  fields.lastName = last;
-  const idParts = extractIdCardParts(lines, documentType);
-  fields.idCardSeries = idParts.series;
-  fields.idCardNumber = idParts.number;
-  fields.idCardIssuedBy = idParts.issuedBy;
-  fields.documentNumber =
-    idParts.series && idParts.number
-      ? `${idParts.series} ${idParts.number}`
-      : extractDocumentNumber(lines, documentType);
   fields.birthLocality = extractBirthLocality(lines);
   fields.birthCounty = inferCountyFromCnp(fields.cnp);
   fields.amount = extractAmount(rawText);
@@ -126,21 +140,48 @@ export function extractFields(
   return fields;
 }
 
+function applyStructuredAddress(
+  fields: ExtractedFields,
+  parts: ReturnType<typeof parseRomanianAddress> | import("@/lib/address").StructuredAddress,
+): void {
+  if (!parts.street && !parts.locality && !parts.county) return;
+  fields.addressStreet = parts.street || null;
+  fields.addressNumber = parts.streetNumber || null;
+  fields.addressBlock = parts.block || null;
+  fields.addressStair = parts.stair || null;
+  fields.addressFloor = parts.floor || null;
+  fields.addressApartment = parts.apartment || null;
+  fields.addressLocality = parts.locality || null;
+  fields.addressCounty = parts.county || null;
+  fields.addressSector = parts.sector || null;
+  fields.addressCountry = parts.country || null;
+  fields.address = formatRomanianIdAddressLine(parts) || formatStructuredAddress(parts) || null;
+}
+
 function extractAddress(lines: string[]): string | null {
   for (let i = 0; i < lines.length; i += 1) {
     const line = lines[i];
     if (!ADDRESS_HINTS.test(line)) continue;
-    const chunk: string[] = [line];
-    for (const nxt of lines.slice(i + 1, i + 4)) {
-      if (nxt.length > 5 && !CNP_RE.test(nxt)) {
-        chunk.push(nxt);
-      } else {
-        break;
+    // Skip trilingual label-only rows (no street / Mun. / Jud. value)
+    if (
+      /^(?:DOMICILIU|ADRESA|ADDRESS|ADRESSE)(?:\s*\/\s*\w+)*\s*$/i.test(line) ||
+      (/\/(?:Adresse|Address|Domiciliu)/i.test(line) && !/\bStr\.?\b/i.test(line))
+    ) {
+      continue;
+    }
+    const chunk: string[] = [];
+    for (const nxt of [line, ...lines.slice(i + 1, i + 4)]) {
+      if (nxt.length < 4 || CNP_RE.test(nxt)) break;
+      if (/\b(?:EMIS|VALABIL|VALIDIT|ISSUED)\b/i.test(nxt)) break;
+      if (/^(?:DOMICILIU|ADRESA)\s*\/\s*(?:ADRESSE|ADDRESS)/i.test(nxt) && !/\bStr\.?\b/i.test(nxt)) {
+        continue;
       }
+      chunk.push(nxt);
     }
     const joined = chunk
       .join(" ")
       .replace(/^(DOMICILIU|ADRESA|ADDRESS)\s*:?\s*/i, "")
+      .replace(/\bDomiciliu\s*\/\s*Adresse\s*\/\s*Address\b/gi, "")
       .trim();
     return joined ? joined.slice(0, 500) : null;
   }
@@ -264,7 +305,13 @@ function extractIdCardParts(
     }
     const emis = /(?:EMIS|ELIBERAT)\s*(?:DE|DE:)?\s*(.+)$/i.exec(line);
     if (emis && emis[1].length > 3 && !DATE_RE.test(emis[1])) {
-      issuedBy = emis[1].replace(/\s+LA\s+DATA.*$/i, "").trim().slice(0, 80);
+      const candidate = emis[1]
+        .replace(/\s+LA\s+DATA.*$/i, "")
+        .replace(/\s*\/\s*.*$/i, "")
+        .trim();
+      if (!/VALIDIT|VALABIL|ADDRESS|DOMICILIU/i.test(candidate)) {
+        issuedBy = candidate.slice(0, 80);
+      }
     }
   }
 
