@@ -427,6 +427,10 @@ export function AgentChatPanel({
             return {
               ...msg,
               streaming: false,
+              text:
+                msg.text.trim().length > 0
+                  ? msg.text
+                  : "Am analizat cererea ta. Vezi rezultatul/actiunile sugerate mai jos.",
               workflowCta:
                 msg.workflowCta ??
                 (fallbackWf ? { id: fallbackWf.id, title: fallbackWf.title } : undefined),
@@ -462,15 +466,19 @@ export function AgentChatPanel({
 
   // Consume initial query exactly once per value.
   useEffect(() => {
-    if (!initialQuery) return;
+    if (!initialQuery) {
+      consumedInitialRef.current = null;
+      return;
+    }
+    if (busy) return;
     if (consumedInitialRef.current === initialQuery) return;
-    consumedInitialRef.current = initialQuery;
     const handle = setTimeout(() => {
+      consumedInitialRef.current = initialQuery;
       send(initialQuery);
       onInitialQueryConsumed?.();
     }, 50);
     return () => clearTimeout(handle);
-  }, [initialQuery, send, onInitialQueryConsumed]);
+  }, [initialQuery, busy, send, onInitialQueryConsumed]);
 
   const {
     isListening,

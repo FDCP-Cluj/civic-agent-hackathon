@@ -24,11 +24,11 @@ export function ActeAIChat() {
   const currentSessionId = useChatUi((s) => s.currentSessionId);
   const openChat = useChatUi((s) => s.openChat);
   const closeChat = useChatUi((s) => s.closeChat);
+  const clearInitialQuery = useChatUi((s) => s.clearInitialQuery);
   const startNewSession = useChatUi((s) => s.startNewSession);
 
   const onOpenChange = (next: boolean) => {
-    if (next) openChat();
-    else closeChat();
+    if (!next) closeChat();
   };
 
   return (
@@ -79,6 +79,7 @@ export function ActeAIChat() {
           source="drawer"
           sessionFilter={currentSessionId}
           initialQuery={initialQuery}
+          onInitialQueryConsumed={clearInitialQuery}
           onWorkflowOpen={(id) => {
             closeChat();
             navigate({ to: "/workflow/$id", params: { id } });

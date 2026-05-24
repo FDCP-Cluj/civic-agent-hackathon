@@ -25,7 +25,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Progress } from "@/components/ui/progress";
-import { govApi, type Workflow, type WorkflowStep } from "@/services/govApiMock";
+import { govApi, type StepAction, type Workflow, type WorkflowStep } from "@/services/govApiMock";
 import { usePfaDossier, useTasks } from "@/store";
 import { toast } from "sonner";
 import { StepActionButton } from "@/components/workflow/step-action-button";
@@ -290,6 +290,17 @@ function StepCard({
   const dossierCaen = usePfaDossier((s) => s.codCaenPrincipal);
   const dossierActivity = usePfaDossier((s) => s.activitateDescriere);
   const hasCaenAction = step.actions?.some((a) => a.kind === "caen_suggest") ?? false;
+  const hasExplainAction = step.actions?.some((a) => a.kind === "explain_step") ?? false;
+  const stepActions: StepAction[] = hasExplainAction
+    ? step.actions ?? []
+    : [
+        ...(step.actions ?? []),
+        {
+          kind: "explain_step",
+          label: "Explica pas cu pas",
+          topic: `${step.title}. ${step.description}`,
+        },
+      ];
   const modeLabel =
     step.mode === "online"
       ? "online"
@@ -415,10 +426,10 @@ function StepCard({
             </Accordion>
           )}
 
-          {step.actions && step.actions.length > 0 && (
+          {stepActions.length > 0 && (
             <>
               <div className="mt-3 flex flex-wrap gap-2">
-                {step.actions.map((action, idx) => (
+                {stepActions.map((action, idx) => (
                   <StepActionButton
                     key={idx}
                     action={action}

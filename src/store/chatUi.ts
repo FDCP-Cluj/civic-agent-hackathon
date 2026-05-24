@@ -15,6 +15,7 @@ type ChatUiState = {
   currentSessionId: string;
   openChat: (query?: string) => void;
   closeChat: () => void;
+  clearInitialQuery: () => void;
   startNewSession: () => string;
   setSessionId: (id: string) => void;
 };
@@ -31,6 +32,7 @@ export const useChatUi = create<ChatUiState>((set) => ({
   currentSessionId: newSessionId(),
   openChat: (query) => set({ open: true, initialQuery: query ?? null }),
   closeChat: () => set({ open: false, initialQuery: null }),
+  clearInitialQuery: () => set({ initialQuery: null }),
   startNewSession: () => {
     const id = newSessionId();
     set({ currentSessionId: id });

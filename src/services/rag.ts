@@ -1,6 +1,10 @@
 import type { CaenMatch } from "@/services/caen";
 import { isSupabaseConfigured, supabaseSelect } from "@/services/supabaseClient";
 
+const STEP_RAG_FROM_SUPABASE =
+  import.meta.env.VITE_ENABLE_STEP_RAG_SUPABASE === "1" ||
+  import.meta.env.VITE_ENABLE_STEP_RAG_SUPABASE === "true";
+
 type KnowledgeRow = {
   source: string;
   source_url: string | null;
@@ -98,17 +102,27 @@ export async function explainStepWithRag(
 ): Promise<RagStepGuidance> {
   const query = sanitizeSensitive(topic.trim());
   if (!query) return buildLocalGuidance(topic, stepInfo);
+  if (!STEP_RAG_FROM_SUPABASE) return buildLocalGuidance(topic, stepInfo);
   if (!isSupabaseConfigured()) return buildLocalGuidance(topic, stepInfo);
 
   const tokens = tokenize(query);
   if (tokens.length === 0) return buildLocalGuidance(topic, stepInfo);
 
-  const { data: chunks, error } = await supabaseSelect<KnowledgeRow>({
-    table: "knowledge_chunks",
-    select: "source,source_url,title,content",
-    or: tokens.map((t) => `content.ilike.%${t}%`).join(","),
-    limit: 5,
-  });
+  let chunks: KnowledgeRow[] = [];
+  let error: string | null = null;
+  try {
+    const result = await supabaseSelect<KnowledgeRow>({
+      table: "knowledge_chunks",
+      select: "source,source_url,title,content",
+      or: tokens.map((t) => `content.ilike.%${t}%`).join(","),
+      limit: 5,
+    });
+    chunks = result.data;
+    error = result.error;
+  } catch (err) {
+    console.warn("[rag] explain query threw; fallback local", err);
+    return buildLocalGuidance(topic, stepInfo);
+  }
 
   if (error || chunks.length === 0) {
     if (error) {

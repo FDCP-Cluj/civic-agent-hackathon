@@ -189,9 +189,9 @@ export type ChatSession = {
 
 export type CreateChatSessionOptions = {
   /**
-   * Enable Google Search grounding alongside function declarations.
-   * Some API tiers / key types reject the combination; callers should
-   * fall back to `false` if the first send throws.
+   * Reserved for backward compatibility. This app relies on function
+   * calling tools, and current Gemini API constraints reject combining
+   * built-in Google Search with function declarations in one request.
    */
   withGoogleSearch?: boolean;
 };
@@ -210,15 +210,15 @@ export function createChatSession(
   const ai = new GoogleGenAI({ apiKey: getGeminiApiKey()! });
 
   const tools: Array<{
-    googleSearch?: { searchTypes?: { webSearch?: Record<string, never> } };
     functionDeclarations?: FunctionDeclaration[];
-  }> = [];
+  }> = [{ functionDeclarations: buildTools(workflows) }];
+
   if (withGoogleSearch) {
-    // The JS SDK uses camelCase, then serializes this as the API's
-    // `google_search` tool with web search enabled.
-    tools.push({ googleSearch: { searchTypes: { webSearch: {} } } });
+    // Intentionally no-op: Google Search cannot be combined with function
+    // calling for this key tier/API mode, and function tools are essential
+    // for workflow routing + CAEN/ANAF cards.
+    console.info("[acteai] google_search disabled: incompatible with function calling");
   }
-  tools.push({ functionDeclarations: buildTools(workflows) });
 
   const chat = ai.chats.create({
     model: MODEL,
