@@ -12,9 +12,9 @@ export const PFA_FIELD_SOURCES: Record<string, Record<string, FieldSourcePath>> 
     Text4: "vault.cnp",
     Text5: "vault.address.locality",
     Text6: "vault.address.street",
-    Text7: "vault.address.block",
-    Text8: "vault.address.stair",
-    Text9: "vault.address.streetNumber",
+    Text7: "vault.address.streetNumber",
+    Text8: "vault.address.block",
+    Text9: "vault.address.stair",
     Text10: "vault.address.floor",
     Text11: "vault.address.apartment",
     Text12: "vault.address.county",
@@ -22,8 +22,10 @@ export const PFA_FIELD_SOURCES: Record<string, Record<string, FieldSourcePath>> 
     Text14: "vault.citizenship",
     Text15: "vault.birthLocality",
     Text16: "vault.birthCounty",
-    Text17: "vault.phone",
-    Text18: "vault.email",
+    Text17: "vault.birthCountry",
+    Text18: "vault.birthDate",
+    Text46: "vault.phone",
+    Text47: "vault.email",
     Text19: "vault.idCardType",
     Text20: "vault.idCardSeries",
     Text21: "vault.idCardNumber",
@@ -72,7 +74,15 @@ export const PFA_FIELD_SOURCES: Record<string, Record<string, FieldSourcePath>> 
 };
 
 /** Fields that must never receive autofill (matrix / optional sections). */
+export function isUiHiddenField(templateId: string, pdfFieldName: string): boolean {
+  if (templateId === "rezervare-denumire-24940" && /^CheckBox/i.test(pdfFieldName)) {
+    return true;
+  }
+  return false;
+}
+
 export function isAutofillBlockedField(pdfFieldName: string): boolean {
+  if (/^CheckBox/i.test(pdfFieldName)) return true;
   if (pdfFieldName.startsWith("sedii_sec_")) return true;
   const caenRow = /^clasa_caen\.(\d+)\./.exec(pdfFieldName);
   if (caenRow && Number(caenRow[1]) > 0) return true;

@@ -3,7 +3,7 @@
 // shared `<AgentChatPanel/>` so the dedicated `/chat` route can render the same
 // experience without duplicating logic.
 
-import { ExternalLink, Sparkles } from "lucide-react";
+import { ExternalLink, MessageCircle } from "lucide-react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import {
   Drawer,
@@ -37,7 +37,7 @@ export function ActeAIChat() {
         <DrawerHeader className="border-b border-border/60 text-left">
           <div className="flex items-center gap-2">
             <div className="flex size-8 items-center justify-center rounded-xl bg-tricolor-flag shadow-soft">
-              <Sparkles className="size-4 text-white drop-shadow" />
+              <MessageCircle className="size-4 text-white drop-shadow" />
             </div>
             <div className="min-w-0 flex-1">
               <DrawerTitle className="text-base">Agentul ActeAI</DrawerTitle>

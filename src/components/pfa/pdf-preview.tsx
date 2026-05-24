@@ -1,7 +1,8 @@
-import { useEffect, useRef, useState } from "react";
-import { ExternalLink } from "lucide-react";
+import { memo, useEffect, useRef, useState } from "react";
+import { ExternalLink, Loader2 } from "lucide-react";
 import * as pdfjsLib from "pdfjs-dist";
 import pdfjsWorker from "pdfjs-dist/build/pdf.worker.min.mjs?url";
+import { pdfBytesFingerprint } from "@/lib/pdf-bytes";
 import type { WidgetRect } from "@/services/forms/pdf-widget-rects";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker;
@@ -20,15 +21,26 @@ type Props = {
   onPagesReady?: (pages: PdfPageInfo[]) => void;
   highlightRect?: WidgetRect | null;
   scrollContainerRef?: React.RefObject<HTMLDivElement | null>;
+  isUpdating?: boolean;
 };
 
-export function PdfPreview({ pdfBytes, onPagesReady, highlightRect, scrollContainerRef }: Props) {
+function PdfPreviewInner({
+  pdfBytes,
+  onPagesReady,
+  highlightRect,
+  scrollContainerRef,
+  isUpdating,
+}: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
   const [mobileUrl, setMobileUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [pages, setPages] = useState<PdfPageInfo[]>([]);
+  const [hasRendered, setHasRendered] = useState(false);
   const onPagesReadyRef = useRef(onPagesReady);
+  const lastFingerprintRef = useRef<string | null>(null);
+  const renderGenRef = useRef(0);
+
   useEffect(() => {
     onPagesReadyRef.current = onPagesReady;
   }, [onPagesReady]);
@@ -36,16 +48,23 @@ export function PdfPreview({ pdfBytes, onPagesReady, highlightRect, scrollContai
   useEffect(() => {
     const bytes =
       pdfBytes instanceof Uint8Array ? new Uint8Array(pdfBytes) : new Uint8Array(pdfBytes);
-    const blob = new Blob([bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength)], {
-      type: "application/pdf",
-    });
+    const blob = new Blob(
+      [bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength)],
+      { type: "application/pdf" },
+    );
     const url = URL.createObjectURL(blob);
     setMobileUrl(url);
     return () => URL.revokeObjectURL(url);
   }, [pdfBytes]);
 
   useEffect(() => {
+    const fingerprint = pdfBytesFingerprint(pdfBytes);
+    if (fingerprint === lastFingerprintRef.current && hasRendered) {
+      return;
+    }
+
     let cancelled = false;
+    const gen = ++renderGenRef.current;
     const view = pdfBytes instanceof Uint8Array ? pdfBytes : new Uint8Array(pdfBytes);
     const copy = new Uint8Array(view.length);
     copy.set(view);
@@ -54,7 +73,7 @@ export function PdfPreview({ pdfBytes, onPagesReady, highlightRect, scrollContai
 
     task.promise
       .then(async (pdf) => {
-        if (cancelled) {
+        if (cancelled || gen !== renderGenRef.current) {
           pdf.destroy();
           return;
         }
@@ -90,7 +109,7 @@ export function PdfPreview({ pdfBytes, onPagesReady, highlightRect, scrollContai
         const pageInfos: PdfPageInfo[] = [];
 
         for (let i = 1; i <= pdf.numPages; i++) {
-          if (cancelled) {
+          if (cancelled || gen !== renderGenRef.current) {
             pdf.destroy();
             return;
           }
@@ -112,7 +131,7 @@ export function PdfPreview({ pdfBytes, onPagesReady, highlightRect, scrollContai
           if (!ctx) continue;
           await page.render({ canvasContext: ctx, viewport, transform }).promise;
 
-          if (cancelled) {
+          if (cancelled || gen !== renderGenRef.current) {
             pdf.destroy();
             return;
           }
@@ -140,14 +159,16 @@ export function PdfPreview({ pdfBytes, onPagesReady, highlightRect, scrollContai
         }
 
         pdf.destroy();
-        if (!cancelled) {
+        if (!cancelled && gen === renderGenRef.current) {
+          lastFingerprintRef.current = fingerprint;
           setError(null);
           setPages(pageInfos);
+          setHasRendered(true);
           onPagesReadyRef.current?.(pageInfos);
         }
       })
       .catch((err) => {
-        if (cancelled) return;
+        if (cancelled || gen !== renderGenRef.current) return;
         if (err?.name === "RenderingCancelledException") return;
         console.warn("[PdfPreview]", err);
         setError(err instanceof Error ? err.message : "Eroare la afișarea PDF-ului.");
@@ -210,29 +231,51 @@ export function PdfPreview({ pdfBytes, onPagesReady, highlightRect, scrollContai
         </div>
       )}
 
-      <div ref={containerRef} className="hidden md:block w-full h-full overflow-auto">
+      <div ref={containerRef} className="relative hidden md:block w-full h-full overflow-auto">
         {error ? (
           <p className="text-sm text-destructive p-4">{error}</p>
         ) : (
-          <div ref={wrapperRef} className="mx-auto py-2" />
+          <>
+            <div ref={wrapperRef} className="mx-auto py-2" />
+            {(isUpdating || (!hasRendered && !error)) && (
+              <div className="pointer-events-none absolute inset-0 flex items-start justify-center bg-background/40 pt-8">
+                <span className="inline-flex items-center gap-2 rounded-full border border-border/80 bg-background/90 px-3 py-1.5 text-xs text-muted-foreground shadow-sm">
+                  <Loader2 className="size-3.5 animate-spin" />
+                  Actualizez previzualizarea…
+                </span>
+              </div>
+            )}
+          </>
         )}
       </div>
     </>
   );
 }
 
+export const PdfPreview = memo(PdfPreviewInner);
+
 export function PdfIframePreview({ pdfBytes }: { pdfBytes: ArrayBuffer | Uint8Array }) {
   const [url, setUrl] = useState<string | null>(null);
+  const lastFpRef = useRef<string | null>(null);
+
   useEffect(() => {
+    const fp = pdfBytesFingerprint(pdfBytes);
+    if (fp === lastFpRef.current && url) return;
+
     const bytes =
       pdfBytes instanceof Uint8Array ? new Uint8Array(pdfBytes) : new Uint8Array(pdfBytes);
-    const blob = new Blob([bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength)], {
-      type: "application/pdf",
-    });
+    const blob = new Blob(
+      [bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength)],
+      { type: "application/pdf" },
+    );
     const u = URL.createObjectURL(blob);
-    setUrl(u);
+    lastFpRef.current = fp;
+    setUrl((prev) => {
+      if (prev) URL.revokeObjectURL(prev);
+      return u;
+    });
     return () => URL.revokeObjectURL(u);
-  }, [pdfBytes]);
+  }, [pdfBytes, url]);
 
   if (!url) return null;
   return (
