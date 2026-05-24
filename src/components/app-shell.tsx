@@ -1,5 +1,5 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
-import { ShieldCheck, Sparkles, Accessibility, LogOut } from "lucide-react";
+import { ShieldCheck, MessageCircle, Accessibility, LogOut } from "lucide-react";
 import { lazy, Suspense, useState } from "react";
 import { useAuth, useChatUi } from "@/store";
 import { cn } from "@/lib/utils";
@@ -174,7 +174,7 @@ export function AppShell({ children, showOfficialFooter = false }: AppShellProps
           aria-label="Întreabă agentul ActeAI"
           className="fixed bottom-4 right-4 z-40 flex size-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-none transition-transform hover:scale-105 active:scale-95"
         >
-          <Sparkles className="size-6" />
+          <MessageCircle className="size-6" />
         </button>
       )}
       <Suspense fallback={null}>

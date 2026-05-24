@@ -7,8 +7,8 @@ import {
   ScanLine,
   Settings,
   ScrollText,
-  Sparkles,
 } from "lucide-react";
+import { useChatUi } from "@/store";
 import {
   Sidebar,
   SidebarContent,
@@ -33,6 +33,7 @@ const NAV_ITEMS = [
 
 export function AppSidebar() {
   const path = useRouterState({ select: (s) => s.location.pathname });
+  const openChat = useChatUi((s) => s.openChat);
   return (
     <Sidebar collapsible="none" className="h-svh border-r border-sidebar-border bg-sidebar">
       <SidebarHeader className="border-b border-sidebar-border/70 pb-3">
@@ -71,15 +72,19 @@ export function AppSidebar() {
       </SidebarContent>
 
       <SidebarFooter>
-        <div className="rounded-lg border border-sidebar-border/70 bg-sidebar-accent/20 p-3">
+        <button
+          type="button"
+          onClick={() => openChat()}
+          className="w-full rounded-lg border border-sidebar-border/70 bg-sidebar-accent/20 p-3 text-left transition-colors hover:bg-sidebar-accent/40"
+        >
           <div className="flex items-center gap-2 text-sm font-medium text-sidebar-foreground">
-            <Sparkles className="size-4 text-primary/90" />
+            <MessageCircle className="size-4 text-primary/90" />
             Ai nevoie de ajutor?
           </div>
           <p className="mt-1 text-xs leading-relaxed text-sidebar-foreground/75">
-            Deschide Chat pentru recomandari rapide de proceduri.
+            Deschide chat-ul pentru recomandări rapide de proceduri.
           </p>
-        </div>
+        </button>
       </SidebarFooter>
     </Sidebar>
   );

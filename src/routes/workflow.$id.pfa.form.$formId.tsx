@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { copyArrayBuffer, pdfBytesFingerprint } from "@/lib/pdf-bytes";
 import { useForm, useWatch } from "react-hook-form";
 import {
   ArrowLeft,
@@ -17,11 +18,11 @@ import { AppShell } from "@/components/app-shell";
 import { PageHeader } from "@/components/dashboard/page-header";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { PfaFormField } from "@/components/pfa/pfa-form-field";
 import { PdfIframePreview, PdfPreview } from "@/components/pfa/pdf-preview";
 import { SubmissionStrip } from "@/components/pfa/submission-strip";
 import { isCollapsibleField } from "@/data/forms/pfa/field-labels.ro";
+import { isUiHiddenField } from "@/data/forms/pfa/pfa-field-sources";
 import {
   buildZodSchema,
   fillAndDownload,
@@ -74,10 +75,19 @@ function PfaFormFillPage() {
   const [showAdvanced, setShowAdvanced] = useState(false);
   const pdfScrollRef = useRef<HTMLDivElement>(null);
   const initKeyRef = useRef<string | null>(null);
+  const previewFingerprintRef = useRef<string | null>(null);
+  const previewGenRef = useRef(0);
+  const valuesFingerprintRef = useRef<string>("");
 
   const visibleFields = useMemo(
-    () => template?.fields.filter((f) => !f.hidden && f.type !== "unsupported") ?? [],
-    [template],
+    () =>
+      template?.fields.filter(
+        (f) =>
+          !f.hidden &&
+          f.type !== "unsupported" &&
+          !isUiHiddenField(formId, f.pdfFieldName),
+      ) ?? [],
+    [template, formId],
   );
 
   const zodSchema = useMemo(
@@ -159,24 +169,36 @@ function PfaFormFillPage() {
   ]);
 
   const regeneratePreview = useCallback(
-    async (values: FormValues, tmpl: PfaFormTemplate, bytes: ArrayBuffer) => {
+    async (values: FormValues, tmpl: PfaFormTemplate, bytes: ArrayBuffer, gen: number) => {
       if (!hasAnyValue(values)) {
-        setPreviewBytes(null);
+        if (previewFingerprintRef.current !== null) {
+          previewFingerprintRef.current = null;
+          setPreviewBytes(null);
+        }
+        setPreviewing(false);
         return;
       }
+
       setPreviewing(true);
       try {
         const filled = await fillPdf(tmpl, bytes, values, { skipFlatten: true });
-        setPreviewBytes(
-          filled.buffer.slice(
-            filled.byteOffset,
-            filled.byteOffset + filled.byteLength,
-          ) as ArrayBuffer,
-        );
+        if (gen !== previewGenRef.current) return;
+
+        const copy = copyArrayBuffer(filled);
+        const fp = pdfBytesFingerprint(copy);
+        if (fp === previewFingerprintRef.current) {
+          setPreviewing(false);
+          return;
+        }
+
+        previewFingerprintRef.current = fp;
+        setPreviewBytes(copy);
       } catch (err) {
         console.warn("[preview]", err);
       } finally {
-        setPreviewing(false);
+        if (gen === previewGenRef.current) {
+          setPreviewing(false);
+        }
       }
     },
     [],
@@ -186,9 +208,14 @@ function PfaFormFillPage() {
     if (!template || !pdfOriginalBytes) return;
     if (typeof window !== "undefined" && !window.matchMedia("(min-width: 768px)").matches) return;
 
+    const valuesJson = JSON.stringify(watchedValues ?? {});
+    if (valuesJson === valuesFingerprintRef.current) return;
+
     const timer = setTimeout(() => {
-      regeneratePreview(watchedValues ?? {}, template, pdfOriginalBytes);
-    }, 500);
+      valuesFingerprintRef.current = valuesJson;
+      const gen = ++previewGenRef.current;
+      regeneratePreview(watchedValues ?? {}, template, pdfOriginalBytes, gen);
+    }, 750);
 
     return () => clearTimeout(timer);
   }, [watchedValues, template, pdfOriginalBytes, regeneratePreview]);
@@ -198,7 +225,10 @@ function PfaFormFillPage() {
     [widgetRects, focusedField],
   );
 
-  const previewSource = previewBytes ?? pdfOriginalBytes;
+  const previewSource = useMemo(
+    () => previewBytes ?? pdfOriginalBytes,
+    [previewBytes, pdfOriginalBytes],
+  );
   const showingFilledPreview = previewBytes !== null;
 
   if (id !== "pfa-registration" || !template) {
@@ -281,10 +311,10 @@ function PfaFormFillPage() {
           </Card>
         )}
 
-        <div className="flex flex-col lg:flex-row gap-4 min-h-[calc(100vh-12rem)]">
-          <div className="lg:w-[42%] flex flex-col min-h-0">
-            <Card className="flex-1 flex flex-col overflow-hidden p-0">
-              <ScrollArea className="flex-1 max-h-[calc(100vh-14rem)]">
+        <div className="flex flex-col lg:flex-row gap-4 lg:items-stretch lg:h-[calc(100vh-9rem)]">
+          <div className="flex flex-col gap-3 lg:w-[42%] lg:min-h-0 lg:shrink-0">
+            <Card className="flex flex-1 flex-col overflow-hidden p-0 min-h-[min(70vh,32rem)] lg:min-h-0">
+              <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain">
                 <div className="p-4 space-y-4">
                   {hiddenCollapsibleCount > 0 && (
                     <Button
@@ -335,7 +365,7 @@ function PfaFormFillPage() {
                     </div>
                   ))}
                 </div>
-              </ScrollArea>
+              </div>
             </Card>
 
             <div className="flex flex-col sm:flex-row gap-2 mt-3 shrink-0">
@@ -354,7 +384,7 @@ function PfaFormFillPage() {
             </div>
           </div>
 
-          <Card className="lg:flex-1 flex flex-col overflow-hidden p-0 min-h-[420px] lg:min-h-0">
+          <Card className="flex flex-col overflow-hidden p-0 min-h-[min(70vh,32rem)] lg:min-h-0 lg:flex-1">
             <div className="flex items-center justify-between gap-2 border-b border-border/80 px-3 py-2 shrink-0">
               <span className="text-sm font-medium truncate">
                 {pdfOnly
@@ -364,12 +394,6 @@ function PfaFormFillPage() {
                     : "Formular original ONRC"}
               </span>
               <div className="flex items-center gap-2 shrink-0">
-                {previewing && !pdfOnly && (
-                  <span className="text-xs text-muted-foreground flex items-center gap-1">
-                    <Loader2 className="size-3 animate-spin" />
-                    Actualizez…
-                  </span>
-                )}
                 <Button
                   type="button"
                   variant="ghost"
@@ -405,6 +429,7 @@ function PfaFormFillPage() {
                   pdfBytes={previewSource}
                   highlightRect={highlightRect}
                   scrollContainerRef={pdfScrollRef}
+                  isUpdating={previewing}
                 />
               )}
             </div>
