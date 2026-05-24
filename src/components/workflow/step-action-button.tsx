@@ -5,7 +5,7 @@
 // but adapted for the local-only stack:
 //   - `find_institution`  →  opens Google Maps with a `?q=` query (no API key)
 //   - `online_banks`      →  shows a popover with a curated static list
-//   - `caen_suggest`      →  routes to the chat with a seed prompt
+//   - `caen_suggest`      →  opens a CAEN suggestion modal and persists selection
 //   - `explain_step`      →  routes to the chat with a seed prompt + local info[] fallback
 //   - `prefill_pdf`       →  triggers client-side PDF generation (TODO: wire to pdf-lib in step 5/6)
 //   - `deep_link`         →  resolves via resolveDeepLink(workflowId, stepKey)
@@ -40,11 +40,12 @@ import { Label } from "@/components/ui/label";
 import { resolveDeepLink } from "@/services/deepLinks";
 import { ONLINE_BANKS } from "@/services/onlineBanks";
 import { findInstitution, localityFromAddress } from "@/services/findInstitution";
-import { useChatUi, useVault } from "@/store";
+import { useChatUi, usePfaDossier, useVault } from "@/store";
 import type { StepAction } from "@/services/govApiMock";
 import { toast } from "sonner";
 import { explainStepWithRag } from "@/services/rag";
 import { tipizatulBrowseUrl, tipizatulProcedureUrl } from "@/services/tipizatul";
+import { CaenSuggestDialog } from "@/components/pfa/caen-suggest-dialog";
 
 type Props = {
   action: StepAction;
@@ -58,7 +59,11 @@ export function StepActionButton({ action, workflowId, stepKey, stepTitle, stepI
   const openChat = useChatUi((s) => s.openChat);
   const profile = useVault((s) => s.profile);
   const profileLocality = localityFromAddress(profile.address);
+  const updateDossier = usePfaDossier((s) => s.updateDossier);
+  const dossierActivity = usePfaDossier((s) => s.activitateDescriere);
+  const dossierCaen = usePfaDossier((s) => s.codCaenPrincipal);
   const [placesOpen, setPlacesOpen] = useState(false);
+  const [caenOpen, setCaenOpen] = useState(false);
   const [placesLoading, setPlacesLoading] = useState(false);
   const [placesCityOverride, setPlacesCityOverride] = useState("");
   const [placesData, setPlacesData] = useState<Awaited<ReturnType<typeof findInstitution>> | null>(
@@ -275,17 +280,26 @@ export function StepActionButton({ action, workflowId, stepKey, stepTitle, stepI
 
     case "caen_suggest":
       return (
-        <Button
-          size="sm"
-          variant="default"
-          onClick={() =>
-            openChat(
-              "Sugerează-mi coduri CAEN potrivite pentru activitatea mea folosind baza de cunoștințe (RAG), apoi verifică și fallback local dacă lipsește ceva. Te rog întreabă-mă mai întâi ce fac concret.",
-            )
-          }
-        >
-          <Sparkles className="size-3.5" /> {action.label ?? "Sugerează CAEN cu AI"}
-        </Button>
+        <>
+          <Button size="sm" variant="default" onClick={() => setCaenOpen(true)}>
+            <Sparkles className="size-3.5" /> {action.label ?? "Sugerează CAEN cu AI"}
+          </Button>
+          <CaenSuggestDialog
+            open={caenOpen}
+            onOpenChange={setCaenOpen}
+            initialActivity={dossierActivity}
+            onSelect={(selection) => {
+              updateDossier({
+                codCaenPrincipal: selection.code,
+                // For legal forms we persist the official CAEN class title.
+                activitateDescriere: selection.title,
+              });
+              toast.success(`CAEN ${selection.code} salvat în dosar.`, {
+                description: selection.title,
+              });
+            }}
+          />
+        </>
       );
 
     case "explain_step":
@@ -341,12 +355,15 @@ export function StepActionButton({ action, workflowId, stepKey, stepTitle, stepI
                 ]);
                 const bytes = await generateDeclaratiePfaPdf({
                   profile,
-                  descriereActivitate: undefined,
-                  codCaen: undefined,
+                  descriereActivitate: dossierActivity || undefined,
+                  codCaen: dossierCaen || undefined,
                 });
                 downloadPdf(bytes, `civis-declaratie-pfa-draft.pdf`);
                 toast.success("Declarație PFA draft generată.", {
-                  description: "Completează manual codul CAEN și activitatea înainte de depunere.",
+                  description:
+                    dossierCaen && dossierActivity
+                      ? "Am folosit CAEN-ul salvat în dosar."
+                      : "Completează manual codul CAEN și activitatea înainte de depunere.",
                 });
                 return;
               }

@@ -1,5 +1,7 @@
 import type { TemplateField } from "@/services/forms/types";
+import { Sparkles } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -18,9 +20,10 @@ type Props = {
   onChange: (value: string | boolean) => void;
   onFocus?: () => void;
   highlight?: boolean;
+  onCaenAssist?: () => void;
 };
 
-export function PfaFormField({ field, value, onChange, onFocus, highlight }: Props) {
+export function PfaFormField({ field, value, onChange, onFocus, highlight, onCaenAssist }: Props) {
   const id = `pfa-field-${field.pdfFieldName}`;
 
   if (field.type === "checkbox") {
@@ -80,10 +83,24 @@ export function PfaFormField({ field, value, onChange, onFocus, highlight }: Pro
 
   return (
     <div className={cn("space-y-1.5", highlight && "rounded-lg ring-1 ring-amber-500/50 p-2")}>
-      <Label htmlFor={id}>
-        {field.label}
-        {field.isRequired && <span className="text-destructive ml-0.5">*</span>}
-      </Label>
+      <div className="flex items-center justify-between gap-2">
+        <Label htmlFor={id}>
+          {field.label}
+          {field.isRequired && <span className="text-destructive ml-0.5">*</span>}
+        </Label>
+        {onCaenAssist ? (
+          <Button
+            type="button"
+            size="sm"
+            variant="ghost"
+            className="h-7 gap-1 px-2 text-xs"
+            onClick={onCaenAssist}
+          >
+            <Sparkles className="size-3.5" />
+            Sugerează CAEN
+          </Button>
+        ) : null}
+      </div>
       {multiline ? (
         <Textarea
           id={id}

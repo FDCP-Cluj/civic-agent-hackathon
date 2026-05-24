@@ -1,11 +1,5 @@
-import { findCaen, type CaenMatch } from "@/services/caen";
+import type { CaenMatch } from "@/services/caen";
 import { isSupabaseConfigured, supabaseSelect } from "@/services/supabaseClient";
-
-type CaenRow = {
-  code: string;
-  title: string;
-  description: string | null;
-};
 
 type KnowledgeRow = {
   source: string;
@@ -21,7 +15,7 @@ export type RagCitation = {
 };
 
 export type RagCaenSuggestion = {
-  source: "supabase_rag" | "local_fallback";
+  source: "supabase_vector_ai" | "supabase_rag" | "local_fallback";
   matches: Array<CaenMatch & { evidence?: string }>;
   citations: RagCitation[];
   degraded: boolean;
@@ -56,26 +50,6 @@ function tokenize(input: string): string[] {
   return [...uniq].slice(0, 6);
 }
 
-function scoreCaenRow(row: CaenRow, tokens: string[]): number {
-  const title = normalize(row.title);
-  const desc = normalize(row.description ?? "");
-  let score = 0;
-  for (const t of tokens) {
-    if (title.includes(t)) score += 4;
-    if (desc.includes(t)) score += 2;
-  }
-  return score;
-}
-
-function fallbackFromLocal(activity: string): RagCaenSuggestion {
-  return {
-    source: "local_fallback",
-    matches: findCaen(activity, 5),
-    citations: [],
-    degraded: true,
-  };
-}
-
 function buildLocalGuidance(topic: string, stepInfo?: string[]): RagStepGuidance {
   const localBullets = (stepInfo ?? []).filter(Boolean).slice(0, 4);
   return {
@@ -94,68 +68,27 @@ function buildLocalGuidance(topic: string, stepInfo?: string[]): RagStepGuidance
 
 export async function suggestCaenWithRag(activity: string): Promise<RagCaenSuggestion> {
   const query = sanitizeSensitive(activity.trim());
-  if (!query) return fallbackFromLocal(activity);
-
-  if (!isSupabaseConfigured()) return fallbackFromLocal(activity);
-
-  const tokens = tokenize(query);
-  if (tokens.length === 0) return fallbackFromLocal(activity);
-
-  const orExpr = tokens
-    .flatMap((t) => [`title.ilike.%${t}%`, `description.ilike.%${t}%`])
-    .join(",");
-
-  const [{ data: caenRows, error: caenErr }, { data: chunks, error: chunksErr }] =
-    await Promise.all([
-      supabaseSelect<CaenRow>({
-        table: "caen_codes",
-        select: "code,title,description",
-        or: orExpr,
-        limit: 30,
-      }),
-      supabaseSelect<KnowledgeRow>({
-        table: "knowledge_chunks",
-        select: "source,source_url,title,content",
-        in: { source: ["caen", "onrc"] },
-        or: tokens.map((t) => `content.ilike.%${t}%`).join(","),
-        limit: 5,
-      }),
-    ]);
-
-  if (caenErr) {
-    console.warn("[rag] caen query failed, using local fallback", caenErr);
-    return fallbackFromLocal(activity);
+  if (!query || query.length < 3) {
+    throw new Error("Descrierea activității trebuie să aibă cel puțin 3 caractere.");
   }
 
-  const ranked = (caenRows ?? [])
-    .map((row) => ({
-      code: row.code,
-      title: row.title,
-      keywords: [],
-      score: scoreCaenRow(row, tokens),
-      evidence: row.description ?? undefined,
-    }))
-    .filter((m) => m.score > 0)
-    .sort((a, b) => b.score - a.score)
-    .slice(0, 5);
-
-  if (ranked.length === 0) {
-    return fallbackFromLocal(activity);
+  const res = await fetch("/api/caen/suggest", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ description: query }),
+  });
+  const payload = (await res.json()) as Partial<RagCaenSuggestion> & { error?: string };
+  if (!res.ok) {
+    throw new Error(payload.error ?? `CAEN suggest failed (${res.status}).`);
   }
-
-  if (chunksErr) {
-    console.warn("[rag] citations query failed; proceeding without citations", chunksErr);
+  if (!Array.isArray(payload.matches) || payload.matches.length === 0) {
+    throw new Error("Nu am găsit coduri CAEN relevante pentru descrierea introdusă.");
   }
-
   return {
-    source: "supabase_rag",
-    matches: ranked,
-    citations: (chunks ?? []).map((c) => ({
-      title: c.title ?? c.source,
-      source: c.source,
-      url: c.source_url,
-    })),
-    degraded: false,
+    source: payload.source ?? "supabase_vector_ai",
+    matches: payload.matches,
+    citations: payload.citations ?? [],
+    degraded: Boolean(payload.degraded),
   };
 }
 
