@@ -11,18 +11,17 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import {
   AlertTriangle,
   ArrowRight,
-  Bot,
   Building2,
   CheckCircle2,
   ExternalLink,
   Globe,
   KeyRound,
   Loader2,
+  MessageCircle,
   Mic,
   MicOff,
   Send,
   ShieldCheck,
-  Sparkles,
   User,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -600,7 +599,7 @@ function MessageBubble({
             </>
           ) : (
             <>
-              <Bot className="size-3" />
+              <MessageCircle className="size-3" />
               <span>ActeAI</span>
             </>
           )}
@@ -635,7 +634,7 @@ function MessageBubble({
         {message.workflowCta && (
           <Card className="animate-[fade-in_0.4s_ease-out] border-primary/30 bg-gradient-to-br from-card to-accent/30 p-3">
             <div className="mb-2 flex items-center gap-2">
-              <Sparkles className="size-3.5 text-primary" />
+              <MessageCircle className="size-3.5 text-primary" />
               <span className="text-[11px] font-semibold uppercase tracking-wider text-primary">
                 Ghid pas-cu-pas
               </span>
@@ -815,7 +814,6 @@ function AnafResultCard({ anaf }: { anaf: AnafCard }) {
 function CaenSuggestionCard({ caen }: { caen: CaenCard }) {
   const fallbackMatches = findCaen(caen.activitate, 5);
   const matches = caen.result?.matches ?? fallbackMatches;
-  const sourceLabel = caen.result?.source ?? "local_fallback";
   const citations = caen.result?.citations ?? [];
   const searchUrl = `https://www.caen.ro/?s=${encodeURIComponent(caen.activitate)}`;
 
@@ -833,12 +831,9 @@ function CaenSuggestionCard({ caen }: { caen: CaenCard }) {
   return (
     <Card className="animate-[fade-in_0.3s_ease-out] border-primary/30 bg-card p-3">
       <div className="mb-1.5 flex items-center gap-2">
-        <Sparkles className="size-3.5 text-primary" />
+        <MessageCircle className="size-3.5 text-primary" />
         <span className="text-[11px] font-semibold uppercase tracking-wider text-primary">
           CAEN · sugestii
-        </span>
-        <span className="ml-auto text-[10px] uppercase tracking-wider text-muted-foreground">
-          {sourceLabel === "supabase_rag" ? "RAG" : "fallback local"}
         </span>
       </div>
       <p className="mb-2 text-xs leading-relaxed text-muted-foreground">
@@ -878,7 +873,7 @@ function CaenSuggestionCard({ caen }: { caen: CaenCard }) {
       {citations.length > 0 && (
         <div className="mb-3 space-y-1">
           <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
-            Surse RAG
+            Surse
           </div>
           {citations.slice(0, 3).map((c) => (
             <a
@@ -926,7 +921,7 @@ function ChatEmptyState({ onPick }: { onPick: (q: string) => void }) {
   return (
     <div className="flex animate-[fade-in_0.4s_ease-out] flex-col items-center py-6 text-center">
       <div className="mb-3 flex size-14 items-center justify-center rounded-2xl bg-accent">
-        <Sparkles className="size-6 text-primary" />
+        <MessageCircle className="size-6 text-primary" />
       </div>
       <h3 className="mb-1 text-base font-semibold">Cu ce te ajut astăzi?</h3>
       <p className="mb-4 max-w-xs text-xs leading-relaxed text-muted-foreground">

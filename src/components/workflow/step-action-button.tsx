@@ -21,8 +21,8 @@ import {
   FileDown,
   HelpCircle,
   MapPin,
+  MessageCircle,
   Phone,
-  Sparkles,
   Star,
   FileText,
 } from "lucide-react";
@@ -282,7 +282,7 @@ export function StepActionButton({ action, workflowId, stepKey, stepTitle, stepI
       return (
         <>
           <Button size="sm" variant="default" onClick={() => setCaenOpen(true)}>
-            <Sparkles className="size-3.5" /> {action.label ?? "Sugerează CAEN cu AI"}
+            <MessageCircle className="size-3.5" /> {action.label ?? "Sugerează CAEN cu AI"}
           </Button>
           <CaenSuggestDialog
             open={caenOpen}
@@ -313,7 +313,7 @@ export function StepActionButton({ action, workflowId, stepKey, stepTitle, stepI
               const rag = await explainStepWithRag(action.topic, stepInfo);
               const ragBlock =
                 rag.bullets.length > 0
-                  ? `\n\nContext RAG (${rag.source}):\n${rag.bullets.map((b) => `- ${b}`).join("\n")}`
+                  ? `\n\nContext suplimentar (${rag.source}):\n${rag.bullets.map((b) => `- ${b}`).join("\n")}`
                   : "";
               const refs =
                 rag.citations.length > 0
