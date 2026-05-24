@@ -26,9 +26,8 @@ import {
 } from "@/components/ui/accordion";
 import { Progress } from "@/components/ui/progress";
 import { govApi, type Workflow, type WorkflowStep } from "@/services/govApiMock";
-import { useTasks } from "@/store";
+import { usePfaDossier, useTasks } from "@/store";
 import { toast } from "sonner";
-import { MagicAutofillButton } from "@/components/magic-autofill-button";
 import { StepActionButton } from "@/components/workflow/step-action-button";
 import { TipizatulFormsCard } from "@/components/workflow/tipizatul-forms-card";
 import { PageHeader } from "@/components/dashboard/page-header";
@@ -288,6 +287,9 @@ function StepCard({
   completed: boolean;
   onToggleComplete: () => void;
 }) {
+  const dossierCaen = usePfaDossier((s) => s.codCaenPrincipal);
+  const dossierActivity = usePfaDossier((s) => s.activitateDescriere);
+  const hasCaenAction = step.actions?.some((a) => a.kind === "caen_suggest") ?? false;
   const modeLabel =
     step.mode === "online"
       ? "online"
@@ -414,25 +416,37 @@ function StepCard({
           )}
 
           {step.actions && step.actions.length > 0 && (
-            <div className="mt-3 flex flex-wrap gap-2">
-              {step.actions.map((action, idx) => (
-                <StepActionButton
-                  key={idx}
-                  action={action}
-                  workflowId={workflowId}
-                  stepKey={step.key}
-                  stepTitle={step.title}
-                  stepInfo={step.info}
-                />
-              ))}
-            </div>
+            <>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {step.actions.map((action, idx) => (
+                  <StepActionButton
+                    key={idx}
+                    action={action}
+                    workflowId={workflowId}
+                    stepKey={step.key}
+                    stepTitle={step.title}
+                    stepInfo={step.info}
+                  />
+                ))}
+              </div>
+              {hasCaenAction && dossierCaen ? (
+                <div className="mt-2 rounded-md border border-primary/20 bg-primary/5 px-2.5 py-2">
+                  <div className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                    CAEN selectat
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Badge variant="secondary" className="font-mono">
+                      {dossierCaen}
+                    </Badge>
+                    {dossierActivity ? (
+                      <span className="text-xs text-foreground">{dossierActivity}</span>
+                    ) : null}
+                  </div>
+                </div>
+              ) : null}
+            </>
           )}
 
-          {!completed && step.order === 1 && (
-            <div className="mt-3">
-              <MagicAutofillButton workflowId={workflowId} />
-            </div>
-          )}
         </div>
       </div>
     </Card>

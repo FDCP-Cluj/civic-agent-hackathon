@@ -10,7 +10,8 @@
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "seed:caen": "node ./src/scripts/seed-caen-ro.mjs"
   },
   "dependencies": {
     "@cloudflare/vite-plugin": "^1.25.5",

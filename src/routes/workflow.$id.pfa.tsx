@@ -9,8 +9,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { PageHeader } from "@/components/dashboard/page-header";
 import { SubmissionStrip } from "@/components/pfa/submission-strip";
+import { CaenSuggestDialog } from "@/components/pfa/caen-suggest-dialog";
 import { useVault, usePfaDossier } from "@/store";
-import { suggestCaenWithRag } from "@/services/rag";
 import { PFA_DOSSIER_CARDS, loadPfaTemplate, type PfaDossierCardDef } from "@/services/forms";
 import { toast } from "sonner";
 import { useState } from "react";
@@ -49,7 +49,7 @@ function PfaDossierHubPage() {
 
   const [activity, setActivity] = useState(dossier.activitateDescriere);
   const [caenCode, setCaenCode] = useState(dossier.codCaenPrincipal);
-  const [ragLoading, setRagLoading] = useState(false);
+  const [caenDialogOpen, setCaenDialogOpen] = useState(false);
 
   useEffect(() => {
     if (id === "pfa-registration") syncFromProfile(profile);
@@ -77,24 +77,6 @@ function PfaDossierHubPage() {
       </AppShell>
     );
   }
-
-  const handleSuggest = async () => {
-    if (!activity.trim()) {
-      toast.info("Descrie activitatea pentru CAEN.");
-      return;
-    }
-    setRagLoading(true);
-    const res = await suggestCaenWithRag(activity);
-    const code = res.matches[0]?.code ?? "";
-    if (code) {
-      setCaenCode(code);
-      updateDossier({
-        codCaenPrincipal: code,
-        activitateDescriere: activity,
-      });
-    }
-    setRagLoading(false);
-  };
 
   const saveDossierMeta = () => {
     updateDossier({
@@ -174,7 +156,7 @@ function PfaDossierHubPage() {
           </div>
         </div>
         <div className="flex flex-wrap gap-2 mt-3">
-          <Button size="sm" variant="outline" onClick={handleSuggest} disabled={ragLoading}>
+          <Button size="sm" variant="outline" onClick={() => setCaenDialogOpen(true)}>
             <Sparkles className="size-4" />
             Sugerează CAEN
           </Button>
@@ -182,6 +164,23 @@ function PfaDossierHubPage() {
             Salvează în dosar
           </Button>
         </div>
+        <CaenSuggestDialog
+          open={caenDialogOpen}
+          onOpenChange={setCaenDialogOpen}
+          initialActivity={activity}
+          onSelect={(selection) => {
+            const nextActivity = selection.title;
+            setCaenCode(selection.code);
+            setActivity(nextActivity);
+            updateDossier({
+              codCaenPrincipal: selection.code,
+              activitateDescriere: nextActivity,
+            });
+            toast.success(`CAEN ${selection.code} selectat.`, {
+              description: selection.title,
+            });
+          }}
+        />
       </Card>
 
       <div className="space-y-3">

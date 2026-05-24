@@ -21,6 +21,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { PfaFormField } from "@/components/pfa/pfa-form-field";
 import { PdfIframePreview, PdfPreview } from "@/components/pfa/pdf-preview";
 import { SubmissionStrip } from "@/components/pfa/submission-strip";
+import { CaenSuggestDialog } from "@/components/pfa/caen-suggest-dialog";
 import { isCollapsibleField } from "@/data/forms/pfa/field-labels.ro";
 import {
   buildZodSchema,
@@ -31,6 +32,7 @@ import {
   loadPfaTemplate,
   mapVaultToFormValues,
   type FormValues,
+  type TemplateField,
   type PfaFormTemplate,
   type WidgetRect,
 } from "@/services/forms";
@@ -53,6 +55,47 @@ function hasAnyValue(values: FormValues): boolean {
   );
 }
 
+function isCaenLikeField(field: TemplateField): boolean {
+  const haystack = `${field.pdfFieldName} ${field.label}`.toLowerCase();
+  return /caen|cod.*activit/.test(haystack);
+}
+
+function inferDescriptionFieldName(targetFieldName: string, fields: TemplateField[]): string | null {
+  const clasa = /^clasa_caen\.(\d+)\.(\d+)$/.exec(targetFieldName);
+  if (clasa) {
+    const candidate = `clasa_caen_desc.${clasa[1]}.${clasa[2]}`;
+    return fields.some((f) => f.pdfFieldName === candidate) ? candidate : null;
+  }
+  const sediu = /^sedii_sec_caen\.(\d+)\.(\d+)$/.exec(targetFieldName);
+  if (sediu) {
+    const candidate = `sedii_sec_caen_desc.${sediu[1]}.${sediu[2]}`;
+    return fields.some((f) => f.pdfFieldName === candidate) ? candidate : null;
+  }
+  const generic = targetFieldName.replace(/caen/i, "caen_desc");
+  if (generic !== targetFieldName && fields.some((f) => f.pdfFieldName === generic)) {
+    return generic;
+  }
+  return null;
+}
+
+function inferCodeFieldName(targetFieldName: string, fields: TemplateField[]): string | null {
+  const clasa = /^clasa_caen_desc\.(\d+)\.(\d+)$/.exec(targetFieldName);
+  if (clasa) {
+    const candidate = `clasa_caen.${clasa[1]}.${clasa[2]}`;
+    return fields.some((f) => f.pdfFieldName === candidate) ? candidate : null;
+  }
+  const sediu = /^sedii_sec_caen_desc\.(\d+)\.(\d+)$/.exec(targetFieldName);
+  if (sediu) {
+    const candidate = `sedii_sec_caen.${sediu[1]}.${sediu[2]}`;
+    return fields.some((f) => f.pdfFieldName === candidate) ? candidate : null;
+  }
+  const generic = targetFieldName.replace(/caen_desc/i, "caen");
+  if (generic !== targetFieldName && fields.some((f) => f.pdfFieldName === generic)) {
+    return generic;
+  }
+  return null;
+}
+
 function PfaFormFillPage() {
   const { id, formId } = Route.useParams();
   const { autofill } = Route.useSearch();
@@ -61,6 +104,8 @@ function PfaFormFillPage() {
   const setFormDraft = usePfaDossier((s) => s.setFormDraft);
   const setCardStatus = usePfaDossier((s) => s.setCardStatus);
   const syncFromProfile = usePfaDossier((s) => s.syncFromProfile);
+  const updateDossier = usePfaDossier((s) => s.updateDossier);
+  const dossierActivity = usePfaDossier((s) => s.activitateDescriere);
 
   const template = loadPfaTemplate(formId);
   const [pdfOriginalBytes, setPdfOriginalBytes] = useState<ArrayBuffer | null>(null);
@@ -72,6 +117,8 @@ function PfaFormFillPage() {
   const [widgetRects, setWidgetRects] = useState<WidgetRect[]>([]);
   const [focusedField, setFocusedField] = useState<string | null>(null);
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const [caenDialogOpen, setCaenDialogOpen] = useState(false);
+  const [caenTargetField, setCaenTargetField] = useState<string | null>(null);
   const pdfScrollRef = useRef<HTMLDivElement>(null);
   const initKeyRef = useRef<string | null>(null);
 
@@ -250,6 +297,11 @@ function PfaFormFillPage() {
     }
   };
 
+  const caenInitialActivity =
+    (typeof (caenTargetField ? watchedValues?.[caenTargetField] : undefined) === "string"
+      ? String(watchedValues?.[caenTargetField] ?? "")
+      : "") || dossierActivity;
+
   return (
     <AppShell>
       <PageHeader
@@ -329,6 +381,14 @@ function PfaFormFillPage() {
                             }
                             onFocus={() => setFocusedField(field.pdfFieldName)}
                             highlight={lowConfidence.includes(field.pdfFieldName)}
+                            onCaenAssist={
+                              isCaenLikeField(field)
+                                ? () => {
+                                    setCaenTargetField(field.pdfFieldName);
+                                    setCaenDialogOpen(true);
+                                  }
+                                : undefined
+                            }
                           />
                         ))}
                       </div>
@@ -411,6 +471,42 @@ function PfaFormFillPage() {
           </Card>
         </div>
       </div>
+      <CaenSuggestDialog
+        open={caenDialogOpen}
+        onOpenChange={setCaenDialogOpen}
+        initialActivity={caenInitialActivity}
+        onSelect={(selection) => {
+          if (!caenTargetField) return;
+
+          const isDescriptionTarget = /desc|descriere|activit/i.test(caenTargetField);
+          const codeField = isDescriptionTarget
+            ? inferCodeFieldName(caenTargetField, visibleFields)
+            : caenTargetField;
+          const descriptionField = isDescriptionTarget
+            ? caenTargetField
+            : inferDescriptionFieldName(caenTargetField, visibleFields);
+
+          if (codeField) {
+            form.setValue(codeField, selection.code, { shouldValidate: true, shouldDirty: true });
+          }
+          if (descriptionField) {
+            form.setValue(descriptionField, selection.title, {
+              shouldValidate: true,
+              shouldDirty: true,
+            });
+          }
+
+          const nextValues = form.getValues();
+          setFormDraft(formId, nextValues);
+          updateDossier({
+            codCaenPrincipal: selection.code,
+            activitateDescriere: selection.title,
+          });
+          toast.success(`CAEN ${selection.code} aplicat în formular.`, {
+            description: selection.title,
+          });
+        }}
+      />
     </AppShell>
   );
 }
